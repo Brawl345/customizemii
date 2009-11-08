@@ -1,0 +1,62 @@
+#summary The Readme of CustomizeMii
+#labels Featured
+
+*CustomizeMii* is a 100% legal custom Channel creator for the Wii.<br>
+It's completely written by myself (some parts are based on other 100% legal codes).<br>
+Use legal Base WADs to create your own legal custom Homebrew Channels.<br>
+The .NET Framework 2.0 is required to run this application!<br>
+<br>
+For any further information, see: http://customizemii.googlecode.com<br>
+Please use the Issue Tracker there to report any occuring bugs.<br>
+<br>
+Please Note: This is a clone of the original Channel Making Application by icefire / Xuzz.<br>
+I decided to do it, because Xuzz gave up the work on his application and<br>
+the last beta Version he left creates bricking WADs.<br>
+<br>
+-----------------------------------------------------------------------------------------
+==Changelog:==
+
+===Version 1.0===
+	* Initial Release
+-----------------------------------------------------------------------------------------
+<br>
+-----------------------------------------------------------------------------------------
+==Disclaimer:==
+
+Editing WAD files can result in a brick of your Wii.<br>
+Only use these features if you have a bricksafe Wii, meaning either Preloader or<br>
+BootMii/boot2 is installed, and if you know what you're doing.<br>
+<br>
+This application comes without any express or implied warranty.<br>
+The author can't be held responsible for any damages arising from the use of it.
+-----------------------------------------------------------------------------------------
+<br>
+-----------------------------------------------------------------------------------------
+==Thanks:==
+
+Xuzz for his idea and hard work<br>
+Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py<br>
+SquidMan for Zetsubou<br>
+Andre Perrot for gbalzss<br>
+comex and Waninkoko for both their NAND Loader<br>
+-----------------------------------------------------------------------------------------
+<br>
+-----------------------------------------------------------------------------------------
+==License:==
+
+Copyright (C) 2009 Leathl<br>
+<br>
+CustomizeMii is free software; you can redistribute it and/or<br>
+modify it under the terms of the GNU General Public License<br>
+as published by the Free Software Foundation; either version 2<br>
+of the License, or (at your option) any later version.<br>
+<br>
+CustomizeMii is distributed in the hope that it will be useful,<br>
+but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
+GNU General Public License for more details.<br>
+<br>
+You should have received a copy of the GNU General Public License<br>
+along with this program; if not, write to the Free Software<br>
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-----------------------------------------------------------------------------------------

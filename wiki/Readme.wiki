@@ -46,17 +46,16 @@ comex and Waninkoko for both their NAND Loader<br>
 
 Copyright (C) 2009 Leathl<br>
 <br>
-CustomizeMii is free software; you can redistribute it and/or<br>
-modify it under the terms of the GNU General Public License<br>
-as published by the Free Software Foundation; either version 2<br>
-of the License, or (at your option) any later version.<br>
+CustomizeMii is free software: you can redistribute it and/or<br>
+modify it under the terms of the GNU General Public License as published<br>
+by the Free Software Foundation, either version 3 of the License, or<br>
+(at your option) any later version.<br>
 <br>
-CustomizeMii is distributed in the hope that it will be useful,<br>
-but WITHOUT ANY WARRANTY; without even the implied warranty of<br>
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
+CustomizeMii is distributed in the hope that it will be<br>
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty<br>
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br>
 GNU General Public License for more details.<br>
 <br>
 You should have received a copy of the GNU General Public License<br>
-along with this program; if not, write to the Free Software<br>
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------------------

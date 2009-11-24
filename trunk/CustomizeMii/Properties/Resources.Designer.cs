@@ -60,13 +60,6 @@ namespace CustomizeMii.Properties {
             }
         }
         
-        internal static byte[] comex {
-            get {
-                object obj = ResourceManager.GetObject("comex", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
         internal static System.Drawing.Icon CustomizeMii {
             get {
                 object obj = ResourceManager.GetObject("CustomizeMii", resourceCulture);
@@ -74,17 +67,19 @@ namespace CustomizeMii.Properties {
             }
         }
         
-        internal static byte[] Tmd_Contents {
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die {\rtf1\ansi\ansicpg1252\deff0\deflang1031{\fonttbl{\f0\fnil\fcharset0 Arial;}}
+        ///{\colortbl ;\red255\green0\blue0;\red0\green0\blue255;}
+        ///{\*\generator Msftedit 5.41.21.2509;}\viewkind4\uc1\pard\sa200\sl276\slmult1\b\fs20 These are some basic instructions for CustomizeMii.\b0\par
+        ///\par
+        ///\cf1 At the very beginning, let me say this again: Don&apos;t install any WADs without a proper brick protection!\cf0\par
+        ///\par
+        ///Ok, so you want to create your own custom channels?\par
+        ///First it is important to understand how the  [Rest der Zeichenfolge wurde abgeschnitten]&quot;; ähnelt.
+        /// </summary>
+        internal static string Instructions {
             get {
-                object obj = ResourceManager.GetObject("Tmd_Contents", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        internal static byte[] Waninkoko {
-            get {
-                object obj = ResourceManager.GetObject("Waninkoko", resourceCulture);
-                return ((byte[])(obj));
+                return ResourceManager.GetString("Instructions", resourceCulture);
             }
         }
     }

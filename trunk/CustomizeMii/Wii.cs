@@ -1,19 +1,18 @@
 ﻿/* This file is part of ShowMiiWads
  * Copyright (C) 2009 Leathl
  * 
- * ShowMiiWads is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * ShowMiiWads is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * ShowMiiWads is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ShowMiiWads is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 //Wii.py by Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man was the base for TPL conversion
@@ -397,6 +396,40 @@ namespace Wii
             }
 
             return ba;
+        }
+        
+        /// <summary>
+        /// Checks, if the given string does exist in the string Array
+        /// </summary>
+        /// <param name="theString"></param>
+        /// <param name="theStringArray"></param>
+        /// <returns></returns>
+        public static bool StringExistsInStringArray(string theString, string[] theStringArray)
+        {
+            return Array.Exists(theStringArray, thisString => thisString == theString);
+        }
+
+        /// <summary>
+        /// Copies an entire Directoy
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        public static void CopyDirectory(string source, string destination)
+        {
+            string[] subdirs = Directory.GetDirectories(source);
+            string[] files = Directory.GetFiles(source);
+
+            foreach (string thisFile in files)
+            {
+                if (!Directory.Exists(destination)) Directory.CreateDirectory(destination);
+                if (File.Exists(destination + "\\" + Path.GetFileName(thisFile))) File.Delete(destination + "\\" + Path.GetFileName(thisFile));
+                File.Copy(thisFile, destination + "\\" + Path.GetFileName(thisFile));
+            }
+
+            foreach (string thisDir in subdirs)
+            {
+                CopyDirectory(thisDir, destination + "\\" + thisDir.Remove(0, thisDir.LastIndexOf('\\') + 1));
+            }
         }
     }
 
@@ -2190,6 +2223,20 @@ namespace Wii
         /// </summary>
         /// <param name="wadfile"></param>
         /// <returns></returns>
+        public static void UnpackNullApp(string wadfile, string destination)
+        {
+            if (!destination.EndsWith(".app")) destination += "\\00000000.app";
+
+            byte[] wad = Tools.LoadFileToByteArray(wadfile);
+            byte[] nullapp = UnpackNullApp(wad);
+            Tools.SaveFileFromByteArray(nullapp, destination);
+        }
+
+        /// <summary>
+        /// Unpacks the 00000000.app of a wad
+        /// </summary>
+        /// <param name="wadfile"></param>
+        /// <returns></returns>
         public static byte[] UnpackNullApp(byte[] wadfile)
         {
             int certsize = WadInfo.GetCertSize(wadfile);
@@ -2487,8 +2534,11 @@ namespace Wii
             {
                 Tools.ChangeProgress((i + 1) * 100 / contents.GetLength(0));
                 byte[] thiscont = Tools.LoadFileToByteArray(contentdirectory + contents[i, 1] + ".app");
-                if (i == contents.GetLength(0) - 1) { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, false); }
-                else { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, true); }
+
+                //if (i == contents.GetLength(0) - 1) { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, false); }
+                //else { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, true); }
+                thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, true);
+
                 wadstream.Seek(contpos, SeekOrigin.Begin);
                 wadstream.Write(thiscont, 0, thiscont.Length);
                 contpos += thiscont.Length;
@@ -2605,8 +2655,10 @@ namespace Wii
                 }
                 else thiscont = Tools.LoadFileToByteArray(contentdir + contents[i, 0] + ".app");
 
-                if (i == contents.GetLength(0) - 1) { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, false); }
-                else { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, true); }
+                //if (i == contents.GetLength(0) - 1) { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, false); }
+                //else { thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, true); }
+                thiscont = WadEdit.EncryptContent(thiscont, tmd, i, titlekey, true);
+
                 wadstream.Seek(contpos, SeekOrigin.Begin);
                 wadstream.Write(thiscont, 0, thiscont.Length);
                 contpos += thiscont.Length;
@@ -3212,7 +3264,7 @@ namespace Wii
                         else
                         {
                             FileInfo fibanner = new FileInfo(rootpath + files[i]);
-                            bannersize = (int)fibanner.Length;
+                            bannersize = (int)fibanner.Length - 32;
                         }
                     }
                     else if (files[i].EndsWith("icon.bin"))
@@ -3236,7 +3288,7 @@ namespace Wii
                         else
                         {
                             FileInfo fiicon = new FileInfo(rootpath + files[i]);
-                            iconsize = (int)fiicon.Length;
+                            iconsize = (int)fiicon.Length - 32;
                         }
                     }
                     else if (files[i].EndsWith("sound.bin"))
@@ -3261,7 +3313,7 @@ namespace Wii
                         else
                         {
                             FileInfo fisound = new FileInfo(rootpath + files[i]);
-                            soundsize = (int)fisound.Length;
+                            soundsize = (int)fisound.Length - 32;
                         }
                     }
 
@@ -4543,7 +4595,7 @@ namespace Wii
                             int r = (pixel >> 8);// &0xff;
                             int g = (pixel >> 8);// &0xff;
                             int b = (pixel >> 8);// &0xff;
-                            int a = pixel & 0xff;
+                            int a = (pixel >> 8) & 0xff;
 
                             int rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
                             output[y1 * width + x1] = (UInt32)rgba;
@@ -5000,25 +5052,14 @@ namespace Wii
                 {
                     if (Directory.Exists(upperdirs[j] + "\\data"))
                     {
-                        string[] datafiles = Directory.GetFiles(upperdirs[j] + "\\data");
-
-                        if (datafiles.Length > 0)
+                        if (Directory.GetFiles(upperdirs[j] + "\\data").Length > 0 ||
+                            Directory.GetDirectories(upperdirs[j] + "\\data").Length > 0)
                         {
-                            string destdatadir = (upperdirs[j] + "\\data").Replace(nandpath, destinationpath).Replace("\\title", "");
-                            if (!Directory.Exists(destdatadir)) Directory.CreateDirectory(destdatadir);
-
-                            foreach (string thisFile in datafiles)
-                            {
-                                string destfile = thisFile.Replace(nandpath, destinationpath).Replace("\\title", "");
-                                if (File.Exists(destfile)) File.Delete(destfile);
-                                File.Copy(thisFile, destfile);
-                            }
+                            Tools.CopyDirectory(upperdirs[j] + "\\data", (upperdirs[j] + "\\data").Replace(nandpath, destinationpath).Replace("\\title", ""));
                         }
                     }
                 }
             }
-
-            Tools.ChangeProgress(100);
         }
 
         /// <summary>
@@ -5042,16 +5083,12 @@ namespace Wii
                     string[] datafiles = Directory.GetFiles(upperdirs[j] + "\\data");
                     string upperdirnand = upperdirs[j].Replace(backuppath, titlefolder);
 
-                    if (Directory.Exists(upperdirnand) && datafiles.Length > 0)
+                    if (Directory.Exists(upperdirnand) &&
+                        (Directory.GetFiles(upperdirs[j] + "\\data").Length > 0 ||
+                         Directory.GetDirectories(upperdirs[j] + "\\data").Length > 0))
                     {
                         if (!Directory.Exists(upperdirnand + "\\data")) Directory.CreateDirectory(upperdirnand + "\\data");
-
-                        foreach (string thisFile in datafiles)
-                        {
-                            string destfile = thisFile.Replace(backuppath, titlefolder);
-                            if (File.Exists(destfile)) File.Delete(destfile);
-                            File.Copy(thisFile, destfile);
-                        }
+                        Tools.CopyDirectory(upperdirs[j] + "\\data", (upperdirs[j] + "\\data").Replace(backuppath, titlefolder));
                     }
                 }
             }
@@ -5068,30 +5105,19 @@ namespace Wii
         public static void BackupSingleSave(string nandpath, string titlepath, string destinationpath)
         {
             string datafolder = nandpath + "\\title\\" + titlepath + "\\data";
-            string[] datafiles = Directory.GetFiles(datafolder);
-            Tools.ChangeProgress(0);
 
-            if (datafiles.Length > 0)
+            if (Directory.GetFiles(datafolder).Length > 0 ||
+                Directory.GetDirectories(datafolder).Length > 0)
             {
                 string savefolder = datafolder.Replace(nandpath, destinationpath).Replace("\\title", "");
                 if (!Directory.Exists(savefolder)) Directory.CreateDirectory(savefolder);
-                int counter = 0;
 
-                foreach (string thisFile in datafiles)
-                {
-                    Tools.ChangeProgress(++counter * 100 / datafiles.Length);
-                    string savefile = thisFile.Replace(nandpath, destinationpath).Replace("\\title", "");
-                    if (File.Exists(savefile)) File.Delete(savefile);
-                    File.Copy(thisFile, savefile);
-                }
+                Tools.CopyDirectory(datafolder, savefolder);
             }
             else
             {
-                Tools.ChangeProgress(100);
                 throw new Exception("No save data was found!");
             }
-
-            Tools.ChangeProgress(100);
         }
 
         /// <summary>
@@ -5104,29 +5130,18 @@ namespace Wii
         {
             string titlefoldernand = nandpath + "\\title\\" + titlepath;
             string titlefolder = titlefoldernand.Replace(nandpath, backuppath).Replace("\\title", "");
-            Tools.ChangeProgress(0);
 
-            if (Directory.Exists(titlefoldernand))
+            if (Directory.Exists(titlefoldernand) &&
+                (Directory.GetFiles(titlefolder + "\\data").Length > 0 ||
+                 Directory.GetDirectories(titlefolder + "\\data").Length > 0))
             {
                 if (!Directory.Exists(titlefoldernand + "\\data")) Directory.CreateDirectory(titlefoldernand + "\\data");
-                string[] datafiles = Directory.GetFiles(titlefolder + "\\data");
-                int counter = 0;
-
-                foreach (string thisFile in datafiles)
-                {
-                    Tools.ChangeProgress(++counter * 100 / datafiles.Length);
-                    string nandfile = thisFile.Replace(titlefolder, titlefoldernand);
-                    if (File.Exists(nandfile)) File.Delete(nandfile);
-                    File.Copy(thisFile, nandfile);
-                }
+                Tools.CopyDirectory(titlefolder + "\\data", titlefoldernand + "\\data");
             }
             else
             {
-                Tools.ChangeProgress(100);
                 throw new Exception("Title not found in NAND Backup!");
             }
-
-            Tools.ChangeProgress(100);
         }
 
         /// <summary>
@@ -5165,6 +5180,298 @@ namespace Wii
                 if (datafiles.Length > 0) return true;
                 else return false;
             }
+        }
+    }
+
+    public class Sound
+    {
+        /// <summary>
+        /// Checks if the given Wave is a proper PCM WAV file
+        /// </summary>
+        /// <param name="wavefile"></param>
+        /// <returns></returns>
+        public static bool CheckWave(string wavefile)
+        {
+            byte[] wave = Tools.LoadFileToByteArray(wavefile, 0, 256);
+            return CheckWave(wave);
+        }
+
+        /// <summary>
+        /// Checks if the given Wave is a proper PCM WAV file
+        /// </summary>
+        /// <param name="wavefile"></param>
+        /// <returns></returns>
+        public static bool CheckWave(byte[] wavefile)
+        {
+            if (wavefile[0] != 'R' ||
+                wavefile[1] != 'I' ||
+                wavefile[2] != 'F' ||
+                wavefile[3] != 'F' ||
+
+                wavefile[8] != 'W' ||
+                wavefile[9] != 'A' ||
+                wavefile[10] != 'V' ||
+                wavefile[11] != 'E' ||
+
+                wavefile[12] != 'f' ||
+                wavefile[13] != 'm' ||
+                wavefile[14] != 't' ||
+
+                wavefile[20] != 0x01 || //Format = PCM
+                wavefile[21] != 0x00 ||
+
+                wavefile[34] != 0x10 || //Bitrate (16bit)
+                wavefile[35] != 0x00
+                ) return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the playlength of the Wave file in seconds
+        /// </summary>
+        /// <param name="wavefile"></param>
+        /// <returns></returns>
+        public static int GetWaveLength(string wavefile)
+        {
+            byte[] wave = Tools.LoadFileToByteArray(wavefile, 0, 256);
+            return GetWaveLength(wave);
+        }
+
+        /// <summary>
+        /// Returns the playlength of the Wave file in seconds
+        /// </summary>
+        /// <param name="wavefile"></param>
+        /// <returns></returns>
+        public static int GetWaveLength(byte[] wavefile)
+        {
+            if (CheckWave(wavefile) == true)
+            {
+                byte[] BytesPerSec = new byte[] { wavefile[28], wavefile[29], wavefile[30], wavefile[31] };
+                int bps = BitConverter.ToInt32(BytesPerSec, 0);
+
+                byte[] Chunksize = new byte[] { wavefile[4], wavefile[5], wavefile[6], wavefile[7] };
+                int chunks = BitConverter.ToInt32(Chunksize, 0);
+
+                return Math.Abs(chunks / bps);
+            }
+            else
+                throw new Exception("This is not a supported PCM Wave file!");
+        }
+
+        /// <summary>
+        /// Converts a wave file to a sound.bin
+        /// </summary>
+        /// <param name="wavefile"></param>
+        /// <param name="soundbin"></param>
+        public static void WaveToSoundBin(string wavefile, string soundbin, bool compress)
+        {
+            if (CheckWave(wavefile) == true)
+            {
+                byte[] sound = Tools.LoadFileToByteArray(wavefile);
+                if (compress == true) sound = Lz77.Compress(sound);
+                sound = U8.AddHeaderIMD5(sound);
+                Wii.Tools.SaveFileFromByteArray(sound, soundbin);
+            }
+            else
+                throw new Exception("This is not a supported 16bit PCM Wave file!");
+        }
+
+        /// <summary>
+        /// Converts a sound.bin to a wave file
+        /// </summary>
+        /// <param name="soundbin"></param>
+        /// <param name="wavefile"></param>
+        public static void SoundBinToWave(string soundbin, string wavefile)
+        {
+            MemoryStream ms = new MemoryStream(Tools.LoadFileToByteArray(soundbin));
+            byte[] wave = new byte[ms.Length - 32];
+            int offset = 0;
+
+            ms.Seek(32, SeekOrigin.Begin);
+            ms.Read(wave, 0, wave.Length);
+
+            if ((offset = Lz77.GetLz77Offset(wave)) != -1)
+                wave = Lz77.Decompress(wave, offset);
+
+            Tools.SaveFileFromByteArray(wave, wavefile);
+        }
+    }
+
+    public class Brlyt
+    {
+        /// <summary>
+        /// Checks, if the TPLs match the TPLs specified in the brlyt
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <param name="tpls"></param>
+        /// <returns></returns>
+        public static bool CheckBrlytTpls(string brlyt, string[] tpls)
+        {
+            byte[] brlytArray = Tools.LoadFileToByteArray(brlyt);
+            return CheckBrlytTpls(brlytArray, tpls);
+        }
+
+        /// <summary>
+        /// Checks, if the TPLs match the TPLs specified in the brlyt
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <param name="tpls"></param>
+        /// <returns></returns>
+        public static bool CheckBrlytTpls(byte[] brlyt, string[] tpls)
+        {
+            int texcount = Tools.HexStringToInt(brlyt[44].ToString("x2") + brlyt[45].ToString("x2"));
+            if (tpls.Length != texcount) return false;
+
+            int texnamepos = 48 + (texcount * 8);
+            for (int i = 0; i < texcount; i++)
+            {
+                string thisTex = "";
+                while (brlyt[texnamepos] != 0x00)
+                {
+                    thisTex += Convert.ToChar(brlyt[texnamepos]);
+                    texnamepos++;
+                }
+                texnamepos++;
+
+                bool exists = Array.Exists(tpls,tpl => tpl == thisTex);
+                if (exists == false) return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks, if one or more Tpls specified in the brlyt are missing and returns 
+        /// the names of the missing ones.
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <param name="tpls"></param>
+        /// <param name="missingtpls"></param>
+        /// <returns></returns>
+        public static bool CheckForMissingTpls(string brlyt, string[] tpls, out string[] missingtpls)
+        {
+            byte[] brlytArray = Tools.LoadFileToByteArray(brlyt);
+            return CheckForMissingTpls(brlytArray, tpls, out missingtpls);
+        }
+
+        /// <summary>
+        /// Checks, if one or more Tpls specified in the brlyt are missing and returns 
+        /// the names of the missing ones.
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <param name="tpls"></param>
+        /// <param name="missingtpls"></param>
+        /// <returns></returns>
+        public static bool CheckForMissingTpls(byte[] brlyt, string[] tpls, out string[] missingtpls)
+        {
+            List<string> missings = new List<string>();
+            string[] brlytTpls = GetBrlytTpls(brlyt);
+            bool missing = false;
+
+            for (int i = 0; i < brlytTpls.Length; i++)
+            {
+                if (Tools.StringExistsInStringArray(brlytTpls[i], tpls) == false)
+                {
+                    missings.Add(brlytTpls[i]);
+                    missing = true;
+                }
+            }
+
+            missingtpls = missings.ToArray();
+            return missing;
+        }
+
+        /// <summary>
+        /// Checks, if one or more Tpls are not specified in the brlyt and returns 
+        /// the names of the missing ones.
+        /// </summary>
+        /// <param name="brly"></param>
+        /// <param name="tpls"></param>
+        /// <param name="unusedtpls"></param>
+        /// <returns></returns>
+        public static bool CheckForUnusedTpls(string brlyt, string[] tpls, out string[] unusedtpls)
+        {
+            byte[] brlytArray = Tools.LoadFileToByteArray(brlyt);
+            return CheckForUnusedTpls(brlytArray, tpls, out unusedtpls);
+        }
+
+        /// <summary>
+        /// Checks, if one or more Tpls are not specified in the brlyt and returns 
+        /// the names of the missing ones.
+        /// </summary>
+        /// <param name="brly"></param>
+        /// <param name="tpls"></param>
+        /// <param name="unusedtpls"></param>
+        /// <returns></returns>
+        public static bool CheckForUnusedTpls(byte[] brlyt, string[] tpls, out string[] unusedtpls)
+        {
+            List<string> unuseds = new List<string>();
+            string[] brlytTpls = GetBrlytTpls(brlyt);
+            bool missing = false;
+
+            for (int i = 0; i < tpls.Length; i++)
+            {
+                if (Tools.StringExistsInStringArray(tpls[i], brlytTpls) == false)
+                {
+                    unuseds.Add(tpls[i]);
+                    missing = true;
+                }
+            }
+
+            unusedtpls = unuseds.ToArray();
+            return missing;
+        }
+
+        /// <summary>
+        /// Returns the name of all Tpls specified in the brlyt
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <returns></returns>
+        public static string[] GetBrlytTpls(string brlyt)
+        {
+            byte[] temp = Tools.LoadFileToByteArray(brlyt);
+            return GetBrlytTpls(temp);
+        }
+
+        /// <summary>
+        /// Returns the name of all Tpls specified in the brlyt
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <returns></returns>
+        public static string[] GetBrlytTpls(byte[] brlyt)
+        {
+            int texcount = Tools.HexStringToInt(brlyt[44].ToString("x2") + brlyt[45].ToString("x2"));
+            int texnamepos = 48 + (texcount * 8);
+            List<string> Tpls = new List<string>();
+
+            for (int i = 0; i < texcount; i++)
+            {
+                string thisTex = "";
+                while (brlyt[texnamepos] != 0x00)
+                {
+                    thisTex += Convert.ToChar(brlyt[texnamepos]);
+                    texnamepos++;
+                }
+                Tpls.Add(thisTex);
+                texnamepos++;
+            }
+
+            return Tpls.ToArray();
+        }
+
+        /// <summary>
+        /// Returns true, if the given Tpl is specified in the brlyt.
+        /// TplName must end with ".tpl"!
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <param name="TplName"></param>
+        /// <returns></returns>
+        public static bool IsTplInBrlyt(byte[] brlyt, string TplName)
+        {
+            string[] brlytTpls = GetBrlytTpls(brlyt);
+            bool exists = Array.Exists(brlytTpls, Tpl => Tpl == TplName);
+            return exists;
         }
     }
 

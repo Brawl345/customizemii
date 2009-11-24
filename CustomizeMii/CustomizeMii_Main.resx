@@ -125,12 +125,10 @@ SquidMan for Zetsubou
 Andre Perrot for gbalzss
 comex and Waninkoko for both their NAND Loader</value>
   </data>
-  <data name="lbCreditInfo.Text" xml:space="preserve">
-    <value>This is a clone of the original Channel Making Application by icefire / Xuzz.
-I decided to do it, because Xuzz gave up the work on his application and
-the last beta Version he left creates bricking WADs.</value>
-  </data>
   <metadata name="ssMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>16, 7</value>
+  </metadata>
+  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>42</value>
   </metadata>
 </root>

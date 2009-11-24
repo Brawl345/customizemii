@@ -1,17 +1,27 @@
-CustomizeMii is a 100% legal custom Channel creator for the Wii.
+CustomizeMii is a 100% legal custom channel creator for the Wii.
 It's completely written by myself (some parts are based on other 100% legal codes).
-Use legal Base WADs to create your own legal custom Homebrew Channels.
+Use legal Base WADs to create your own legal custom channels.
 The .NET Framework 2.0 is required to run this application!
 
 For any further information, see: http://customizemii.googlecode.com
 Please use the Issue Tracker there to report any occuring bugs.
 
-Please Note: This is a clone of the original Channel Making Application by icefire / Xuzz.
-I decided to do it, because Xuzz gave up the work on his application and
-the last beta Version he left creates bricking WADs.
+Thanks to icefire / Xuzz for the basic idea of this Application!
 
 -----------------------------------------------------------------------------------------
 Changelog:
+
+Version 1.1
+	- Note: License upgraded to GNU GPL v3!
+	- Sound is working now
+	- Added brlan and brlyt tabs (for advanced users)
+	- Added displaying of image width and height in preview window
+	- Added "Make Transparent" checkbox for TPLs
+	- Fixed IA8 previewing / extracting
+	- Improved bricksafety (hopefully!)
+	- Added Tooltips
+	- Added update check at startup
+	- Wrote basic instructions (see Instructions.txt or instructions tab)
 
 Version 1.0
 	- Initial Release
@@ -43,17 +53,16 @@ License:
 
 Copyright (C) 2009 Leathl
 
-CustomizeMii is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
- 
-CustomizeMii is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+CustomizeMii is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+CustomizeMii is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -----------------------------------------------------------------------------------------

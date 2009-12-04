@@ -1,12 +1,12 @@
-﻿/* This file is part of CustomizeMii
+﻿/* This file is part of TransmitMii
  * Copyright (C) 2009 Leathl
  * 
- * CustomizeMii is free software: you can redistribute it and/or
+ * TransmitMii is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * CustomizeMii is distributed in the hope that it will be
+ * TransmitMii is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
  * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -18,7 +18,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace CustomizeMii
+namespace TransmitMii
 {
     static class Program
     {
@@ -26,11 +26,15 @@ namespace CustomizeMii
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new CustomizeMii_Main());
+
+            if (args.Length > 0)
+                Application.Run(new TransmitMii_Main(args));
+            else
+                Application.Run(new TransmitMii_Main());
         }
     }
 }

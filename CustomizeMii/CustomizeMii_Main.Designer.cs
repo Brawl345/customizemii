@@ -45,6 +45,7 @@ namespace CustomizeMii
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomizeMii_Main));
             this.btnCreateWad = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
@@ -79,6 +80,8 @@ namespace CustomizeMii
             this.tbAllLanguages = new System.Windows.Forms.TextBox();
             this.lbAllLanguages = new System.Windows.Forms.Label();
             this.tabOptions = new System.Windows.Forms.TabPage();
+            this.btnForwarder = new System.Windows.Forms.Button();
+            this.cbFailureChecks = new System.Windows.Forms.CheckBox();
             this.cbLz77 = new System.Windows.Forms.CheckBox();
             this.lbOptionsOptional = new System.Windows.Forms.Label();
             this.btnBrowseSound = new System.Windows.Forms.Button();
@@ -144,6 +147,9 @@ namespace CustomizeMii
             this.lbStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbStatusText = new System.Windows.Forms.ToolStripStatusLabel();
             this.pbProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.cmForwarder = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmSimpleForwarder = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmComplexForwarder = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl.SuspendLayout();
             this.tabSource.SuspendLayout();
             this.tabTitle.SuspendLayout();
@@ -155,6 +161,7 @@ namespace CustomizeMii
             this.tabInstructions.SuspendLayout();
             this.tabCredits.SuspendLayout();
             this.ssMain.SuspendLayout();
+            this.cmForwarder.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCreateWad
@@ -507,6 +514,8 @@ namespace CustomizeMii
             // 
             // tabOptions
             // 
+            this.tabOptions.Controls.Add(this.btnForwarder);
+            this.tabOptions.Controls.Add(this.cbFailureChecks);
             this.tabOptions.Controls.Add(this.cbLz77);
             this.tabOptions.Controls.Add(this.lbOptionsOptional);
             this.tabOptions.Controls.Add(this.btnBrowseSound);
@@ -527,6 +536,26 @@ namespace CustomizeMii
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
             // 
+            // btnForwarder
+            // 
+            this.btnForwarder.Location = new System.Drawing.Point(360, 109);
+            this.btnForwarder.Name = "btnForwarder";
+            this.btnForwarder.Size = new System.Drawing.Size(75, 23);
+            this.btnForwarder.TabIndex = 13;
+            this.btnForwarder.Text = "Forwarder...";
+            this.btnForwarder.UseVisualStyleBackColor = true;
+            this.btnForwarder.Click += new System.EventHandler(this.btnForwarder_Click);
+            // 
+            // cbFailureChecks
+            // 
+            this.cbFailureChecks.AutoSize = true;
+            this.cbFailureChecks.Location = new System.Drawing.Point(263, 180);
+            this.cbFailureChecks.Name = "cbFailureChecks";
+            this.cbFailureChecks.Size = new System.Drawing.Size(172, 17);
+            this.cbFailureChecks.TabIndex = 12;
+            this.cbFailureChecks.Text = "/!\\ Turn off security checks /!\\";
+            this.cbFailureChecks.UseVisualStyleBackColor = true;
+            // 
             // cbLz77
             // 
             this.cbLz77.AutoSize = true;
@@ -539,7 +568,7 @@ namespace CustomizeMii
             // 
             // lbOptionsOptional
             // 
-            this.lbOptionsOptional.Location = new System.Drawing.Point(-7, 9);
+            this.lbOptionsOptional.Location = new System.Drawing.Point(-7, 8);
             this.lbOptionsOptional.Name = "lbOptionsOptional";
             this.lbOptionsOptional.Size = new System.Drawing.Size(457, 34);
             this.lbOptionsOptional.TabIndex = 10;
@@ -892,7 +921,7 @@ namespace CustomizeMii
             this.tabBrlyt.Padding = new System.Windows.Forms.Padding(3);
             this.tabBrlyt.Size = new System.Drawing.Size(443, 209);
             this.tabBrlyt.TabIndex = 6;
-            this.tabBrlyt.Text = "brlyt";
+            this.tabBrlyt.Text = "Layout";
             this.tabBrlyt.UseVisualStyleBackColor = true;
             // 
             // btnBrlytListTpls
@@ -999,7 +1028,7 @@ namespace CustomizeMii
             this.tabBrlan.Padding = new System.Windows.Forms.Padding(3);
             this.tabBrlan.Size = new System.Drawing.Size(443, 209);
             this.tabBrlan.TabIndex = 7;
-            this.tabBrlan.Text = "brlan";
+            this.tabBrlan.Text = "Animation";
             this.tabBrlan.UseVisualStyleBackColor = true;
             // 
             // lbBrlanWarning
@@ -1107,7 +1136,7 @@ namespace CustomizeMii
             this.tabInstructions.Padding = new System.Windows.Forms.Padding(3);
             this.tabInstructions.Size = new System.Drawing.Size(443, 209);
             this.tabInstructions.TabIndex = 8;
-            this.tabInstructions.Text = "Instructions";
+            this.tabInstructions.Text = "Help";
             this.tabInstructions.UseVisualStyleBackColor = true;
             // 
             // rtbInstructions
@@ -1133,7 +1162,7 @@ namespace CustomizeMii
             this.tabCredits.Padding = new System.Windows.Forms.Padding(3);
             this.tabCredits.Size = new System.Drawing.Size(443, 209);
             this.tabCredits.TabIndex = 5;
-            this.tabCredits.Text = "Credits";
+            this.tabCredits.Text = "About";
             this.tabCredits.UseVisualStyleBackColor = true;
             // 
             // llbUpdateAvailabe
@@ -1222,6 +1251,28 @@ namespace CustomizeMii
             this.pbProgress.Size = new System.Drawing.Size(100, 16);
             this.pbProgress.Value = 100;
             // 
+            // cmForwarder
+            // 
+            this.cmForwarder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmSimpleForwarder,
+            this.cmComplexForwarder});
+            this.cmForwarder.Name = "contextMenuStrip1";
+            this.cmForwarder.Size = new System.Drawing.Size(178, 70);
+            // 
+            // cmSimpleForwarder
+            // 
+            this.cmSimpleForwarder.Name = "cmSimpleForwarder";
+            this.cmSimpleForwarder.Size = new System.Drawing.Size(177, 22);
+            this.cmSimpleForwarder.Text = "Simple Forwarder";
+            this.cmSimpleForwarder.Click += new System.EventHandler(this.cmForwarderItem_Click);
+            // 
+            // cmComplexForwarder
+            // 
+            this.cmComplexForwarder.Name = "cmComplexForwarder";
+            this.cmComplexForwarder.Size = new System.Drawing.Size(177, 22);
+            this.cmComplexForwarder.Text = "Complex Forwarder";
+            this.cmComplexForwarder.Click += new System.EventHandler(this.cmForwarderItem_Click);
+            // 
             // CustomizeMii_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1256,6 +1307,7 @@ namespace CustomizeMii
             this.tabCredits.ResumeLayout(false);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
+            this.cmForwarder.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1361,6 +1413,11 @@ namespace CustomizeMii
         private System.Windows.Forms.CheckBox cbIconMakeTransparent;
         private System.Windows.Forms.TabPage tabInstructions;
         private System.Windows.Forms.RichTextBox rtbInstructions;
+        private System.Windows.Forms.CheckBox cbFailureChecks;
+        private System.Windows.Forms.Button btnForwarder;
+        private System.Windows.Forms.ContextMenuStrip cmForwarder;
+        private System.Windows.Forms.ToolStripMenuItem cmSimpleForwarder;
+        private System.Windows.Forms.ToolStripMenuItem cmComplexForwarder;
     }
 }
 

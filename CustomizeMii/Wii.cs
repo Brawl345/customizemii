@@ -734,7 +734,7 @@ namespace Wii
                             {
                                 if (contenthandle[i + j] != 0x00)
                                 {
-                                    char temp = Convert.ToChar(contenthandle[i + j]);
+                                    char temp = BitConverter.ToChar(new byte[] { contenthandle[i + j], contenthandle[i + j - 1] }, 0);
                                     titles[count] += temp;
                                 }
                             }
@@ -801,7 +801,7 @@ namespace Wii
                     {
                         if (app[i + j] != 0x00)
                         {
-                            char temp = Convert.ToChar(app[i + j]);
+                            char temp = BitConverter.ToChar(new byte[] { app[i + j], app[i + j - 1] }, 0);
                             titles[count] += temp;
                         }
                     }
@@ -1450,19 +1450,47 @@ namespace Wii
 
             for (int x = imetpos; x < imetpos + 40; x += 2)
             {
-                if (japchars.Length > count) { contenthandle[x + 29] = Convert.ToByte(japchars[count]); }
+                if (japchars.Length > count)
+                {
+                    contenthandle[x + 29] = BitConverter.GetBytes(japchars[count])[0];
+                    contenthandle[x + 30] = BitConverter.GetBytes(japchars[count])[1];
+                }
                 else { contenthandle[x + 29] = 0x00; }
-                if (engchars.Length > count) { contenthandle[x + 29 + 84] = Convert.ToByte(engchars[count]); }
+                if (engchars.Length > count)
+                {
+                    contenthandle[x + 29 + 84] = BitConverter.GetBytes(engchars[count])[0];
+                    contenthandle[x + 29 + 84 - 1] = BitConverter.GetBytes(engchars[count])[1];
+                }
                 else { contenthandle[x + 29 + 84] = 0x00; }
-                if (gerchars.Length > count) { contenthandle[x + 29 + 84 * 2] = Convert.ToByte(gerchars[count]); }
+                if (gerchars.Length > count)
+                {
+                    contenthandle[x + 29 + 84 * 2] = BitConverter.GetBytes(gerchars[count])[0];
+                    contenthandle[x + 29 + 84 * 2 - 1] = BitConverter.GetBytes(gerchars[count])[1];
+                }
                 else { contenthandle[x + 29 + 84 * 2] = 0x00; }
-                if (frachars.Length > count) { contenthandle[x + 29 + 84 * 3] = Convert.ToByte(frachars[count]); }
+                if (frachars.Length > count)
+                {
+                    contenthandle[x + 29 + 84 * 3] = BitConverter.GetBytes(frachars[count])[0];
+                    contenthandle[x + 29 + 84 * 3 - 1] = BitConverter.GetBytes(frachars[count])[1];
+                }
                 else { contenthandle[x + 29 + 84 * 3] = 0x00; }
-                if (spachars.Length > count) { contenthandle[x + 29 + 84 * 4] = Convert.ToByte(spachars[count]); }
+                if (spachars.Length > count)
+                {
+                    contenthandle[x + 29 + 84 * 4] = BitConverter.GetBytes(spachars[count])[0];
+                    contenthandle[x + 29 + 84 * 4 - 1] = BitConverter.GetBytes(spachars[count])[1];
+                }
                 else { contenthandle[x + 29 + 84 * 4] = 0x00; }
-                if (itachars.Length > count) { contenthandle[x + 29 + 84 * 5] = Convert.ToByte(itachars[count]); }
+                if (itachars.Length > count)
+                {
+                    contenthandle[x + 29 + 84 * 5] = BitConverter.GetBytes(itachars[count])[0];
+                    contenthandle[x + 29 + 84 * 5 - 1] = BitConverter.GetBytes(itachars[count])[1];
+                }
                 else { contenthandle[x + 29 + 84 * 5] = 0x00; }
-                if (dutchars.Length > count) { contenthandle[x + 29 + 84 * 6] = Convert.ToByte(dutchars[count]); }
+                if (dutchars.Length > count)
+                {
+                    contenthandle[x + 29 + 84 * 6] = BitConverter.GetBytes(dutchars[count])[0];
+                    contenthandle[x + 29 + 84 * 6 - 1] = BitConverter.GetBytes(dutchars[count])[1];
+                }
                 else { contenthandle[x + 29 + 84 * 6] = 0x00; }
 
                 count++;
@@ -3044,31 +3072,38 @@ namespace Wii
             {
                 if (channeltitles[0].Length > i)
                 {
-                    japtitle[i * 2 + 1] = (byte)channeltitles[0][i];
+                    japtitle[i * 2] = BitConverter.GetBytes(channeltitles[0][i])[1];
+                    japtitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[0][i])[0];
                 }
                 if (channeltitles[1].Length > i)
                 {
-                    engtitle[i * 2 + 1] = (byte)channeltitles[1][i];
+                    engtitle[i * 2] = BitConverter.GetBytes(channeltitles[1][i])[1];
+                    engtitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[1][i])[0];
                 }
                 if (channeltitles[2].Length > i)
                 {
-                    gertitle[i * 2 + 1] = (byte)channeltitles[2][i];
+                    gertitle[i * 2] = BitConverter.GetBytes(channeltitles[2][i])[1];
+                    gertitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[2][i])[0];
                 }
                 if (channeltitles[3].Length > i)
                 {
-                    fratitle[i * 2 + 1] = (byte)channeltitles[3][i];
+                    fratitle[i * 2] = BitConverter.GetBytes(channeltitles[3][i])[1];
+                    fratitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[3][i])[0];
                 }
                 if (channeltitles[4].Length > i)
                 {
-                    spatitle[i * 2 + 1] = (byte)channeltitles[4][i];
+                    spatitle[i * 2] = BitConverter.GetBytes(channeltitles[4][i])[1];
+                    spatitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[4][i])[0];
                 }
                 if (channeltitles[5].Length > i)
                 {
-                    itatitle[i * 2 + 1] = (byte)channeltitles[5][i];
+                    itatitle[i * 2] = BitConverter.GetBytes(channeltitles[5][i])[1];
+                    itatitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[5][i])[0];
                 }
                 if (channeltitles[6].Length > i)
                 {
-                    duttitle[i * 2 + 1] = (byte)channeltitles[6][i];
+                    duttitle[i * 2] = BitConverter.GetBytes(channeltitles[6][i])[1];
+                    duttitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[6][i])[0];
                 }
             }
 
@@ -5414,8 +5449,15 @@ namespace Wii
             {
                 if (Tools.StringExistsInStringArray(tpls[i], brlytTpls) == false)
                 {
-                    unuseds.Add(tpls[i]);
-                    missing = true;
+                    string wonum = tpls[i].Remove(tpls[i].LastIndexOf('.') - 1) + "00.tpl";
+                    string wonum2 = tpls[i].Remove(tpls[i].LastIndexOf('.') - 2) + "00.tpl";
+
+                    if (Tools.StringExistsInStringArray(wonum, brlytTpls) == false &&
+                        Tools.StringExistsInStringArray(wonum2, brlytTpls) == false)
+                    {
+                        unuseds.Add(tpls[i]);
+                        missing = true;
+                    }
                 }
             }
 

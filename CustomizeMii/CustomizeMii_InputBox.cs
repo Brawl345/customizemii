@@ -27,6 +27,7 @@ namespace CustomizeMii
 {
     public partial class CustomizeMii_InputBox : Form
     {
+        public bool CommonKeyMode = true;
         public string Input
         {
             get { return tbInput.Text; }
@@ -37,6 +38,12 @@ namespace CustomizeMii
             InitializeComponent();
         }
 
+        public CustomizeMii_InputBox(bool CommonKeyMode)
+        {
+            InitializeComponent();
+            this.CommonKeyMode = CommonKeyMode;
+        }
+
         private void CustomizeMii_InputBox_Load(object sender, EventArgs e)
         {
             this.CenterToScreen();
@@ -44,20 +51,40 @@ namespace CustomizeMii
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            if (CommonKeyMode == true)
+            {
+                Application.Exit();
+            }
+            else this.Close();
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (tbInput.Text == "45e")
+            if (this.CommonKeyMode == true)
             {
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                if (tbInput.Text == "45e")
+                {
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    tbInput.Focus();
+                    tbInput.SelectAll();
+                }
             }
             else
             {
-                tbInput.Focus();
-                tbInput.SelectAll();
+                if (tbInput.Text.Length > 2)
+                {
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    tbInput.Focus();
+                    tbInput.SelectAll();
+                }
             }
         }
     }

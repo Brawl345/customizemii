@@ -59,6 +59,10 @@ Either load a forwarder or the DOL of any application. Note that some channles r
 and thus may not work in a channel (e.g. MPlayer CE).
 Choose a NAND loader or just stick with the one selected (both will do fine).
 
+You can also use the built-in forwarder creation by using the forwarder button right below the browse button
+for DOLs.
+You need the ForwardMii.dll in order to use the forwarder creation.
+
 
 
 INSERTING A NEW SOUND
@@ -96,13 +100,13 @@ one piece of an animation (It's non-destructive, i.e. you can always uncheck the
 EDITING THE ANIMATION (Advanced users only!)
 
 Skip this part, if you don't really know what brlyt and brlan files are and how they're structured.
-Goto the "brlyt" tab. You will see the banner.brlyt and icon.brlyt there.
+Goto the "Layout" tab. You will see the banner.brlyt and icon.brlyt there.
 Above the buttons is a text that will indicate whether you're doing actions on the "Banner" or
 the "Icon" (When you select the banner.brlyt, you're editing the "Banner" and vice versa).
 Now, just replace the banner.brlyt and icon.brlyt files as you want. You can use the list TPLs button
 afterwards to see all TPLs that are required by the banner.brlyt/icon.brlyt (Don't worry, CustomizeMii
 won't let you create a WAD, if you forgot a required TPL).
-Now, goto the "brlan" tab. It's similar to the "brlyt" tab. You shouldn't touch the add or delete button
+Now, goto the "Animation" tab. It's similar to the "Layout" tab. You shouldn't touch the add or delete button
 unless your base WAD only has a banner.brlan and you want to use a banner_Start.brlan and banner_Loop.brlan.
 In this case, first add the two files and then delete the old banner.brlan.
 Else just replace the files with yours. Be absolutely sure the your brlan files only refer to panes that are

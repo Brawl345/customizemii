@@ -325,7 +325,7 @@ namespace ForwardMii
                 case 3:
                 case 4:
                 case 5:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.3CharsBase.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.3CharsBase.bin");
                 case 6:
                 case 7:
                 case 8:
@@ -337,10 +337,10 @@ namespace ForwardMii
                 case 14:
                 case 15:
                 case 16:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.6CharsBase.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.6CharsBase.bin");
                 case 17:
                 case 18:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.17CharsBase.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.17CharsBase.bin");
                 default:
                     throw new Exception();
             }
@@ -351,37 +351,37 @@ namespace ForwardMii
             switch (thisAppFolder.Length)
             {
                 case 3:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.3CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.3CharsTail.bin");
                 case 4:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.4CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.4CharsTail.bin");
                 case 5:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.5CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.5CharsTail.bin");
                 case 6:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.6CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.6CharsTail.bin");
                 case 7:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.7CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.7CharsTail.bin");
                 case 8:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.8CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.8CharsTail.bin");
                 case 9:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.9CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.9CharsTail.bin");
                 case 10:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.10CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.10CharsTail.bin");
                 case 11:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.11CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.11CharsTail.bin");
                 case 12:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.12CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.12CharsTail.bin");
                 case 13:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.13CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.13CharsTail.bin");
                 case 14:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.14CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.14CharsTail.bin");
                 case 15:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.15CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.15CharsTail.bin");
                 case 16:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.16CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.16CharsTail.bin");
                 case 17:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.17CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.17CharsTail.bin");
                 case 18:
-                    return GetReourceStream("ForwardMii_Plugin.Resources.SDSDHC.18CharsTail.bin");
+                    return GetReourceStream("ForwardMii.Resources.SDSDHC.18CharsTail.bin");
                 default:
                     throw new Exception();
             }

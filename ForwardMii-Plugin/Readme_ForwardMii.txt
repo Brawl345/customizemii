@@ -11,6 +11,9 @@ the CustomizeMii project page.
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 1.01
+	- Fixed bug that caused an object error while creating forwarders
+
 Version 1.0
 	- Initial Release
 -----------------------------------------------------------------------------------------

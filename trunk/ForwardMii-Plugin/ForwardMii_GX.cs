@@ -294,7 +294,7 @@ namespace ForwardMii
 
         private MemoryStream GetReourceStream(string theResource)
         {
-            Stream thisStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ForwardMii_Plugin.Resources.GX." + theResource);
+            Stream thisStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ForwardMii.Resources.GX." + theResource);
             byte[] thisArray = new byte[thisStream.Length];
             thisStream.Read(thisArray, 0, thisArray.Length);
             return new MemoryStream(thisArray);

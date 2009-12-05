@@ -21,7 +21,7 @@ namespace ForwardMii
 {
     public class ForwardMii_Plugin
     {
-        const string version = "1.0"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "1.01"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
 
         public static string GetVersion()
         {

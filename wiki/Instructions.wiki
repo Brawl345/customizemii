@@ -62,6 +62,9 @@ Either load a forwarder or the DOL of any application. Note that some channles r
 and thus may not work in a channel (e.g. MPlayer CE).<br>
 Choose a NAND loader or just stick with the one selected (both will do fine).<br>
 <br>
+You can also use the built-in forwarder creation by using the forwarder button right below the browse button for DOLs.<br>
+You need the ForwardMii.dll in order to use the forwarder creation.<br>
+<br>
 <br>
 <br>
 *INSERTING A NEW SOUND*<br>

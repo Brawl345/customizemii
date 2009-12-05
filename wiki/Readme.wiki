@@ -9,12 +9,29 @@ The .NET Framework 2.0 is required to run this application!<br>
 For any further information, see: http://customizemii.googlecode.com<br>
 Please use the Issue Tracker there to report any occuring bugs.<br>
 <br>
-Please Note: This is a clone of the original Channel Making Application by icefire / Xuzz.<br>
-I decided to do it, because Xuzz gave up the work on his application and<br>
-the last beta Version he left creates bricking WADs.<br>
+Thanks to icefire / Xuzz for the basic idea of this Application!<br>
 <br>
 -----------------------------------------------------------------------------------------
 ==Changelog:==
+
+===Version 1.2===
+	* Fixed writing/reading of channel titles, so japanese characters will work now
+	* Added checkbox (Options tab) to turn security checks off
+	* Added built-in forwarder creator (Needs the ForwardMii.dll which is separately avaiable)
+	* You can choose MP3 files as channel sound (Needs lame.exe in application directory)
+	* Bugfixes
+
+===Version 1.1===
+	* Note: License upgraded to GNU GPL v3!
+	* Sound is working now
+	* Added brlan and brlyt tabs (for advanced users)
+	* Added displaying of image width and height in preview window
+	* Added "Make Transparent" checkbox for TPLs
+	* Fixed IA8 previewing / extracting
+	* Improved bricksafety (hopefully!)
+	* Added Tooltips
+	* Added update check at startup
+	* Wrote basic instructions (see Instructions.txt or help tab)
 
 ===Version 1.0===
 	* Initial Release
@@ -24,7 +41,7 @@ the last beta Version he left creates bricking WADs.<br>
 ==Disclaimer:==
 
 Editing WAD files can result in a brick of your Wii.<br>
-Only use these features if you have a bricksafe Wii, meaning either Preloader or<br>
+Only use this application if you have a bricksafe Wii, meaning either Preloader or<br>
 BootMii/boot2 is installed, and if you know what you're doing.<br>
 <br>
 This application comes without any express or implied warranty.<br>
@@ -39,6 +56,8 @@ Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py<br>
 SquidMan for Zetsubou<br>
 Andre Perrot for gbalzss<br>
 comex and Waninkoko for both their NAND Loader<br>
+djdynamite123 for the forwarder base files (ForwardMii-Plugin)<br>
+The USB Loader GX Team for their forwarder source (ForwardMii-Plugin)
 -----------------------------------------------------------------------------------------
 <br>
 -----------------------------------------------------------------------------------------

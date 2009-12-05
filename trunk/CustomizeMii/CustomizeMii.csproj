@@ -15,6 +15,7 @@
     <TargetFrameworkSubset>
     </TargetFrameworkSubset>
     <ApplicationIcon>Resources\CustomizeMii.ico</ApplicationIcon>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,8 +27,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.1.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -49,6 +49,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ForwardMii, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ForwardMii-Plugin\bin\Release\ForwardMii.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -57,6 +61,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CustomizeMii_ComplexForwarder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomizeMii_ComplexForwarder.Designer.cs">
+      <DependentUpon>CustomizeMii_ComplexForwarder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CustomizeMii_Forwarders.cs" />
     <Compile Include="CustomizeMii_Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,6 +88,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CustomizeMii_ComplexForwarder.resx">
+      <DependentUpon>CustomizeMii_ComplexForwarder.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CustomizeMii_InputBox.resx">
       <DependentUpon>CustomizeMii_InputBox.cs</DependentUpon>
     </EmbeddedResource>

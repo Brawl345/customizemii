@@ -1,35 +1,15 @@
-CustomizeMii is a 100% legal custom channel creator for the Wii.
-It's completely written by myself (some parts are based on other 100% legal codes).
-Use legal Base WADs to create your own legal custom channels.
-The .NET Framework 2.0 is required to run this application!
+This is a plugin for CustomizeMii to create forwarders. Put it in CustomizeMii's directory.
 
-For any further information, see: http://customizemii.googlecode.com
-Please use the Issue Tracker there to report any occuring bugs.
-
-Thanks to icefire / Xuzz for the basic idea of this Application!
+It can create simple SD / SDHC forwarders that will point to one ELF or DOL file.
+It's also able to create complex forwarders based on the official USB Loader GX
+forwarder (Needs devkitPPC + libOGC installed). It will look for the DOL or ELF
+in the specified folder on USB and SD, you can change the order it searches.
+It can also display an image while loading.
+If it fails to compile, you may have the wrong libOGC, try the one downloadable on
+the CustomizeMii project page.
 
 -----------------------------------------------------------------------------------------
 Changelog:
-
-Version 1.2
-	- Fixed writing/reading of channel titles, so japanese characters will work now
-	- Added checkbox (Options tab) to turn security checks off
-	- Added built-in forwarder creator (Needs the ForwardMii.dll which is
-										separately avaiable)
-	- You can choose MP3 files as channel sound (Needs lame.exe in application directory)
-	- Bugfixes
-
-Version 1.1
-	- Note: License upgraded to GNU GPL v3!
-	- Sound is working now
-	- Added brlan and brlyt tabs (for advanced users)
-	- Added displaying of image width and height in preview window
-	- Added "Make Transparent" checkbox for TPLs
-	- Fixed IA8 previewing / extracting
-	- Improved bricksafety (hopefully!)
-	- Added Tooltips
-	- Added update check at startup
-	- Wrote basic instructions (see Instructions.txt or help tab)
 
 Version 1.0
 	- Initial Release
@@ -54,8 +34,8 @@ Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py
 SquidMan for Zetsubou
 Andre Perrot for gbalzss
 comex and Waninkoko for both their NAND Loader
-djdynamite123 for the forwarder base files (ForwardMii-Plugin)
-The USB Loader GX Team for their forwarder source (ForwardMii-Plugin)
+djdynamite123 for the forwarder base files
+The USB Loader GX Team for their forwarder source
 -----------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------

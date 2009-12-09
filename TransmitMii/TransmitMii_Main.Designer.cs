@@ -54,6 +54,7 @@ namespace TransmitMii
             this.tbIP = new System.Windows.Forms.TextBox();
             this.lbProtocol = new System.Windows.Forms.Label();
             this.cmbProtocol = new System.Windows.Forms.ComboBox();
+            this.llbLinkExtension = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // lbIP
@@ -145,12 +146,26 @@ namespace TransmitMii
             this.cmbProtocol.MouseEnter += new System.EventHandler(this.cmbProtocol_MouseEnter);
             this.cmbProtocol.MouseLeave += new System.EventHandler(this.cmbProtocol_MouseLeave);
             // 
+            // llbLinkExtension
+            // 
+            this.llbLinkExtension.AutoSize = true;
+            this.llbLinkExtension.Location = new System.Drawing.Point(215, 108);
+            this.llbLinkExtension.Name = "llbLinkExtension";
+            this.llbLinkExtension.Size = new System.Drawing.Size(76, 13);
+            this.llbLinkExtension.TabIndex = 11;
+            this.llbLinkExtension.TabStop = true;
+            this.llbLinkExtension.Text = "Link Extension";
+            this.llbLinkExtension.MouseLeave += new System.EventHandler(this.llbLinkExtension_MouseLeave);
+            this.llbLinkExtension.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbLinkExtension_LinkClicked);
+            this.llbLinkExtension.MouseEnter += new System.EventHandler(this.llbLinkExtension_MouseEnter);
+            // 
             // TransmitMii_Main
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(303, 128);
+            this.Controls.Add(this.llbLinkExtension);
             this.Controls.Add(this.cmbProtocol);
             this.Controls.Add(this.lbProtocol);
             this.Controls.Add(this.tbIP);
@@ -184,6 +199,7 @@ namespace TransmitMii
         private System.Windows.Forms.TextBox tbIP;
         private System.Windows.Forms.Label lbProtocol;
         private System.Windows.Forms.ComboBox cmbProtocol;
+        private System.Windows.Forms.LinkLabel llbLinkExtension;
     }
 }
 

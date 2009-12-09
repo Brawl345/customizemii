@@ -9,6 +9,10 @@ TransmitMii is hosted on the CustomizeMii project page: http://customizemii.goog
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 1.1
+	- Added ability to link and unlink extensions with TransmitMii
+	- Added compression for HBC 1.0.5+ (similar to wiiload)
+
 Version 1.0
 	- Initial Release
 -----------------------------------------------------------------------------------------
@@ -25,6 +29,8 @@ Thanks:
 
 dhewg for wiiload
 WiiCrazy / I.R.on for Crap
+Jean-loup Gailly and Mark Adler for zlib1.dll (zlib)
+dillonaumiller for Associaton.cs
 -----------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------

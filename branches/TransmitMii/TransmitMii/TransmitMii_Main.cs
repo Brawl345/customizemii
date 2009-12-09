@@ -19,9 +19,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Net;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -29,11 +27,13 @@ namespace TransmitMii
 {
     public partial class TransmitMii_Main : Form
     {
-        const string version = "1.0"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "1.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private bool IsRunning = false;
         private string fileName;
         private string statusText;
         private bool JODI;
+        private bool Aborted = false;
+        private bool directStart = false;
         EventHandler UpdateStatus;
         EventHandler EnableButtons;
         BackgroundWorker bwTransmit = new BackgroundWorker();
@@ -43,7 +43,6 @@ namespace TransmitMii
         {
             InitializeComponent();
             this.CenterToScreen();
-            this.Icon = Properties.Resources.TransmitMii_Icon;
         }
 
         public TransmitMii_Main(string[] args)
@@ -51,17 +50,23 @@ namespace TransmitMii
             InitializeComponent();
             this.CenterToScreen();
 
-            if (args[0].EndsWith(".dol") || args[0].EndsWith(".elf"))
+            if (args[0].EndsWith(".dol") || args[0].EndsWith(".elf") || args[0].EndsWith(".wad"))
+            {
                 tbFile.Text = args[0];
+                directStart = true;
+            }
         }
 
         private void TransmitMii_Main_Load(object sender, EventArgs e)
         {
             this.Text = this.Text.Replace("X", version);
+            this.Icon = Properties.Resources.TransmitMii_Icon;
             UpdateCheck();
+            ExtensionCheck();
 
             UpdateStatus = new EventHandler(this.StatusUpdate);
             EnableButtons = new EventHandler(this.ButtonEnable);
+
             bwTransmit.DoWork += new DoWorkEventHandler(bwTransmit_DoWork);
             bwTransmit.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwTransmit_RunWorkerCompleted);
             bwTransmit.WorkerSupportsCancellation = true;
@@ -74,7 +79,7 @@ namespace TransmitMii
 
             LoadSettings();
 
-            if (!string.IsNullOrEmpty(tbIP.Text) && !string.IsNullOrEmpty(tbFile.Text))
+            if ((!string.IsNullOrEmpty(tbIP.Text) && !string.IsNullOrEmpty(tbFile.Text)) && directStart)
                 btnSend_Click(null, null);
         }
 
@@ -115,6 +120,23 @@ namespace TransmitMii
             catch { }
         }
 
+        private void ExtensionCheck()
+        {
+            string oldPath = TransmitMii_Associations.AssociationPath().ToLower();
+            string newPath = Application.ExecutablePath.ToLower();
+
+            if (!string.IsNullOrEmpty(oldPath) && !string.IsNullOrEmpty(newPath))
+            {
+                if (oldPath != newPath)
+                {
+                    if (TransmitMii_Associations.CheckAssociation(TransmitMii_Associations.Extension.DOL))
+                        TransmitMii_Associations.AddAssociation(TransmitMii_Associations.Extension.DOL, true, newPath, false);
+                    if (TransmitMii_Associations.CheckAssociation(TransmitMii_Associations.Extension.ELF))
+                        TransmitMii_Associations.AddAssociation(TransmitMii_Associations.Extension.ELF, true, newPath, false);
+                }
+            }
+        }
+
         private void ErrorBox(string message)
         {
             MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -135,107 +157,7 @@ namespace TransmitMii
         {
             IsRunning = false;
             btnBrowseFile.Enabled = true;
-            btnSend.Enabled = true;
-        }
-
-        private bool Transmit(string fileName, byte[] fileData, bool JODI) //(byte[] theFile, int fileLength, byte[] args, int argsLength)
-        {
-            TcpClient theClient = new TcpClient();
-            NetworkStream theStream;
-
-            int Blocksize = 4 * 1024;
-            if (!JODI) Blocksize = 16 * 1024;
-            byte[] buffer = new byte[4];
-            string theIP = tbIP.Text;
-
-            StatusUpdate("Connecting...");
-            try { theClient.Connect(theIP, 4299); }
-            catch (Exception ex) { ErrorBox("Connection Failed:\n" + ex.Message); theClient.Close(); return false; }
-            theStream = theClient.GetStream(); 
-
-            StatusUpdate("Connected... Sending Magic...");
-            buffer[0] = (byte)'H';
-            buffer[1] = (byte)'A';
-            buffer[2] = (byte)'X';
-            buffer[3] = (byte)'X';
-            try { theStream.Write(buffer, 0, 4); }
-            catch (Exception ex) { ErrorBox("Error sending Magic:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-
-            StatusUpdate("Magic Sent... Sending Version Info...");
-            if (JODI)
-            {
-                buffer[0] = 0;
-                buffer[1] = 5;
-                buffer[2] = (byte)(((fileName.Length + 2) >> 8) & 0xff);
-                buffer[3] = (byte)((fileName.Length + 2) & 0xff);
-            }
-            else
-            {
-                buffer[0] = 0;
-                buffer[1] = 1;
-                buffer[2] = 0;
-                buffer[3] = 0;
-            }
-            try { theStream.Write(buffer, 0, 4); }
-            catch (Exception ex) { ErrorBox("Error sending Version Info:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-
-            StatusUpdate("Version Info Sent... Sending Filesize...");
-            //First compressed filesize, then uncompressed filesize
-            buffer[0] = (byte)((fileData.Length >> 24) & 0xff);
-            buffer[1] = (byte)((fileData.Length >> 16) & 0xff);
-            buffer[2] = (byte)((fileData.Length >> 8) & 0xff);
-            buffer[3] = (byte)(fileData.Length & 0xff);
-            try { theStream.Write(buffer, 0, 4); }
-            catch (Exception ex) { ErrorBox("Error sending Filesize:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-
-            if (JODI)
-            {
-                buffer[0] = 0;
-                buffer[1] = 0;
-                buffer[2] = 0;
-                buffer[3] = 0;
-                try { theStream.Write(buffer, 0, 4); }
-                catch (Exception ex) { ErrorBox("Error sending Filesize:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-            }
-
-            StatusUpdate("Filesize Sent... Sending File...");
-            int off = 0;
-            int cur = 0;
-            int count = fileData.Length / Blocksize;
-            int left = fileData.Length % Blocksize;
-
-            try
-            {
-                do
-                {
-                    StatusUpdate("Sending File: " + ((cur + 1) * 100 / count).ToString() + "%");
-                    theStream.Write(fileData, off, Blocksize);
-                    off += Blocksize;
-                    cur++;
-                } while (cur < count);
-
-                if (left > 0)
-                {
-                    theStream.Write(fileData, off, fileData.Length - off);
-                }
-            }
-            catch (Exception ex) { ErrorBox("Error sending File:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-
-            if (JODI)
-            {
-                StatusUpdate("File Sent... Sending Arguments...");
-                byte[] theArgs = new byte[fileName.Length + 2];
-                for (int i = 0; i < fileName.Length; i++) { theArgs[i] = (byte)fileName.ToCharArray()[i]; }
-                try { theStream.Write(theArgs, 0, theArgs.Length); }
-                catch (Exception ex) { ErrorBox("Error sending Arguments:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-            }
-
-            theStream.Close();
-            theClient.Close();
-
-            StatusUpdate(string.Empty);
-
-            return true;
+            btnSend.Text = "Send";
         }
 
         private void btnBrowseFile_Click(object sender, EventArgs e)
@@ -252,29 +174,61 @@ namespace TransmitMii
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            if (File.Exists(tbFile.Text))
+            if (btnSend.Text == "Abort")
             {
-                if (IpAdress.IsMatch(tbIP.Text))
-                {
-                    if (tbFile.Text.EndsWith(".wad") && cmbProtocol.SelectedIndex != 2)
-                    { ErrorBox("WAD files can only be sent to USB Loader GX!"); return; }
+                Aborted = true;
 
-                    btnSend.Enabled = false;
-                    btnBrowseFile.Enabled = false;
-                    IsRunning = true;
+                bwTransmit.CancelAsync();
 
-                    FileStream fs = new FileStream(tbFile.Text, FileMode.Open);
-                    byte[] theFile = new byte[fs.Length];
-                    fs.Read(theFile, 0, theFile.Length);
+                try { theStream.Close(); ; }
+                catch { }
+                try { theClient.Close(); }
+                catch { }
 
-                    fileName = Path.GetFileName(tbFile.Text);
-
-                    JODI = cmbProtocol.SelectedIndex == 0 ? true : false;
-                    bwTransmit.RunWorkerAsync(theFile);
-                }
-                else { tbIP.Focus(); tbIP.SelectAll(); }
+                this.Invoke(EnableButtons);
+                StatusUpdate(string.Empty);
             }
-            else { tbFile.Focus(); tbFile.SelectAll(); }
+            else
+            {
+                if (File.Exists(tbFile.Text))
+                {
+                    if (IpAdress.IsMatch(tbIP.Text))
+                    {
+                        if (tbFile.Text.EndsWith(".wad") && cmbProtocol.SelectedIndex != 2)
+                        {
+                            if (directStart)
+                            { cmbProtocol.SelectedIndex = 2; }
+                            else
+                            { ErrorBox("WAD files can only be sent to USB Loader GX!"); return; }
+                        }
+                        else if (!tbFile.Text.EndsWith(".wad") && cmbProtocol.SelectedIndex == 2)
+                        {
+                            if (directStart)
+                            { cmbProtocol.SelectedIndex = 0; }
+                            else
+                            { ErrorBox("The USB Loader GX only accepts WAD files!"); return; }
+                        }
+
+                        Aborted = false;
+
+                        btnSend.Text = "Abort";
+                        btnBrowseFile.Enabled = false;
+                        IsRunning = true;
+
+                        FileStream fs = new FileStream(tbFile.Text, FileMode.Open);
+                        byte[] theFile = new byte[fs.Length];
+                        fs.Read(theFile, 0, theFile.Length);
+                        fs.Close();
+
+                        fileName = Path.GetFileName(tbFile.Text);
+
+                        JODI = cmbProtocol.SelectedIndex == 0 ? true : false;
+                        bwTransmit.RunWorkerAsync(theFile);
+                    }
+                    else { tbIP.Focus(); tbIP.SelectAll(); }
+                }
+                else { tbFile.Focus(); tbFile.SelectAll(); }
+            }
         }
 
         void bwTransmit_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -287,10 +241,13 @@ namespace TransmitMii
         {
             byte[] theFile = e.Argument as byte[];
 
-            if (Transmit(fileName, theFile, JODI))
+            if (Transmit_Compress(fileName, theFile, JODI, File.Exists(Application.StartupPath + "\\zlib1.dll")))
             {
-                MessageBox.Show("File Sent...", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+                if (usedCompression)
+                    MessageBox.Show(string.Format("Transmitted {0} kB in {1} milliseconds...\nCompression Ratio: {2}%", transmittedLength, timeElapsed, compressionRatio), "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else
+                    MessageBox.Show(string.Format("Transmitted {0} kB in {1} milliseconds...", transmittedLength, timeElapsed), "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
         }
 
         private void tbFile_MouseEnter(object sender, EventArgs e)
@@ -329,6 +286,18 @@ namespace TransmitMii
                 lbStatus.Text = "Status:";
         }
 
+        private void llbLinkExtension_MouseEnter(object sender, EventArgs e)
+        {
+            if (IsRunning == false)
+                lbStatus.Text = "Link extensions with TransmitMii...";
+        }
+
+        private void llbLinkExtension_MouseLeave(object sender, EventArgs e)
+        {
+            if (IsRunning == false)
+                lbStatus.Text = "Status:";
+        }
+
         private void TransmitMii_Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             bwTransmit.CancelAsync();
@@ -356,6 +325,72 @@ namespace TransmitMii
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
             tbFile.Text = files[0];
+        }
+
+        private void llbLinkExtension_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            ContextMenuStrip cmMenu = new ContextMenuStrip();
+
+            ToolStripMenuItem cmDol = new ToolStripMenuItem("DOL");
+            cmDol.Name = "cmDol";
+            cmDol.Click +=new EventHandler(cmMenu_Click);
+            if (TransmitMii_Associations.CheckAssociation(TransmitMii_Associations.Extension.DOL)) cmDol.Checked = true;
+
+            ToolStripMenuItem cmElf = new ToolStripMenuItem("ELF");
+            cmElf.Name = "cmElf";
+            cmElf.Click += new EventHandler(cmMenu_Click);
+            if (TransmitMii_Associations.CheckAssociation(TransmitMii_Associations.Extension.ELF)) cmElf.Checked = true;
+
+            ToolStripMenuItem cmWad = new ToolStripMenuItem("WAD");
+            cmWad.Name = "cmWad";
+            cmWad.Click += new EventHandler(cmMenu_Click);
+            if (TransmitMii_Associations.CheckAssociation(TransmitMii_Associations.Extension.WAD)) cmWad.Checked = true;
+
+            cmMenu.Items.Add(cmDol);
+            cmMenu.Items.Add(cmElf);
+            cmMenu.Items.Add(cmWad);
+
+            cmMenu.Show(MousePosition);
+        }
+
+        private void cmMenu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ToolStripMenuItem cmSender = sender as ToolStripMenuItem;
+                TransmitMii_Associations.Extension thisExt;
+
+                //CopyIcon();
+
+                switch (cmSender.Name)
+                {
+                    case "cmElf":
+                        thisExt = TransmitMii_Associations.Extension.ELF;
+                        break;
+                    case "cmWad":
+                        thisExt = TransmitMii_Associations.Extension.WAD;
+                        break;
+                    default:
+                        thisExt = TransmitMii_Associations.Extension.DOL;
+                        break;
+                }
+
+                if (cmSender.Checked == false)
+                {
+                    if (TransmitMii_Associations.AddAssociation(thisExt, true, Application.ExecutablePath, false))
+                        MessageBox.Show("Extension linked!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                        ErrorBox("An error occured!");
+                }
+                else
+                {
+                    if (TransmitMii_Associations.DeleteAssociation(thisExt))
+                        MessageBox.Show("Extension unlinked!", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                        ErrorBox("An error occured!");
+                }
+            }
+            catch (Exception ex) { ErrorBox(ex.Message); }
         }
     }
 }

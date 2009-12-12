@@ -9,6 +9,11 @@ TransmitMii is hosted on the CustomizeMii project page: http://customizemii.goog
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 1.15
+	- Fixed transmitting to HBC -1.0.4 (HAXX)
+	- Fixed transmitting to USB Loader GX
+	- Bugfix
+
 Version 1.1
 	- Added ability to link and unlink extensions with TransmitMii
 	- Added compression for HBC 1.0.5+ (similar to wiiload)

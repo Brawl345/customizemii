@@ -42,24 +42,28 @@ namespace TransmitMii
 
         public static bool CheckAssociation(Extension which)
         {
-            if (which == Extension.Both)
+            try
             {
-                if (Registry.GetValue("HKEY_CLASSES_ROOT\\.dol", "", "").ToString().ToLower() == "wiibin" &&
-                    Registry.GetValue("HKEY_CLASSES_ROOT\\.elf", "", "").ToString().ToLower() == "wiibin") return true;
-                else return false;
+                if (which == Extension.Both)
+                {
+                    if (Registry.GetValue("HKEY_CLASSES_ROOT\\.dol", "", "").ToString().ToLower() == "wiibin" &&
+                        Registry.GetValue("HKEY_CLASSES_ROOT\\.elf", "", "").ToString().ToLower() == "wiibin") return true;
+                    else return false;
+                }
+
+                string regKey;
+                if (which == Extension.DOL)
+                    regKey = "HKEY_CLASSES_ROOT\\.dol";
+                else if (which == Extension.ELF)
+                    regKey = "HKEY_CLASSES_ROOT\\.elf";
+                else
+                    regKey = "HKEY_CLASSES_ROOT\\.wad";
+
+
+                if (Registry.GetValue(regKey, "", "").ToString().ToLower() != "wiibin") return false;
+                else return true;
             }
-
-            string regKey;
-            if (which == Extension.DOL)
-                regKey = "HKEY_CLASSES_ROOT\\.dol";
-            else if (which == Extension.ELF)
-                regKey = "HKEY_CLASSES_ROOT\\.elf";
-            else 
-                regKey = "HKEY_CLASSES_ROOT\\.wad";
-
-
-            if (Registry.GetValue(regKey, "", "").ToString().ToLower() != "wiibin") return false;
-            else return true;
+            catch { return false; }
         }
 
         public static bool DeleteAssociation(Extension which)

@@ -27,11 +27,11 @@ namespace TransmitMii
 {
     public partial class TransmitMii_Main : Form
     {
-        const string version = "1.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "1.15"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private bool IsRunning = false;
         private string fileName;
         private string statusText;
-        private bool JODI;
+        private Protocol protocol;
         private bool Aborted = false;
         private bool directStart = false;
         EventHandler UpdateStatus;
@@ -222,7 +222,7 @@ namespace TransmitMii
 
                         fileName = Path.GetFileName(tbFile.Text);
 
-                        JODI = cmbProtocol.SelectedIndex == 0 ? true : false;
+                        protocol = IntToProtocol(cmbProtocol.SelectedIndex);
                         bwTransmit.RunWorkerAsync(theFile);
                     }
                     else { tbIP.Focus(); tbIP.SelectAll(); }
@@ -241,7 +241,7 @@ namespace TransmitMii
         {
             byte[] theFile = e.Argument as byte[];
 
-            if (Transmit_Compress(fileName, theFile, JODI, File.Exists(Application.StartupPath + "\\zlib1.dll")))
+            if (Transmit_Compress(fileName, theFile, protocol, File.Exists(Application.StartupPath + "\\zlib1.dll")))
             {
                 if (usedCompression)
                     MessageBox.Show(string.Format("Transmitted {0} kB in {1} milliseconds...\nCompression Ratio: {2}%", transmittedLength, timeElapsed, compressionRatio), "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -311,7 +311,9 @@ namespace TransmitMii
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 if (files.Length == 1)
                 {
-                    if (Path.GetExtension(files[0]) == ".dol" || Path.GetExtension(files[0]) == ".elf")
+                    if (Path.GetExtension(files[0]) == ".dol" ||
+                        Path.GetExtension(files[0]) == ".elf" ||
+                        Path.GetExtension(files[0]) == ".wad")
                         e.Effect = DragDropEffects.Copy;
                     else
                         e.Effect = DragDropEffects.None;

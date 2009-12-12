@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 using System;
 using System.Net.Sockets;
 
@@ -22,6 +22,10 @@ namespace TransmitMii
 {
     partial class TransmitMii_Main
     {
+        const bool JODI_Compress = true;
+        const bool HAXX_Compress = false;
+        const bool USBX_Compress = false;
+
         TcpClient theClient;
         NetworkStream theStream;
         System.Diagnostics.Stopwatch stopper = new System.Diagnostics.Stopwatch();
@@ -30,18 +34,42 @@ namespace TransmitMii
         private bool usedCompression;
         private double compressionRatio;
 
-        private bool Transmit_Compress(string fileName, byte[] fileData, bool JODI, bool compress)
+        private enum Protocol : int
+        {
+            // 0 = No Compression
+            // 1 = Compression
+            JODI = 1,
+            HAXX = 0,
+            USBX = 0
+        }
+
+        private Protocol IntToProtocol(int theInt)
+        {
+            switch (theInt)
+            {
+                default:
+                    return Protocol.JODI;
+                case 1:
+                    return Protocol.HAXX;
+                case 2:
+                    return Protocol.USBX;
+            }
+        }
+
+        private bool Transmit_Compress(string fileName, byte[] fileData, Protocol protocol, bool compress)
         {
             stopper.Reset(); stopper.Start();
 
             if (!Environment.OSVersion.ToString().Contains("Windows"))
                 compress = false;
 
+            if ((int)(protocol) == 0) compress = false;
+
             theClient = new TcpClient();
 
             byte[] compFileData;
             int Blocksize = 4 * 1024;
-            if (!JODI) Blocksize = 16 * 1024;
+            if (protocol != Protocol.JODI) Blocksize = 16 * 1024;
             byte[] buffer = new byte[4];
             string theIP = tbIP.Text;
 
@@ -59,24 +87,15 @@ namespace TransmitMii
             catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Magic:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
             StatusUpdate("Magic Sent... Sending Version Info...");
-            if (JODI)
-            {
-                buffer[0] = 0;
-                buffer[1] = 5;
-                buffer[2] = (byte)(((fileName.Length + 2) >> 8) & 0xff);
-                buffer[3] = (byte)((fileName.Length + 2) & 0xff);
-            }
-            else
-            {
-                buffer[0] = 0;
-                buffer[1] = 1;
-                buffer[2] = 0;
-                buffer[3] = 0;
-            }
+            buffer[0] = 0;
+            buffer[1] = protocol == Protocol.JODI ? (byte)5 : (byte)4;
+            buffer[2] = (byte)(((fileName.Length + 2) >> 8) & 0xff);
+            buffer[3] = (byte)((fileName.Length + 2) & 0xff);
+
             try { theStream.Write(buffer, 0, 4); }
             catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Version Info:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
-            if (JODI && compress)
+            if (compress)
             {
                 StatusUpdate("Version Info Sent... Compressing File...");
                 try { compFileData = zlib.Compress(fileData); }
@@ -106,7 +125,7 @@ namespace TransmitMii
             try { theStream.Write(buffer, 0, 4); }
             catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Filesize:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
-            if (JODI)
+            if (compress)
             {
                 buffer[0] = (byte)((fileData.Length >> 24) & 0xff);
                 buffer[1] = (byte)((fileData.Length >> 16) & 0xff);
@@ -139,14 +158,11 @@ namespace TransmitMii
             }
             catch (Exception ex) { if (!Aborted) ErrorBox("Error sending File:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
-            if (JODI)
-            {
-                StatusUpdate("File Sent... Sending Arguments...");
-                byte[] theArgs = new byte[fileName.Length + 2];
-                for (int i = 0; i < fileName.Length; i++) { theArgs[i] = (byte)fileName.ToCharArray()[i]; }
-                try { theStream.Write(theArgs, 0, theArgs.Length); }
-                catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Arguments:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
-            }
+            StatusUpdate("File Sent... Sending Arguments...");
+            byte[] theArgs = new byte[fileName.Length + 2];
+            for (int i = 0; i < fileName.Length; i++) { theArgs[i] = (byte)fileName.ToCharArray()[i]; }
+            try { theStream.Write(theArgs, 0, theArgs.Length); }
+            catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Arguments:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
             theStream.Close();
             theClient.Close();
@@ -164,13 +180,13 @@ namespace TransmitMii
             return true;
         }
 
-        //private bool Transmit(string fileName, byte[] fileData, bool JODI)
+        //private bool Transmit(string fileName, byte[] fileData, bool _JODI)
         //{
         //    TcpClient theClient = new TcpClient();
         //    NetworkStream theStream;
 
         //    int Blocksize = 4 * 1024;
-        //    if (!JODI) Blocksize = 16 * 1024;
+        //    if (!_JODI) Blocksize = 16 * 1024;
         //    byte[] buffer = new byte[4];
         //    string theIP = tbIP.Text;
 
@@ -188,7 +204,7 @@ namespace TransmitMii
         //    catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Magic:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
         //    StatusUpdate("Magic Sent... Sending Version Info...");
-        //    if (JODI)
+        //    if (_JODI)
         //    {
         //        buffer[0] = 0;
         //        buffer[1] = 5;
@@ -214,7 +230,7 @@ namespace TransmitMii
         //    try { theStream.Write(buffer, 0, 4); }
         //    catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Filesize:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
-        //    if (JODI)
+        //    if (_JODI)
         //    {
         //        buffer[0] = 0;
         //        buffer[1] = 0;
@@ -247,7 +263,7 @@ namespace TransmitMii
         //    }
         //    catch (Exception ex) { if (!Aborted) ErrorBox("Error sending File:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
-        //    if (JODI)
+        //    if (_JODI)
         //    {
         //        StatusUpdate("File Sent... Sending Arguments...");
         //        byte[] theArgs = new byte[fileName.Length + 2];

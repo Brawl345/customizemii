@@ -27,7 +27,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.2.0.%2a</ApplicationVersion>
+    <ApplicationVersion>2.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -55,12 +55,21 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BNS.cs" />
+    <Compile Include="CustomizeMii_BackgroundWorkers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomizeMii_BnsConvert.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomizeMii_BnsConvert.Designer.cs">
+      <DependentUpon>CustomizeMii_BnsConvert.cs</DependentUpon>
+    </Compile>
     <Compile Include="CustomizeMii_ComplexForwarder.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +97,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CustomizeMii_BnsConvert.resx">
+      <DependentUpon>CustomizeMii_BnsConvert.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CustomizeMii_ComplexForwarder.resx">
       <DependentUpon>CustomizeMii_ComplexForwarder.cs</DependentUpon>
     </EmbeddedResource>
@@ -121,12 +133,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="CustomizeMii_Structs.cs" />
+    <Compile Include="Wave.cs" />
     <Compile Include="Wii.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
     <Content Include="Readme.txt" />
     <Content Include="Instructions.txt" />
+    <None Include="Resources\btnCreateWad.png" />
     <None Include="Resources\CustomizeMii.ico" />
     <None Include="Resources\Instructions.rtf" />
   </ItemGroup>

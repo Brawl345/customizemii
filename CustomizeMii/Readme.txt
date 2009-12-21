@@ -1,6 +1,4 @@
-CustomizeMii is a 100% legal custom channel creator for the Wii.
-It's completely written by myself (some parts are based on other 100% legal codes).
-Use legal Base WADs to create your own legal custom channels.
+CustomizeMii is a custom channel creator for the Wii.
 The .NET Framework 2.0 is required to run this application!
 
 For any further information, see: http://customizemii.googlecode.com
@@ -11,11 +9,22 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 2.0
+	- Added BNS conversion (Mono and Stereo, with and without loop)
+	- Fixed MP3 conversion (some files didn't convert)
+	- Lz77 checkbox is now ticked by default
+	- Removed Lz77 compression of sound.bin as most sounds will get bigger
+	- Added ability to insert DOLs from any channel WAD
+	- Added ability to re-add the interal DOL (To switch the NAND Loader)
+	- Added ability to extract the contents, DOL, sound and all images
+	- Added displaying of approx. blocks to the success-message
+	- Deleted some functions of the complex forwarder as they weren't working properly
+	- Some bugfixes and improvements
+
 Version 1.2
 	- Fixed writing/reading of channel titles, so japanese characters will work now
 	- Added checkbox (Options tab) to turn security checks off
-	- Added built-in forwarder creator (Needs the ForwardMii.dll which is
-										separately avaiable)
+	- Added built-in forwarder creator (Needs the ForwardMii.dll which is separately avaiable)
 	- You can choose MP3 files as channel sound (Needs lame.exe in application directory)
 	- Bugfixes
 

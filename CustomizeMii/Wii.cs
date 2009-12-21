@@ -22,11 +22,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
-using System.Security.Cryptography;
 using System.Drawing;
+using System.IO;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Wii
 {
@@ -257,7 +257,8 @@ namespace Wii
                 {
                     if (fs.Length < length) length = (int)fs.Length;
                     byte[] filearray = new byte[length];
-                    fs.Read(filearray, offset, length);
+                    fs.Seek(offset, SeekOrigin.Begin);
+                    fs.Read(filearray, 0, length);
                     return filearray;
                 }
             }
@@ -528,6 +529,18 @@ namespace Wii
         public static int GetTikPos(byte[] wadfile)
         {
             return Headersize + Tools.AddPadding(GetCertSize(wadfile));
+        }
+
+        /// <summary>
+        /// Returns the title ID of the wad file.
+        /// </summary>
+        /// <param name="wadfile"></param>
+        /// <param name="type">0 = Tik, 1 = Tmd</param>
+        /// <returns></returns>
+        public static string GetTitleID(string wadtiktmd, int type)
+        {
+            byte[] temp = Tools.LoadFileToByteArray(wadtiktmd);
+            return GetTitleID(temp, type);
         }
 
         /// <summary>
@@ -884,6 +897,23 @@ namespace Wii
         }
 
         /// <summary>
+        /// Returns the boot index specified in the tmd
+        /// </summary>
+        /// <param name="wadfile"></param>
+        /// <returns></returns>
+        public static int GetBootIndex(byte[] wadtmd)
+        {
+            int tmdpos = 0;
+
+            if (IsThisWad(wadtmd))
+                tmdpos = GetTmdPos(wadtmd);
+
+            int bootIndex = Tools.HexStringToInt(wadtmd[tmdpos + 0x1e0].ToString("x2") + wadtmd[tmdpos + 0x1e1].ToString("x2"));
+
+            return bootIndex;
+        }
+
+        /// <summary>
         /// Returns the approx. destination size on the Wii
         /// </summary>
         /// <param name="wadfile"></param>
@@ -951,6 +981,21 @@ namespace Wii
             }
 
             return size.Replace(",", ".");
+        }
+
+        /// <summary>
+        /// Returns the approx. destination block on the Wii
+        /// </summary>
+        /// <param name="wadfile"></param>
+        /// <returns></returns>
+        public static string GetNandBlocks(string wadtmd)
+        {
+            using (FileStream fs = new FileStream(wadtmd, FileMode.Open))
+            {
+                byte[] temp = new byte[fs.Length];
+                fs.Read(temp, 0, temp.Length);
+                return GetNandBlocks(temp);
+            }
         }
 
         /// <summary>
@@ -2227,26 +2272,6 @@ namespace Wii
     public class WadUnpack
     {
         /// <summary>
-        /// Unpacks the the wad file
-        /// </summary>
-        public static void UnpackWad(string pathtowad, string destinationpath)
-        {
-            byte[] wadfile = Tools.LoadFileToByteArray(pathtowad);
-            UnpackWad(wadfile, destinationpath);
-        }
-
-        /// <summary>
-        /// Unpacks the wad file to *wadpath*\wadunpack\
-        /// </summary>
-        /// <param name="pathtowad"></param>
-        public static void UnpackWad(string pathtowad)
-        {
-            string destinationpath = pathtowad.Remove(pathtowad.LastIndexOf('\\'));
-            byte[] wadfile = Tools.LoadFileToByteArray(pathtowad);
-            UnpackWad(wadfile, destinationpath);
-        }
-
-        /// <summary>
         /// Unpacks the 00000000.app of a wad
         /// </summary>
         /// <param name="wadfile"></param>
@@ -2288,12 +2313,52 @@ namespace Wii
         }
 
         /// <summary>
+        /// Unpacks the the wad file
+        /// </summary>
+        public static void UnpackWad(string pathtowad, string destinationpath)
+        {
+            byte[] wadfile = Tools.LoadFileToByteArray(pathtowad);
+            UnpackWad(wadfile, destinationpath);
+        }
+
+        /// <summary>
+        /// Unpacks the the wad file
+        /// </summary>
+        public static void UnpackWad(string pathtowad, string destinationpath, out bool hashesmatch)
+        {
+            byte[] wadfile = Tools.LoadFileToByteArray(pathtowad);
+            UnpackWad(wadfile, destinationpath, out hashesmatch);
+        }
+
+        /// <summary>
+        /// Unpacks the wad file to *wadpath*\wadunpack\
+        /// </summary>
+        /// <param name="pathtowad"></param>
+        public static void UnpackWad(string pathtowad)
+        {
+            string destinationpath = pathtowad.Remove(pathtowad.LastIndexOf('\\'));
+            byte[] wadfile = Tools.LoadFileToByteArray(pathtowad);
+            UnpackWad(wadfile, destinationpath);
+        }
+
+        /// <summary>
         /// Unpacks the wad file
         /// </summary>
         public static void UnpackWad(byte[] wadfile, string destinationpath)
         {
+            bool temp;
+            UnpackWad(wadfile, destinationpath, out temp);
+        }
+
+        /// <summary>
+        /// Unpacks the wad file
+        /// </summary>
+        public static void UnpackWad(byte[] wadfile, string destinationpath, out bool hashesmatch)
+        {
             if (destinationpath[destinationpath.Length - 1] != '\\')
             { destinationpath = destinationpath + "\\"; }
+
+            hashesmatch = true;
 
             if (!Directory.Exists(destinationpath))
             { Directory.CreateDirectory(destinationpath); }
@@ -2370,8 +2435,8 @@ namespace Wii
                 byte[] thishash = sha1.ComputeHash(thiscontent);
                 byte[] tmdhash = Tools.HexStringToByteArray(contents[i, 4]);
 
-                if (Tools.CompareByteArrays(thishash, tmdhash) == false)
-                    throw new Exception("At least one content's hash doesn't match the hash in the Tmd!");
+                if (Tools.CompareByteArrays(thishash, tmdhash) == false) hashesmatch = false;
+                //    throw new Exception("At least one content's hash doesn't match the hash in the Tmd!");
             }
         }
 
@@ -5317,19 +5382,72 @@ namespace Wii
         /// </summary>
         /// <param name="soundbin"></param>
         /// <param name="wavefile"></param>
-        public static void SoundBinToWave(string soundbin, string wavefile)
+        public static void SoundBinToAudio(string soundbin, string audiofile)
         {
-            MemoryStream ms = new MemoryStream(Tools.LoadFileToByteArray(soundbin));
-            byte[] wave = new byte[ms.Length - 32];
+            FileStream fs = new FileStream(soundbin, FileMode.Open);
+            byte[] audio = new byte[fs.Length - 32];
             int offset = 0;
 
-            ms.Seek(32, SeekOrigin.Begin);
-            ms.Read(wave, 0, wave.Length);
+            fs.Seek(32, SeekOrigin.Begin);
+            fs.Read(audio, 0, audio.Length);
+            fs.Close();
 
-            if ((offset = Lz77.GetLz77Offset(wave)) != -1)
-                wave = Lz77.Decompress(wave, offset);
+            if ((offset = Lz77.GetLz77Offset(audio)) != -1)
+                audio = Lz77.Decompress(audio, offset);
 
-            Tools.SaveFileFromByteArray(wave, wavefile);
+            Tools.SaveFileFromByteArray(audio, audiofile);
+        }
+
+        /// <summary>
+        /// Converts a BNS file to a sound.bin
+        /// </summary>
+        /// <param name="bnsFile"></param>
+        /// <param name="soundBin"></param>
+        public static void BnsToSoundBin(string bnsFile, string soundBin, bool compress)
+        {
+            byte[] bns = Tools.LoadFileToByteArray(bnsFile);
+
+            if (bns[0] != 'B' || bns[1] != 'N' || bns[2] != 'S')
+                throw new Exception("This is not a supported BNS file!");
+
+            if (compress) bns = Lz77.Compress(bns);
+            bns = U8.AddHeaderIMD5(bns);
+
+            Tools.SaveFileFromByteArray(bns, soundBin);
+        }
+
+        /// <summary>
+        /// Returns the length of the BNS audio file in seconds
+        /// </summary>
+        /// <param name="bnsFile"></param>
+        /// <returns></returns>
+        public static int GetBnsLength(string bnsFile)
+        {
+            byte[] temp = Tools.LoadFileToByteArray(bnsFile, 0, 100);
+            return GetBnsLength(temp);
+        }
+
+        /// <summary>
+        /// Returns the length of the BNS audio file in seconds
+        /// </summary>
+        /// <param name="bnsFile"></param>
+        /// <returns></returns>
+        public static int GetBnsLength(byte[] bnsFile)
+        {
+            byte[] temp = new byte[4];
+            temp[0] = bnsFile[45];
+            temp[1] = bnsFile[44];
+
+            int sampleRate = BitConverter.ToInt16(temp, 0);
+
+            temp[0] = bnsFile[55];
+            temp[1] = bnsFile[54];
+            temp[2] = bnsFile[53];
+            temp[3] = bnsFile[52];
+
+            int sampleCount = BitConverter.ToInt32(temp, 0);
+
+            return sampleCount / sampleRate;
         }
     }
 

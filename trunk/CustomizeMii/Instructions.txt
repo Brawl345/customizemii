@@ -55,8 +55,8 @@ C, E, F, H, J, L, M, N, P, Q, W
 INSERTING A NEW DOL
 
 Let's bring some life into the channel. In the "Options" tab, use the browse button for a new DOL.
-Either load a forwarder or the DOL of any application. Note that some channles require more than just a DOL
-and thus may not work in a channel (e.g. MPlayer CE).
+Either load a forwarder, the DOL of any application or a WAD to use it's DOL. Note that some applications
+require more than just a DOL and thus may not work in a channel (e.g. MPlayer CE).
 Choose a NAND loader or just stick with the one selected (both will do fine).
 
 You can also use the built-in forwarder creation by using the forwarder button right below the browse button
@@ -67,9 +67,14 @@ You need the ForwardMii.dll in order to use the forwarder creation.
 
 INSERTING A NEW SOUND
 
-For the sound, you can either use a wave file or the sound replace function to use the sound of an
-existing sound.bin/00000000.app/WAD.
+For the sound, you can either use a wave or mp3 (needs lame.exe) file or the sound replace function to use
+the sound of an existing sound.bin/00000000.app/WAD.
 If you want looped sound, open your wave file with wavosaur and add loop points before.
+
+To save space, you can convert your wav or mp3 files to BNS. You can take the loop from a prelooped wave file
+or enter the loop start point manually. Wave files must be 16bit PCM.
+It is possible to directly convert stereo Wave files to mono BNS files, note that only the left channel of
+the Wave will be taken.
 
 
 

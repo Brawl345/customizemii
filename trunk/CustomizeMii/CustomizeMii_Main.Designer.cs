@@ -80,6 +80,7 @@ namespace CustomizeMii
             this.tbAllLanguages = new System.Windows.Forms.TextBox();
             this.lbAllLanguages = new System.Windows.Forms.Label();
             this.tabOptions = new System.Windows.Forms.TabPage();
+            this.btnOptionsExtract = new System.Windows.Forms.Button();
             this.btnForwarder = new System.Windows.Forms.Button();
             this.cbFailureChecks = new System.Windows.Forms.CheckBox();
             this.cbLz77 = new System.Windows.Forms.CheckBox();
@@ -150,6 +151,22 @@ namespace CustomizeMii
             this.cmForwarder = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmSimpleForwarder = new System.Windows.Forms.ToolStripMenuItem();
             this.cmComplexForwarder = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmOptionsExtract = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmExtractWad = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractDol = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsExtractSound = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractSoundAsBin = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractSoundAsAudio = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsExtractImages = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractBannerImages = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractIconImages = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractBothImages = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmSound = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmLoadAudioFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmConvertToBns = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmDol = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmLoadDol = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmDolFromSource = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl.SuspendLayout();
             this.tabSource.SuspendLayout();
             this.tabTitle.SuspendLayout();
@@ -162,6 +179,9 @@ namespace CustomizeMii
             this.tabCredits.SuspendLayout();
             this.ssMain.SuspendLayout();
             this.cmForwarder.SuspendLayout();
+            this.cmOptionsExtract.SuspendLayout();
+            this.cmSound.SuspendLayout();
+            this.cmDol.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCreateWad
@@ -314,7 +334,7 @@ namespace CustomizeMii
             // 
             // btnBrowseSource
             // 
-            this.btnBrowseSource.Location = new System.Drawing.Point(360, 12);
+            this.btnBrowseSource.Location = new System.Drawing.Point(360, 13);
             this.btnBrowseSource.Name = "btnBrowseSource";
             this.btnBrowseSource.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseSource.TabIndex = 2;
@@ -514,6 +534,7 @@ namespace CustomizeMii
             // 
             // tabOptions
             // 
+            this.tabOptions.Controls.Add(this.btnOptionsExtract);
             this.tabOptions.Controls.Add(this.btnForwarder);
             this.tabOptions.Controls.Add(this.cbFailureChecks);
             this.tabOptions.Controls.Add(this.cbLz77);
@@ -536,6 +557,16 @@ namespace CustomizeMii
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
             // 
+            // btnOptionsExtract
+            // 
+            this.btnOptionsExtract.Location = new System.Drawing.Point(360, 47);
+            this.btnOptionsExtract.Name = "btnOptionsExtract";
+            this.btnOptionsExtract.Size = new System.Drawing.Size(75, 23);
+            this.btnOptionsExtract.TabIndex = 14;
+            this.btnOptionsExtract.Text = "Extract...";
+            this.btnOptionsExtract.UseVisualStyleBackColor = true;
+            this.btnOptionsExtract.Click += new System.EventHandler(this.btnOptionsExtract_Click);
+            // 
             // btnForwarder
             // 
             this.btnForwarder.Location = new System.Drawing.Point(360, 109);
@@ -553,12 +584,15 @@ namespace CustomizeMii
             this.cbFailureChecks.Name = "cbFailureChecks";
             this.cbFailureChecks.Size = new System.Drawing.Size(172, 17);
             this.cbFailureChecks.TabIndex = 12;
+            this.cbFailureChecks.Tag = "Independent";
             this.cbFailureChecks.Text = "/!\\ Turn off security checks /!\\";
             this.cbFailureChecks.UseVisualStyleBackColor = true;
             // 
             // cbLz77
             // 
             this.cbLz77.AutoSize = true;
+            this.cbLz77.Checked = true;
+            this.cbLz77.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbLz77.Location = new System.Drawing.Point(11, 180);
             this.cbLz77.Name = "cbLz77";
             this.cbLz77.Size = new System.Drawing.Size(134, 17);
@@ -578,7 +612,7 @@ namespace CustomizeMii
             // 
             // btnBrowseSound
             // 
-            this.btnBrowseSound.Location = new System.Drawing.Point(360, 144);
+            this.btnBrowseSound.Location = new System.Drawing.Point(360, 145);
             this.btnBrowseSound.Name = "btnBrowseSound";
             this.btnBrowseSound.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseSound.TabIndex = 9;
@@ -609,7 +643,7 @@ namespace CustomizeMii
             // 
             // btnBrowseDol
             // 
-            this.btnBrowseDol.Location = new System.Drawing.Point(360, 80);
+            this.btnBrowseDol.Location = new System.Drawing.Point(360, 81);
             this.btnBrowseDol.Name = "btnBrowseDol";
             this.btnBrowseDol.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseDol.TabIndex = 6;
@@ -1257,7 +1291,7 @@ namespace CustomizeMii
             this.cmSimpleForwarder,
             this.cmComplexForwarder});
             this.cmForwarder.Name = "contextMenuStrip1";
-            this.cmForwarder.Size = new System.Drawing.Size(178, 70);
+            this.cmForwarder.Size = new System.Drawing.Size(178, 48);
             // 
             // cmSimpleForwarder
             // 
@@ -1272,6 +1306,128 @@ namespace CustomizeMii
             this.cmComplexForwarder.Size = new System.Drawing.Size(177, 22);
             this.cmComplexForwarder.Text = "Complex Forwarder";
             this.cmComplexForwarder.Click += new System.EventHandler(this.cmForwarderItem_Click);
+            // 
+            // cmOptionsExtract
+            // 
+            this.cmOptionsExtract.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmExtractWad,
+            this.cmExtractDol,
+            this.tsExtractSound,
+            this.tsExtractImages});
+            this.cmOptionsExtract.Name = "cmOptionsExtract";
+            this.cmOptionsExtract.Size = new System.Drawing.Size(153, 92);
+            // 
+            // cmExtractWad
+            // 
+            this.cmExtractWad.Name = "cmExtractWad";
+            this.cmExtractWad.Size = new System.Drawing.Size(152, 22);
+            this.cmExtractWad.Text = "WAD Contents";
+            this.cmExtractWad.Click += new System.EventHandler(this.cmExtractWad_Click);
+            // 
+            // cmExtractDol
+            // 
+            this.cmExtractDol.Name = "cmExtractDol";
+            this.cmExtractDol.Size = new System.Drawing.Size(152, 22);
+            this.cmExtractDol.Text = "DOL";
+            this.cmExtractDol.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // tsExtractSound
+            // 
+            this.tsExtractSound.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmExtractSoundAsBin,
+            this.cmExtractSoundAsAudio});
+            this.tsExtractSound.Name = "tsExtractSound";
+            this.tsExtractSound.Size = new System.Drawing.Size(152, 22);
+            this.tsExtractSound.Text = "Sound";
+            // 
+            // cmExtractSoundAsBin
+            // 
+            this.cmExtractSoundAsBin.Name = "cmExtractSoundAsBin";
+            this.cmExtractSoundAsBin.Size = new System.Drawing.Size(143, 22);
+            this.cmExtractSoundAsBin.Text = "As sound.bin";
+            this.cmExtractSoundAsBin.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // cmExtractSoundAsAudio
+            // 
+            this.cmExtractSoundAsAudio.Name = "cmExtractSoundAsAudio";
+            this.cmExtractSoundAsAudio.Size = new System.Drawing.Size(143, 22);
+            this.cmExtractSoundAsAudio.Text = "As Audiofile";
+            this.cmExtractSoundAsAudio.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // tsExtractImages
+            // 
+            this.tsExtractImages.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmExtractBannerImages,
+            this.cmExtractIconImages,
+            this.cmExtractBothImages});
+            this.tsExtractImages.Name = "tsExtractImages";
+            this.tsExtractImages.Size = new System.Drawing.Size(152, 22);
+            this.tsExtractImages.Text = "Images";
+            // 
+            // cmExtractBannerImages
+            // 
+            this.cmExtractBannerImages.Name = "cmExtractBannerImages";
+            this.cmExtractBannerImages.Size = new System.Drawing.Size(111, 22);
+            this.cmExtractBannerImages.Text = "Banner";
+            this.cmExtractBannerImages.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // cmExtractIconImages
+            // 
+            this.cmExtractIconImages.Name = "cmExtractIconImages";
+            this.cmExtractIconImages.Size = new System.Drawing.Size(111, 22);
+            this.cmExtractIconImages.Text = "Icon";
+            this.cmExtractIconImages.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // cmExtractBothImages
+            // 
+            this.cmExtractBothImages.Name = "cmExtractBothImages";
+            this.cmExtractBothImages.Size = new System.Drawing.Size(111, 22);
+            this.cmExtractBothImages.Text = "Both";
+            this.cmExtractBothImages.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // cmSound
+            // 
+            this.cmSound.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmLoadAudioFile,
+            this.cmConvertToBns});
+            this.cmSound.Name = "cmSound";
+            this.cmSound.Size = new System.Drawing.Size(159, 48);
+            // 
+            // cmLoadAudioFile
+            // 
+            this.cmLoadAudioFile.Name = "cmLoadAudioFile";
+            this.cmLoadAudioFile.Size = new System.Drawing.Size(158, 22);
+            this.cmLoadAudioFile.Text = "Load Audio File";
+            this.cmLoadAudioFile.Click += new System.EventHandler(this.cmLoadAudioFile_Click);
+            // 
+            // cmConvertToBns
+            // 
+            this.cmConvertToBns.Name = "cmConvertToBns";
+            this.cmConvertToBns.Size = new System.Drawing.Size(158, 22);
+            this.cmConvertToBns.Text = "Convert To BNS";
+            this.cmConvertToBns.Click += new System.EventHandler(this.cmConvertToBns_Click);
+            // 
+            // cmDol
+            // 
+            this.cmDol.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmLoadDol,
+            this.cmDolFromSource});
+            this.cmDol.Name = "cmDol";
+            this.cmDol.Size = new System.Drawing.Size(200, 48);
+            // 
+            // cmLoadDol
+            // 
+            this.cmLoadDol.Name = "cmLoadDol";
+            this.cmLoadDol.Size = new System.Drawing.Size(199, 22);
+            this.cmLoadDol.Text = "Load DOL File";
+            this.cmLoadDol.Click += new System.EventHandler(this.cmLoadDol_Click);
+            // 
+            // cmDolFromSource
+            // 
+            this.cmDolFromSource.Name = "cmDolFromSource";
+            this.cmDolFromSource.Size = new System.Drawing.Size(199, 22);
+            this.cmDolFromSource.Text = "Take From Source WAD";
+            this.cmDolFromSource.Click += new System.EventHandler(this.cmDolFromSource_Click);
             // 
             // CustomizeMii_Main
             // 
@@ -1308,6 +1464,9 @@ namespace CustomizeMii
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
             this.cmForwarder.ResumeLayout(false);
+            this.cmOptionsExtract.ResumeLayout(false);
+            this.cmSound.ResumeLayout(false);
+            this.cmDol.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1418,6 +1577,23 @@ namespace CustomizeMii
         private System.Windows.Forms.ContextMenuStrip cmForwarder;
         private System.Windows.Forms.ToolStripMenuItem cmSimpleForwarder;
         private System.Windows.Forms.ToolStripMenuItem cmComplexForwarder;
+        private System.Windows.Forms.Button btnOptionsExtract;
+        private System.Windows.Forms.ContextMenuStrip cmOptionsExtract;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractDol;
+        private System.Windows.Forms.ToolStripMenuItem tsExtractSound;
+        private System.Windows.Forms.ToolStripMenuItem tsExtractImages;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractBannerImages;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractIconImages;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractBothImages;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractSoundAsBin;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractSoundAsAudio;
+        private System.Windows.Forms.ContextMenuStrip cmSound;
+        private System.Windows.Forms.ToolStripMenuItem cmLoadAudioFile;
+        private System.Windows.Forms.ToolStripMenuItem cmConvertToBns;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractWad;
+        private System.Windows.Forms.ContextMenuStrip cmDol;
+        private System.Windows.Forms.ToolStripMenuItem cmLoadDol;
+        private System.Windows.Forms.ToolStripMenuItem cmDolFromSource;
     }
 }
 

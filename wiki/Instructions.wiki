@@ -73,6 +73,11 @@ For the sound, you can either use a wave file or the sound replace function to u
 existing sound.bin/00000000.app/WAD.<br>
 If you want looped sound, open your wave file with wavosaur and add loop points before.<br>
 <br>
+To save space, you can convert your wav or mp3 files to BNS. You can take the loop from a prelooped wave file<br>
+or enter the loop start point manually. Wave files must be 16bit PCM.<br>
+It is possible to directly convert stereo Wave files to mono BNS files, note that only the left channel of<br>
+the Wave will be taken.<br>
+<br>
 <br>
 <br>
 *EDITING THE BANNER/ICON (If you're an advanced user and want to edit the brlyt/brlan, do that first!)*<br>

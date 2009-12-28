@@ -13,6 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
+#include <ogc/conf.h>
 
 #define DEFAULT_FIFO_SIZE 256 * 1024
 static unsigned int *xfb[2] = { NULL, NULL }; // Double buffered

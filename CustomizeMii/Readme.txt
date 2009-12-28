@@ -9,6 +9,9 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 2.1
+	- 
+
 Version 2.0
 	- Added BNS conversion (Mono and Stereo, with and without loop)
 	- Fixed MP3 conversion (some files didn't convert)

@@ -36,10 +36,11 @@ namespace CustomizeMii
 {
     public partial class CustomizeMii_Main : Form
     {
-        const string version = "2.0"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "2.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         const int SoundMaxLength = 30; //In seconds
         const int SoundWarningLength = 20; //In seconds
         const int BnsWarningLength = 45; //In seconds
+        const int CreditsScrollSpeed = 85; //Timer Intervall for the scrolling Credits
         public static string TempPath = Path.GetTempPath() + "CustomizeMii_Temp\\XXX\\";
         public static string TempWadPath = Path.GetTempPath() + "CustomizeMii_Temp\\XXX\\TempWad.wad";
         public static string TempUnpackPath = Path.GetTempPath() + "CustomizeMii_Temp\\XXX\\Unpack\\";
@@ -82,6 +83,8 @@ namespace CustomizeMii
         private Forwarder.Complex ComplexForwarder = new Forwarder.Complex();
         private delegate void BoxInvoker(string message);
         private delegate void SetTextInvoker(string text, TextBox tb);
+        double separatorBtn;
+        Timer tmrCredits = new Timer();
 
         public CustomizeMii_Main()
         {
@@ -111,7 +114,10 @@ namespace CustomizeMii
 
         private void CustomizeMii_Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try { if (Directory.Exists(TempPath)) Directory.Delete(TempPath, true); }
+            try { 
+                if (Directory.Exists(TempPath)) Directory.Delete(TempPath, true);
+                if (File.Exists("C:\\cmtempmp3wav.wav")) File.Delete("C:\\cmtempmp3wav.wav");
+            }
             catch { }
             Environment.Exit(0);
         }
@@ -157,6 +163,8 @@ namespace CustomizeMii
             btnBrowseSound.Text = "Browse...";
             rtbInstructions.Rtf = Properties.Resources.Instructions;
             rtbInstructions.LinkClicked += new LinkClickedEventHandler(rtbInstructions_LinkClicked);
+            tmrCredits.Interval = CreditsScrollSpeed;
+            tmrCredits.Tick += new EventHandler(tmrCredits_Tick);
 
 #if !Debug
             DisableControls(null, null);
@@ -254,7 +262,7 @@ namespace CustomizeMii
         private void SetToolTips()
         {
             ToolTip TTip = new ToolTip();
-            TTip.SetToolTip(btnCreateWad, "Create WAD...");
+            TTip.SetToolTip(btnCreateWad, "Save WAD or send it directly to the Wii...");
             TTip.SetToolTip(btnBrowseSource, "Browse for a WAD that is used as a Base...");
             TTip.SetToolTip(btnLoadBaseWad, "Load the selected Base WAD...");
             TTip.SetToolTip(btnPreviewBaseWad, "Preview the selected Base WAD, a Browserwindow will be opened...");
@@ -336,14 +344,34 @@ namespace CustomizeMii
 
         private void SetButtonText()
         {
-            Random Randomizer = new Random();
-            btnCreateWad.Text = ButtonTexts[Randomizer.Next(0, ButtonTexts.Length - 1)];
+            //Random Randomizer = new Random();
+            //btnCreateWad.Text = ButtonTexts[Randomizer.Next(0, ButtonTexts.Length - 1)];
 
-            if (btnCreateWad.Text == "Image")
-            {
-                btnCreateWad.Text = string.Empty;
-                btnCreateWad.Image = Properties.Resources.btnCreateWad;
-            }
+            //if (btnCreateWad.Text == "Image")
+            //{
+            //    btnCreateWad.Text = string.Empty;
+            //    btnCreateWad.Image = Properties.Resources.btnCreateWad;
+            //}
+
+            btnCreateWad.Text = string.Empty;
+
+            Image tmpImg = new Bitmap(btnCreateWad.Width, btnCreateWad.Height);
+            Graphics gImg = Graphics.FromImage(tmpImg);
+
+            gImg.Clear(Color.Transparent);
+
+            separatorBtn = btnCreateWad.Width * 0.5;
+
+            gImg.DrawLine(Pens.Gray, new Point((int)separatorBtn, 0), new Point((int)separatorBtn, btnCreateWad.Height));
+
+            string sSend = "Send";
+            string sSave = "Save";
+
+            gImg.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit; 
+            gImg.DrawString(sSend, btnCreateWad.Font, Brushes.Black, new PointF(95, 10));
+            gImg.DrawString(sSave, btnCreateWad.Font, Brushes.Black, new PointF(320, 10));
+
+            btnCreateWad.Image = tmpImg;
         }
 
         private void ErrorBox(string message)
@@ -662,6 +690,8 @@ namespace CustomizeMii
 
         private void tabControl_Selecting(object sender, TabControlCancelEventArgs e)
         {
+            tmrCredits.Stop();
+
             if (tabControl.SelectedTab == tabBanner)
             {
                 lbxBannerTpls.SelectedIndex = -1;
@@ -684,6 +714,17 @@ namespace CustomizeMii
             {
                 AddBrlans(null, null);
             }
+            else if (tabControl.SelectedTab == tabCredits)
+            {
+                lbCreditThanks.Location = new Point(lbCreditThanks.Location.X, panCredits.Height);
+                tmrCredits.Start();
+            }
+        }
+
+        void tmrCredits_Tick(object sender, EventArgs e)
+        {
+            if (lbCreditThanks.Location.Y == -130) lbCreditThanks.Location = new Point(lbCreditThanks.Location.X, panCredits.Height);
+            lbCreditThanks.Location = new Point(lbCreditThanks.Location.X, lbCreditThanks.Location.Y - 1);
         }
 
         private void lbStatusText_TextChanged(object sender, EventArgs e)
@@ -2187,30 +2228,22 @@ namespace CustomizeMii
 
         private void btnCreateWad_Click(object sender, EventArgs e)
         {
-            if (pbProgress.Value == 100)
+            Point mousePos = MousePosition;
+
+            if (mousePos.X < (this.Location.X + btnCreateWad.Location.X + Math.Ceiling(separatorBtn) + 3))
             {
-                if (!string.IsNullOrEmpty(tbSourceWad.Text))
+                if (pbProgress.Value == 100)
                 {
-                    if (cbFailureChecks.Checked == true || FailureCheck() == true)
+                    if (!string.IsNullOrEmpty(tbSourceWad.Text))
                     {
-                        SaveFileDialog sfd = new SaveFileDialog();
-                        sfd.Filter = "Wii Channels|*.wad";
-
-                        if (!string.IsNullOrEmpty(tbAllLanguages.Text))
-                            sfd.FileName = tbAllLanguages.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
-                        else
-                            sfd.FileName = tbEnglish.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
-
-                        if (sfd.ShowDialog() == DialogResult.OK)
+                        if (cbFailureChecks.Checked == true || FailureCheck() == true)
                         {
                             try
                             {
-                                CreationTimer.Reset();
-                                CreationTimer.Start();
-
                                 WadCreationInfo wadInfo = new WadCreationInfo();
-                                wadInfo.outFile = sfd.FileName;
+                                wadInfo.outFile = TempPath + "SendToWii.wad";
                                 wadInfo.nandLoader = (WadCreationInfo.NandLoader)cmbNandLoader.SelectedIndex;
+                                wadInfo.sendToWii = true;
 
                                 BackgroundWorker bwCreateWad = new BackgroundWorker();
                                 bwCreateWad.DoWork += new DoWorkEventHandler(bwCreateWad_DoWork);
@@ -2218,11 +2251,60 @@ namespace CustomizeMii
                                 bwCreateWad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwCreateWad_RunWorkerCompleted);
                                 bwCreateWad.WorkerReportsProgress = true;
                                 bwCreateWad.RunWorkerAsync(wadInfo);
+
+                                // @WiiCrazy: The WAD will be saved to >> TempTempPath + "SendToWii.wad" <<
+                                // here. Now a loop that waits for the BackgroundWorker to finish and then opens
+                                // a new window (wiiload - window or whatever) ?!
+                                // If it finishes successfully, the variable >> sendWadReady << will turn into 1,
+                                // if it errors, it will turn into -1, as long as it's running it is 0.
                             }
                             catch (Exception ex)
                             {
-                                CreationTimer.Stop();
                                 ErrorBox(ex.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (pbProgress.Value == 100)
+                {
+                    if (!string.IsNullOrEmpty(tbSourceWad.Text))
+                    {
+                        if (cbFailureChecks.Checked == true || FailureCheck() == true)
+                        {
+                            SaveFileDialog sfd = new SaveFileDialog();
+                            sfd.Filter = "Wii Channels|*.wad";
+
+                            if (!string.IsNullOrEmpty(tbAllLanguages.Text))
+                                sfd.FileName = tbAllLanguages.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
+                            else
+                                sfd.FileName = tbEnglish.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
+
+                            if (sfd.ShowDialog() == DialogResult.OK)
+                            {
+                                try
+                                {
+                                    CreationTimer.Reset();
+                                    CreationTimer.Start();
+
+                                    WadCreationInfo wadInfo = new WadCreationInfo();
+                                    wadInfo.outFile = sfd.FileName;
+                                    wadInfo.nandLoader = (WadCreationInfo.NandLoader)cmbNandLoader.SelectedIndex;
+
+                                    BackgroundWorker bwCreateWad = new BackgroundWorker();
+                                    bwCreateWad.DoWork += new DoWorkEventHandler(bwCreateWad_DoWork);
+                                    bwCreateWad.ProgressChanged += new ProgressChangedEventHandler(bwCreateWad_ProgressChanged);
+                                    bwCreateWad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwCreateWad_RunWorkerCompleted);
+                                    bwCreateWad.WorkerReportsProgress = true;
+                                    bwCreateWad.RunWorkerAsync(wadInfo);
+                                }
+                                catch (Exception ex)
+                                {
+                                    CreationTimer.Stop();
+                                    ErrorBox(ex.Message);
+                                }
                             }
                         }
                     }

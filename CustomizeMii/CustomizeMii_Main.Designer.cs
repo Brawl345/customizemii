@@ -167,6 +167,7 @@ namespace CustomizeMii
             this.cmDol = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmLoadDol = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDolFromSource = new System.Windows.Forms.ToolStripMenuItem();
+            this.panCredits = new System.Windows.Forms.Panel();
             this.tabControl.SuspendLayout();
             this.tabSource.SuspendLayout();
             this.tabTitle.SuspendLayout();
@@ -182,6 +183,7 @@ namespace CustomizeMii
             this.cmOptionsExtract.SuspendLayout();
             this.cmSound.SuspendLayout();
             this.cmDol.SuspendLayout();
+            this.panCredits.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCreateWad
@@ -1186,9 +1188,9 @@ namespace CustomizeMii
             // 
             // tabCredits
             // 
+            this.tabCredits.Controls.Add(this.panCredits);
             this.tabCredits.Controls.Add(this.llbUpdateAvailabe);
             this.tabCredits.Controls.Add(this.llbSite);
-            this.tabCredits.Controls.Add(this.lbCreditThanks);
             this.tabCredits.Controls.Add(this.lbCreditVersion);
             this.tabCredits.Controls.Add(this.lbCreditInfo);
             this.tabCredits.Location = new System.Drawing.Point(4, 22);
@@ -1225,9 +1227,9 @@ namespace CustomizeMii
             // 
             // lbCreditThanks
             // 
-            this.lbCreditThanks.Location = new System.Drawing.Point(0, 91);
+            this.lbCreditThanks.Location = new System.Drawing.Point(8, 0);
             this.lbCreditThanks.Name = "lbCreditThanks";
-            this.lbCreditThanks.Size = new System.Drawing.Size(443, 79);
+            this.lbCreditThanks.Size = new System.Drawing.Size(427, 150);
             this.lbCreditThanks.TabIndex = 2;
             this.lbCreditThanks.Text = resources.GetString("lbCreditThanks.Text");
             this.lbCreditThanks.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -1429,6 +1431,15 @@ namespace CustomizeMii
             this.cmDolFromSource.Text = "Take From Source WAD";
             this.cmDolFromSource.Click += new System.EventHandler(this.cmDolFromSource_Click);
             // 
+            // panCredits
+            // 
+            this.panCredits.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panCredits.Controls.Add(this.lbCreditThanks);
+            this.panCredits.Location = new System.Drawing.Point(0, 94);
+            this.panCredits.Name = "panCredits";
+            this.panCredits.Size = new System.Drawing.Size(443, 79);
+            this.panCredits.TabIndex = 5;
+            // 
             // CustomizeMii_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1467,6 +1478,7 @@ namespace CustomizeMii
             this.cmOptionsExtract.ResumeLayout(false);
             this.cmSound.ResumeLayout(false);
             this.cmDol.ResumeLayout(false);
+            this.panCredits.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1594,6 +1606,7 @@ namespace CustomizeMii
         private System.Windows.Forms.ContextMenuStrip cmDol;
         private System.Windows.Forms.ToolStripMenuItem cmLoadDol;
         private System.Windows.Forms.ToolStripMenuItem cmDolFromSource;
+        private System.Windows.Forms.Panel panCredits;
     }
 }
 

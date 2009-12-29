@@ -11,6 +11,9 @@ the CustomizeMii project page.
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 1.02
+	- Compiling now works, if a space is in your Windows Username
+
 Version 1.01
 	- Fixed bug that caused an object error while creating forwarders
 

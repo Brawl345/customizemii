@@ -21,6 +21,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Text;
+using System.Runtime.InteropServices;
 
 namespace ForwardMii
 {
@@ -145,11 +147,26 @@ namespace ForwardMii
             }
         }
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        static extern uint GetShortPathName([MarshalAs(UnmanagedType.LPTStr)] string lpszLongPath,
+        [MarshalAs(UnmanagedType.LPTStr)] StringBuilder lpszShortPath, uint cchBuffer);
+
+        public static string GetShortPathName(string longPath)
+        {
+            uint size = 256;
+            StringBuilder buffer = new StringBuilder((int)size);
+            uint result = GetShortPathName(longPath, buffer, size);
+            return buffer.ToString();
+        }
+
         private bool Compile()
         {
             try
             {
-                ProcessStartInfo makeI = new ProcessStartInfo("make", "-C " + TempDir);
+                string tempDir = TempDir;
+                if (tempDir.Contains(" ")) { tempDir = GetShortPathName(tempDir); }
+
+                ProcessStartInfo makeI = new ProcessStartInfo("make", "-C " + tempDir);
                 makeI.UseShellExecute = false;
                 makeI.CreateNoWindow = true;
                 

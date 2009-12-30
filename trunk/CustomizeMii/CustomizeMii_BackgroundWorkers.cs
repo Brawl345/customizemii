@@ -25,8 +25,6 @@ namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
-        public int sendWadReady = 0;
-        private bool sendToWii = false;
         private bool internalSound;
 
         void bwBannerReplace_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -544,9 +542,6 @@ namespace CustomizeMii
                 EventHandler DisableControls = new EventHandler(this.DisableControls);
                 this.Invoke(DisableControls);
 
-                this.sendToWii = wadInfo.sendToWii;
-                sendWadReady = 0;
-
                 bwCreateWad.ReportProgress(0, "Making TPLs transparent");
                 MakeBannerTplsTransparent();
                 MakeIconTplsTransparent();
@@ -730,19 +725,13 @@ namespace CustomizeMii
                 bwCreateWad.ReportProgress(100, " ");
                 CreationTimer.Stop();
 
-                if (!sendToWii)
-                {
-                    FileInfo fi = new FileInfo(wadInfo.outFile);
-                    double fileSize = Math.Round(fi.Length * 0.0009765625 * 0.0009765625, 2);
+                FileInfo fi = new FileInfo(wadInfo.outFile);
+                double fileSize = Math.Round(fi.Length * 0.0009765625 * 0.0009765625, 2);
 
-
-                    InfoBox(string.Format("Successfully created custom channel!\nTime elapsed: {0} ms\nFilesize: {1} MB\nApprox. Blocks: {2}", CreationTimer.ElapsedMilliseconds, fileSize, Wii.WadInfo.GetNandBlocks(wadInfo.outFile)));
-                }
-                else sendWadReady = 1;
+                InfoBox(string.Format("Successfully created custom channel!\nTime elapsed: {0} ms\nFilesize: {1} MB\nApprox. Blocks: {2}", CreationTimer.ElapsedMilliseconds, fileSize, Wii.WadInfo.GetNandBlocks(wadInfo.outFile)));
             }
             catch (Exception ex)
             {
-                sendWadReady = -1;
                 CreationTimer.Stop();
                 EventHandler EnableControls = new EventHandler(this.EnableControls);
                 this.Invoke(EnableControls);

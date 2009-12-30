@@ -42,7 +42,6 @@
 
         public string outFile;
         public NandLoader nandLoader;
-        public bool sendToWii;
     }
 
     public struct Progress

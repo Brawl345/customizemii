@@ -139,9 +139,11 @@ namespace CustomizeMii
             this.tabInstructions = new System.Windows.Forms.TabPage();
             this.rtbInstructions = new System.Windows.Forms.RichTextBox();
             this.tabCredits = new System.Windows.Forms.TabPage();
+            this.lbForwardMiiVersion = new System.Windows.Forms.Label();
+            this.panCredits = new System.Windows.Forms.Panel();
+            this.lbCreditThanks = new System.Windows.Forms.Label();
             this.llbUpdateAvailabe = new System.Windows.Forms.LinkLabel();
             this.llbSite = new System.Windows.Forms.LinkLabel();
-            this.lbCreditThanks = new System.Windows.Forms.Label();
             this.lbCreditVersion = new System.Windows.Forms.Label();
             this.lbCreditInfo = new System.Windows.Forms.Label();
             this.ssMain = new System.Windows.Forms.StatusStrip();
@@ -177,6 +179,7 @@ namespace CustomizeMii
             this.tabBrlan.SuspendLayout();
             this.tabInstructions.SuspendLayout();
             this.tabCredits.SuspendLayout();
+            this.panCredits.SuspendLayout();
             this.ssMain.SuspendLayout();
             this.cmForwarder.SuspendLayout();
             this.cmOptionsExtract.SuspendLayout();
@@ -1185,9 +1188,10 @@ namespace CustomizeMii
             // 
             // tabCredits
             // 
+            this.tabCredits.Controls.Add(this.lbForwardMiiVersion);
+            this.tabCredits.Controls.Add(this.panCredits);
             this.tabCredits.Controls.Add(this.llbUpdateAvailabe);
             this.tabCredits.Controls.Add(this.llbSite);
-            this.tabCredits.Controls.Add(this.lbCreditThanks);
             this.tabCredits.Controls.Add(this.lbCreditVersion);
             this.tabCredits.Controls.Add(this.lbCreditInfo);
             this.tabCredits.Location = new System.Drawing.Point(4, 22);
@@ -1197,6 +1201,34 @@ namespace CustomizeMii
             this.tabCredits.TabIndex = 5;
             this.tabCredits.Text = "About";
             this.tabCredits.UseVisualStyleBackColor = true;
+            // 
+            // lbForwardMiiVersion
+            // 
+            this.lbForwardMiiVersion.Location = new System.Drawing.Point(0, 62);
+            this.lbForwardMiiVersion.Name = "lbForwardMiiVersion";
+            this.lbForwardMiiVersion.Size = new System.Drawing.Size(443, 13);
+            this.lbForwardMiiVersion.TabIndex = 6;
+            this.lbForwardMiiVersion.Text = "You\'re using Version X of the ForwardMii Plugin";
+            this.lbForwardMiiVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbForwardMiiVersion.Visible = false;
+            // 
+            // panCredits
+            // 
+            this.panCredits.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.panCredits.Controls.Add(this.lbCreditThanks);
+            this.panCredits.Location = new System.Drawing.Point(0, 94);
+            this.panCredits.Name = "panCredits";
+            this.panCredits.Size = new System.Drawing.Size(443, 79);
+            this.panCredits.TabIndex = 5;
+            // 
+            // lbCreditThanks
+            // 
+            this.lbCreditThanks.Location = new System.Drawing.Point(8, 0);
+            this.lbCreditThanks.Name = "lbCreditThanks";
+            this.lbCreditThanks.Size = new System.Drawing.Size(427, 150);
+            this.lbCreditThanks.TabIndex = 2;
+            this.lbCreditThanks.Text = resources.GetString("lbCreditThanks.Text");
+            this.lbCreditThanks.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // llbUpdateAvailabe
             // 
@@ -1221,15 +1253,6 @@ namespace CustomizeMii
             this.llbSite.Text = "http://customizemii.googlecode.com";
             this.llbSite.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.llbSite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbSite_LinkClicked);
-            // 
-            // lbCreditThanks
-            // 
-            this.lbCreditThanks.Location = new System.Drawing.Point(0, 91);
-            this.lbCreditThanks.Name = "lbCreditThanks";
-            this.lbCreditThanks.Size = new System.Drawing.Size(443, 79);
-            this.lbCreditThanks.TabIndex = 2;
-            this.lbCreditThanks.Text = resources.GetString("lbCreditThanks.Text");
-            this.lbCreditThanks.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lbCreditVersion
             // 
@@ -1460,6 +1483,7 @@ namespace CustomizeMii
             this.tabBrlan.PerformLayout();
             this.tabInstructions.ResumeLayout(false);
             this.tabCredits.ResumeLayout(false);
+            this.panCredits.ResumeLayout(false);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
             this.cmForwarder.ResumeLayout(false);
@@ -1593,6 +1617,8 @@ namespace CustomizeMii
         private System.Windows.Forms.ContextMenuStrip cmDol;
         private System.Windows.Forms.ToolStripMenuItem cmLoadDol;
         private System.Windows.Forms.ToolStripMenuItem cmDolFromSource;
+        private System.Windows.Forms.Panel panCredits;
+        private System.Windows.Forms.Label lbForwardMiiVersion;
     }
 }
 

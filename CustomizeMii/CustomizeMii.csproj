@@ -83,12 +83,6 @@
     <Compile Include="CustomizeMii_Main.Designer.cs">
       <DependentUpon>CustomizeMii_Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="CustomizeMii_Preview.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CustomizeMii_Preview.Designer.cs">
-      <DependentUpon>CustomizeMii_Preview.cs</DependentUpon>
-    </Compile>
     <Compile Include="CustomizeMii_InputBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,9 +103,6 @@
     <EmbeddedResource Include="CustomizeMii_Main.resx">
       <DependentUpon>CustomizeMii_Main.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CustomizeMii_Preview.resx">
-      <DependentUpon>CustomizeMii_Preview.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -128,12 +119,21 @@
     </None>
     <EmbeddedResource Include="Resources\comex.app" />
     <EmbeddedResource Include="Resources\Waninkoko.app" />
+    <EmbeddedResource Include="CustomizeMii_Preview.resx">
+      <DependentUpon>CustomizeMii_Preview.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="CustomizeMii_Structs.cs" />
+    <Compile Include="CustomizeMii_Preview.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomizeMii_Preview.designer.cs">
+      <DependentUpon>CustomizeMii_Preview.cs</DependentUpon>
+    </Compile>
     <Compile Include="Wave.cs" />
     <Compile Include="Wii.cs" />
   </ItemGroup>
@@ -141,6 +141,8 @@
     <Content Include="License.txt" />
     <Content Include="Readme.txt" />
     <Content Include="Instructions.txt" />
+    <None Include="Resources\btnSend.png" />
+    <None Include="Resources\btnCreate.png" />
     <None Include="Resources\btnCreateWad.png" />
     <None Include="Resources\CustomizeMii.ico" />
     <None Include="Resources\Instructions.rtf" />

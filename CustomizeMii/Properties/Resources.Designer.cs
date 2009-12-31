@@ -60,9 +60,16 @@ namespace CustomizeMii.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap btnCreateWad {
+        internal static System.Drawing.Bitmap btnCreate {
             get {
-                object obj = ResourceManager.GetObject("btnCreateWad", resourceCulture);
+                object obj = ResourceManager.GetObject("btnCreate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap btnSend {
+            get {
+                object obj = ResourceManager.GetObject("btnSend", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

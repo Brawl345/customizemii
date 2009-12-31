@@ -52,7 +52,6 @@ namespace CustomizeMii
             this.tabSource = new System.Windows.Forms.TabPage();
             this.tbReplace = new System.Windows.Forms.TextBox();
             this.btnBrowseReplace = new System.Windows.Forms.Button();
-            this.btnClearReplace = new System.Windows.Forms.Button();
             this.cmbReplace = new System.Windows.Forms.ComboBox();
             this.btnSaveBaseWad = new System.Windows.Forms.Button();
             this.btnPreviewBaseWad = new System.Windows.Forms.Button();
@@ -221,7 +220,6 @@ namespace CustomizeMii
             // 
             this.tabSource.Controls.Add(this.tbReplace);
             this.tabSource.Controls.Add(this.btnBrowseReplace);
-            this.tabSource.Controls.Add(this.btnClearReplace);
             this.tabSource.Controls.Add(this.cmbReplace);
             this.tabSource.Controls.Add(this.btnSaveBaseWad);
             this.tabSource.Controls.Add(this.btnPreviewBaseWad);
@@ -243,29 +241,20 @@ namespace CustomizeMii
             this.tbReplace.Location = new System.Drawing.Point(100, 173);
             this.tbReplace.Name = "tbReplace";
             this.tbReplace.ReadOnly = true;
-            this.tbReplace.Size = new System.Drawing.Size(173, 20);
+            this.tbReplace.Size = new System.Drawing.Size(254, 20);
             this.tbReplace.TabIndex = 10;
             this.tbReplace.Tag = "Disabled";
+            this.tbReplace.TextChanged += new System.EventHandler(this.tbReplace_TextChanged);
             // 
             // btnBrowseReplace
             // 
-            this.btnBrowseReplace.Location = new System.Drawing.Point(279, 172);
+            this.btnBrowseReplace.Location = new System.Drawing.Point(360, 171);
             this.btnBrowseReplace.Name = "btnBrowseReplace";
             this.btnBrowseReplace.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseReplace.TabIndex = 9;
             this.btnBrowseReplace.Text = "Browse...";
             this.btnBrowseReplace.UseVisualStyleBackColor = true;
             this.btnBrowseReplace.Click += new System.EventHandler(this.btnBrowseReplace_Click);
-            // 
-            // btnClearReplace
-            // 
-            this.btnClearReplace.Location = new System.Drawing.Point(360, 172);
-            this.btnClearReplace.Name = "btnClearReplace";
-            this.btnClearReplace.Size = new System.Drawing.Size(75, 23);
-            this.btnClearReplace.TabIndex = 8;
-            this.btnClearReplace.Text = "Clear";
-            this.btnClearReplace.UseVisualStyleBackColor = true;
-            this.btnClearReplace.Click += new System.EventHandler(this.btnClearReplace_Click);
             // 
             // cmbReplace
             // 
@@ -1562,7 +1551,6 @@ namespace CustomizeMii
         private System.Windows.Forms.ComboBox cmbReplace;
         private System.Windows.Forms.TextBox tbReplace;
         private System.Windows.Forms.Button btnBrowseReplace;
-        private System.Windows.Forms.Button btnClearReplace;
         private System.Windows.Forms.CheckBox cbLz77;
         private System.Windows.Forms.LinkLabel llbSite;
         private System.Windows.Forms.TabPage tabBrlyt;

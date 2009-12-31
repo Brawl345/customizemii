@@ -10,7 +10,12 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 Changelog:
 
 Version 2.1
+	- Replaced the TPL preview window with the one from ShowMiiWads for easier handling
 	- 
+	- Little improvements
+	
+Version 2.01
+	- Base WAD downloading works again
 
 Version 2.0
 	- Added BNS conversion (Mono and Stereo, with and without loop)

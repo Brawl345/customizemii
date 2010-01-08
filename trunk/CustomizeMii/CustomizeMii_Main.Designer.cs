@@ -50,6 +50,8 @@ namespace CustomizeMii
             this.btnCreateWad = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabSource = new System.Windows.Forms.TabPage();
+            this.lbCreatedValue = new System.Windows.Forms.Label();
+            this.lbCreated = new System.Windows.Forms.Label();
             this.tbReplace = new System.Windows.Forms.TextBox();
             this.btnBrowseReplace = new System.Windows.Forms.Button();
             this.cmbReplace = new System.Windows.Forms.ComboBox();
@@ -218,6 +220,8 @@ namespace CustomizeMii
             // 
             // tabSource
             // 
+            this.tabSource.Controls.Add(this.lbCreatedValue);
+            this.tabSource.Controls.Add(this.lbCreated);
             this.tabSource.Controls.Add(this.tbReplace);
             this.tabSource.Controls.Add(this.btnBrowseReplace);
             this.tabSource.Controls.Add(this.cmbReplace);
@@ -236,19 +240,39 @@ namespace CustomizeMii
             this.tabSource.Text = "Source";
             this.tabSource.UseVisualStyleBackColor = true;
             // 
+            // lbCreatedValue
+            // 
+            this.lbCreatedValue.AutoSize = true;
+            this.lbCreatedValue.Location = new System.Drawing.Point(125, 45);
+            this.lbCreatedValue.Name = "lbCreatedValue";
+            this.lbCreatedValue.Size = new System.Drawing.Size(0, 13);
+            this.lbCreatedValue.TabIndex = 12;
+            // 
+            // lbCreated
+            // 
+            this.lbCreated.AutoSize = true;
+            this.lbCreated.Location = new System.Drawing.Point(8, 45);
+            this.lbCreated.Name = "lbCreated";
+            this.lbCreated.Size = new System.Drawing.Size(111, 13);
+            this.lbCreated.TabIndex = 11;
+            this.lbCreated.Text = "Created / Last Edited:";
+            // 
             // tbReplace
             // 
-            this.tbReplace.Location = new System.Drawing.Point(100, 173);
+            this.tbReplace.AllowDrop = true;
+            this.tbReplace.Location = new System.Drawing.Point(100, 177);
             this.tbReplace.Name = "tbReplace";
             this.tbReplace.ReadOnly = true;
             this.tbReplace.Size = new System.Drawing.Size(254, 20);
             this.tbReplace.TabIndex = 10;
             this.tbReplace.Tag = "Disabled";
             this.tbReplace.TextChanged += new System.EventHandler(this.tbReplace_TextChanged);
+            this.tbReplace.DragDrop += new System.Windows.Forms.DragEventHandler(this.tbReplace_DragDrop);
+            this.tbReplace.DragEnter += new System.Windows.Forms.DragEventHandler(this.tbReplace_DragEnter);
             // 
             // btnBrowseReplace
             // 
-            this.btnBrowseReplace.Location = new System.Drawing.Point(360, 171);
+            this.btnBrowseReplace.Location = new System.Drawing.Point(360, 175);
             this.btnBrowseReplace.Name = "btnBrowseReplace";
             this.btnBrowseReplace.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseReplace.TabIndex = 9;
@@ -264,7 +288,7 @@ namespace CustomizeMii
             "Banner",
             "Icon",
             "Sound"});
-            this.cmbReplace.Location = new System.Drawing.Point(11, 172);
+            this.cmbReplace.Location = new System.Drawing.Point(11, 176);
             this.cmbReplace.Name = "cmbReplace";
             this.cmbReplace.Size = new System.Drawing.Size(83, 21);
             this.cmbReplace.TabIndex = 7;
@@ -272,7 +296,7 @@ namespace CustomizeMii
             // 
             // btnSaveBaseWad
             // 
-            this.btnSaveBaseWad.Location = new System.Drawing.Point(360, 127);
+            this.btnSaveBaseWad.Location = new System.Drawing.Point(360, 142);
             this.btnSaveBaseWad.Name = "btnSaveBaseWad";
             this.btnSaveBaseWad.Size = new System.Drawing.Size(75, 23);
             this.btnSaveBaseWad.TabIndex = 6;
@@ -282,7 +306,7 @@ namespace CustomizeMii
             // 
             // btnPreviewBaseWad
             // 
-            this.btnPreviewBaseWad.Location = new System.Drawing.Point(360, 93);
+            this.btnPreviewBaseWad.Location = new System.Drawing.Point(360, 106);
             this.btnPreviewBaseWad.Name = "btnPreviewBaseWad";
             this.btnPreviewBaseWad.Size = new System.Drawing.Size(75, 23);
             this.btnPreviewBaseWad.TabIndex = 5;
@@ -292,7 +316,7 @@ namespace CustomizeMii
             // 
             // btnLoadBaseWad
             // 
-            this.btnLoadBaseWad.Location = new System.Drawing.Point(360, 59);
+            this.btnLoadBaseWad.Location = new System.Drawing.Point(360, 70);
             this.btnLoadBaseWad.Name = "btnLoadBaseWad";
             this.btnLoadBaseWad.Size = new System.Drawing.Size(75, 23);
             this.btnLoadBaseWad.TabIndex = 4;
@@ -318,14 +342,14 @@ namespace CustomizeMii
             "WADder Base 3",
             "UniiLoader",
             "Backup Channel"});
-            this.lbxBaseWads.Location = new System.Drawing.Point(11, 51);
+            this.lbxBaseWads.Location = new System.Drawing.Point(11, 70);
             this.lbxBaseWads.Name = "lbxBaseWads";
-            this.lbxBaseWads.Size = new System.Drawing.Size(343, 108);
+            this.lbxBaseWads.Size = new System.Drawing.Size(343, 95);
             this.lbxBaseWads.TabIndex = 3;
             // 
             // btnBrowseSource
             // 
-            this.btnBrowseSource.Location = new System.Drawing.Point(360, 13);
+            this.btnBrowseSource.Location = new System.Drawing.Point(360, 12);
             this.btnBrowseSource.Name = "btnBrowseSource";
             this.btnBrowseSource.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseSource.TabIndex = 2;
@@ -335,7 +359,7 @@ namespace CustomizeMii
             // 
             // tbSourceWad
             // 
-            this.tbSourceWad.Location = new System.Drawing.Point(84, 15);
+            this.tbSourceWad.Location = new System.Drawing.Point(84, 14);
             this.tbSourceWad.Name = "tbSourceWad";
             this.tbSourceWad.ReadOnly = true;
             this.tbSourceWad.Size = new System.Drawing.Size(270, 20);
@@ -345,7 +369,7 @@ namespace CustomizeMii
             // lbSource
             // 
             this.lbSource.AutoSize = true;
-            this.lbSource.Location = new System.Drawing.Point(8, 18);
+            this.lbSource.Location = new System.Drawing.Point(8, 17);
             this.lbSource.Name = "lbSource";
             this.lbSource.Size = new System.Drawing.Size(70, 13);
             this.lbSource.TabIndex = 0;
@@ -613,12 +637,15 @@ namespace CustomizeMii
             // 
             // tbSound
             // 
+            this.tbSound.AllowDrop = true;
             this.tbSound.Location = new System.Drawing.Point(90, 147);
             this.tbSound.Name = "tbSound";
             this.tbSound.ReadOnly = true;
             this.tbSound.Size = new System.Drawing.Size(264, 20);
             this.tbSound.TabIndex = 8;
             this.tbSound.Tag = "Disabled";
+            this.tbSound.DragDrop += new System.Windows.Forms.DragEventHandler(this.tbSound_DragDrop);
+            this.tbSound.DragEnter += new System.Windows.Forms.DragEventHandler(this.tbSound_DragEnter);
             // 
             // cmbNandLoader
             // 
@@ -644,12 +671,15 @@ namespace CustomizeMii
             // 
             // tbDol
             // 
+            this.tbDol.AllowDrop = true;
             this.tbDol.Location = new System.Drawing.Point(90, 83);
             this.tbDol.Name = "tbDol";
             this.tbDol.ReadOnly = true;
             this.tbDol.Size = new System.Drawing.Size(264, 20);
             this.tbDol.TabIndex = 5;
             this.tbDol.Tag = "Disabled";
+            this.tbDol.DragDrop += new System.Windows.Forms.DragEventHandler(this.tbDol_DragDrop);
+            this.tbDol.DragEnter += new System.Windows.Forms.DragEventHandler(this.tbDol_DragEnter);
             // 
             // tbTitleID
             // 
@@ -805,6 +835,7 @@ namespace CustomizeMii
             // 
             // lbxBannerTpls
             // 
+            this.lbxBannerTpls.AllowDrop = true;
             this.lbxBannerTpls.FormattingEnabled = true;
             this.lbxBannerTpls.Location = new System.Drawing.Point(11, 12);
             this.lbxBannerTpls.Name = "lbxBannerTpls";
@@ -812,6 +843,8 @@ namespace CustomizeMii
             this.lbxBannerTpls.Sorted = true;
             this.lbxBannerTpls.TabIndex = 0;
             this.lbxBannerTpls.SelectedIndexChanged += new System.EventHandler(this.lbxBannerTpls_SelectedIndexChanged);
+            this.lbxBannerTpls.DragDrop += new System.Windows.Forms.DragEventHandler(this.lbxBannerTpls_DragDrop);
+            this.lbxBannerTpls.DragEnter += new System.Windows.Forms.DragEventHandler(this.lbxBannerTpls_DragEnter);
             // 
             // tabIcon
             // 
@@ -922,6 +955,7 @@ namespace CustomizeMii
             // 
             // lbxIconTpls
             // 
+            this.lbxIconTpls.AllowDrop = true;
             this.lbxIconTpls.FormattingEnabled = true;
             this.lbxIconTpls.Location = new System.Drawing.Point(11, 12);
             this.lbxIconTpls.Name = "lbxIconTpls";
@@ -929,6 +963,8 @@ namespace CustomizeMii
             this.lbxIconTpls.Sorted = true;
             this.lbxIconTpls.TabIndex = 6;
             this.lbxIconTpls.SelectedIndexChanged += new System.EventHandler(this.lbxIconTpls_SelectedIndexChanged);
+            this.lbxIconTpls.DragDrop += new System.Windows.Forms.DragEventHandler(this.lbxIconTpls_DragDrop);
+            this.lbxIconTpls.DragEnter += new System.Windows.Forms.DragEventHandler(this.lbxIconTpls_DragEnter);
             // 
             // tabBrlyt
             // 
@@ -1442,6 +1478,7 @@ namespace CustomizeMii
             // 
             // CustomizeMii_Main
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(451, 290);
@@ -1454,6 +1491,8 @@ namespace CustomizeMii
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "CustomizeMii X by Leathl";
             this.Load += new System.EventHandler(this.CustomizeMii_Main_Load);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.CustomizeMii_Main_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.CustomizeMii_Main_DragEnter);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CustomizeMii_Main_FormClosing);
             this.tabControl.ResumeLayout(false);
             this.tabSource.ResumeLayout(false);
@@ -1607,6 +1646,8 @@ namespace CustomizeMii
         private System.Windows.Forms.ToolStripMenuItem cmDolFromSource;
         private System.Windows.Forms.Panel panCredits;
         private System.Windows.Forms.Label lbForwardMiiVersion;
+        private System.Windows.Forms.Label lbCreated;
+        private System.Windows.Forms.Label lbCreatedValue;
     }
 }
 

@@ -11,7 +11,10 @@ Changelog:
 
 Version 2.1
 	- Replaced the TPL preview window with the one from ShowMiiWads for easier handling
-	- 
+	- Added loop prelistening to the BNS conversion window (only for wave files)
+	- Added drag & drop ability cause the file dialogs kept bothering me
+	- Improvement in startup speed (thanks shadow1643)
+	- Added Unix timestamp as footer (interesting to know when channels were created, huh?)
 	- Little improvements
 	
 Version 2.01

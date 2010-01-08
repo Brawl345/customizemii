@@ -58,6 +58,10 @@ namespace WaveFile
         /// The start sample of the first Loop (if exist)
         /// </summary>
         public int LoopStart { get { return GetLoopStart(); } }
+        /// <summary>
+        /// The total number of Frames
+        /// </summary>
+        public int SampleCount { get { return GetFrameCount(); } }
 
 
 
@@ -124,6 +128,42 @@ namespace WaveFile
         }
 
         /// <summary>
+        /// Trims the start of the wave to the given sample
+        /// </summary>
+        /// <param name="newStartSample"></param>
+        /// <returns></returns>
+        public MemoryStream TrimStart(int newStartSample)
+        {
+            if (newStartSample > this.SampleCount) throw new Exception(string.Format("The loop start sample ({0}) is higher than the total number of samples ({1}) in this file!", newStartSample, this.SampleCount));
+
+            MemoryStream msOut = new MemoryStream();
+            msOut.Seek(0, SeekOrigin.Begin);
+
+            if (newStartSample == 0)
+            {
+                msOut.Write(waveFile, 0, waveFile.Length);
+                msOut.Seek(0, SeekOrigin.Begin);
+                return msOut;
+            }
+
+            msOut.Write(waveFile, 0, this.dataOffset + 8);
+            msOut.Write(waveFile, this.ChannelCount * 2 * newStartSample, waveFile.Length - (this.dataOffset + 8 + (this.ChannelCount * 2 * newStartSample)));
+
+            int cutted = (this.ChannelCount * 2 * newStartSample) - (this.dataOffset + 8);
+
+            byte[] newLength = BitConverter.GetBytes((UInt32)msOut.Position);
+            byte[] dataLength = BitConverter.GetBytes(BitConverter.ToInt32(waveFile, this.dataOffset + 4) - cutted);
+
+            msOut.Seek(4, SeekOrigin.Begin);
+            msOut.Write(newLength, 0, newLength.Length);
+            msOut.Seek(this.dataOffset + 4, SeekOrigin.Begin);
+            msOut.Write(dataLength, 0, dataLength.Length);
+
+            msOut.Seek(0, SeekOrigin.Begin);
+            return msOut;
+        }
+
+        /// <summary>
         /// Closes the Wave file
         /// </summary>
         public void Close()
@@ -134,6 +174,13 @@ namespace WaveFile
 
 
         //Private Functions
+
+        private int GetFrameCount()
+        {
+            int dataLength = GetDataLength();
+
+            return (dataLength / (this.ChannelCount * 2));
+        }
 
         private int GetLoopStart()
         {

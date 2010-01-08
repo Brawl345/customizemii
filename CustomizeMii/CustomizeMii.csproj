@@ -76,6 +76,9 @@
     <Compile Include="CustomizeMii_ComplexForwarder.Designer.cs">
       <DependentUpon>CustomizeMii_ComplexForwarder.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomizeMii_DragDrop.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="CustomizeMii_Forwarders.cs" />
     <Compile Include="CustomizeMii_Main.cs">
       <SubType>Form</SubType>
@@ -89,6 +92,10 @@
     <Compile Include="CustomizeMii_InputBox.Designer.cs">
       <DependentUpon>CustomizeMii_InputBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomizeMii_PrivateFunctions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MP3Info.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CustomizeMii_BnsConvert.resx">
@@ -143,7 +150,6 @@
     <Content Include="Instructions.txt" />
     <None Include="Resources\btnSend.png" />
     <None Include="Resources\btnCreate.png" />
-    <None Include="Resources\btnCreateWad.png" />
     <None Include="Resources\CustomizeMii.ico" />
     <None Include="Resources\Instructions.rtf" />
   </ItemGroup>

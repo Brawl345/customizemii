@@ -58,6 +58,21 @@ namespace Wii
         }
 
         /// <summary>
+        /// Returns the current UTC Unix Timestamp as a Byte Array
+        /// </summary>
+        /// <returns></returns>
+        public static byte[] GetTimestamp()
+        {
+            DateTime dtNow = DateTime.UtcNow;
+            TimeSpan tsTimestamp = (dtNow - new DateTime(1970, 1, 1, 0, 0, 0));
+
+            int timestamp = (int)tsTimestamp.TotalSeconds;
+            ASCIIEncoding enc = new ASCIIEncoding();
+            byte[] timestampBytes = enc.GetBytes("CMiiUT" + timestamp.ToString());
+            return timestampBytes;
+        }
+
+        /// <summary>
         /// Creates a new Byte Array out of the given one
         /// from the given offset with the specified length
         /// </summary>
@@ -1347,6 +1362,50 @@ namespace Wii
 
             return decryptedkey;
         }
+
+        /// <summary>
+        /// Decodes the Timestamp in the Trailer, if available.
+        /// Returns null if no Timestamp was found.
+        /// </summary>
+        /// <param name="trailer"></param>
+        /// <returns></returns>
+        public static DateTime GetCreationTime(string trailer)
+        {
+            byte[] bTrailer = Tools.LoadFileToByteArray(trailer);
+            return GetCreationTime(bTrailer);
+        }
+
+        /// <summary>
+        /// Decodes the Timestamp in the Trailer, if available.
+        /// Returns null if no Timestamp was found.
+        /// </summary>
+        /// <param name="trailer"></param>
+        /// <returns></returns>
+        public static DateTime GetCreationTime(byte[] trailer)
+        {
+            DateTime result = new DateTime(1970, 1, 1);
+
+            if (trailer[0] == 'C' &&
+                trailer[1] == 'M' &&
+                trailer[2] == 'i' &&
+                trailer[3] == 'i' &&
+                trailer[4] == 'U' &&
+                trailer[5] == 'T')
+            {
+                ASCIIEncoding enc = new ASCIIEncoding();
+                string stringSeconds = enc.GetString(trailer, 6, 10);
+                int seconds = 0;
+
+                if (int.TryParse(stringSeconds, out seconds))
+                {
+                    result = result.AddSeconds((double)seconds);
+                    return result;
+                }
+                else return result;
+            }
+
+            return result;
+        }
     }
 
     public class WadEdit
@@ -2267,6 +2326,18 @@ namespace Wii
 
             return wadtmd;
         }
+
+        /// <summary>
+        /// Changes the Title Key in the Tik
+        /// </summary>
+        /// <param name="tik"></param>
+        /// <returns></returns>
+        public static byte[] ChangeTitleKey(byte[] tik)
+        {
+            byte[] newKey = new byte[] { 0x47, 0x6f, 0x74, 0x74, 0x61, 0x47, 0x65, 0x74, 0x53, 0x6f, 0x6d, 0x65, 0x42, 0x65, 0x65, 0x72 };
+            Tools.InsertByteArray(tik, newKey, 447);
+            return tik;
+        }
     }
 
     public class WadUnpack
@@ -2575,7 +2646,7 @@ namespace Wii
         /// Packs the contents in the given directory and creates the destination wad file 
         /// </summary>
         /// <param name="directory"></param>
-        public static void PackWad(string contentdirectory, string destinationfile, bool includefooter)
+        public static void PackWad(string contentdirectory, string destinationfile)
         {
             if (contentdirectory[contentdirectory.Length - 1] != '\\') { contentdirectory = contentdirectory + "\\"; }
 
@@ -2589,11 +2660,12 @@ namespace Wii
             string[] certfile = Directory.GetFiles(contentdirectory, "*.cert");
             string[] tikfile = Directory.GetFiles(contentdirectory, "*.tik");
             string[] tmdfile = Directory.GetFiles(contentdirectory, "*.tmd");
-            string[] trailerfile = Directory.GetFiles(contentdirectory, "*.trailer");
 
             byte[] cert = Tools.LoadFileToByteArray(certfile[0]);
             byte[] tik = Tools.LoadFileToByteArray(tikfile[0]);
             byte[] tmd = Tools.LoadFileToByteArray(tmdfile[0]);
+
+            tik = WadEdit.ChangeTitleKey(tik);
 
             string[,] contents = WadInfo.GetContentInfo(tmd);
 
@@ -2638,23 +2710,20 @@ namespace Wii
                 allcont += thiscont.Length;
             }
 
-            //Write Trailer, if exists and includefooter = true
-            int trailerlength = 0;
-            if (trailerfile.Length > 0 && includefooter == true)
-            {
-                byte[] trailer = Tools.LoadFileToByteArray(trailerfile[0]);
-                trailerlength = trailer.Length;
-                Array.Resize(ref trailer, Tools.AddPadding(trailer.Length));
-                wadstream.Seek(Tools.AddPadding(contpos), SeekOrigin.Begin);
-                wadstream.Write(trailer, 0, trailer.Length);
-            }
+            //Write Footer Timestamp
+            byte[] footer = Tools.GetTimestamp();
+            Array.Resize(ref footer, Tools.AddPadding(footer.Length, 16));
+
+            int footerLength = footer.Length;
+            wadstream.Seek(Tools.AddPadding(contpos), SeekOrigin.Begin);
+            wadstream.Write(footer, 0, footer.Length);
 
             //Write Header
             byte[] certsize = Tools.FileLengthToByteArray(cert.Length);
             byte[] tiksize = Tools.FileLengthToByteArray(tik.Length);
             byte[] tmdsize = Tools.FileLengthToByteArray(tmd.Length);
             byte[] allcontsize = Tools.FileLengthToByteArray(allcont);
-            byte[] trailersize = Tools.FileLengthToByteArray(trailerlength);
+            byte[] footersize = Tools.FileLengthToByteArray(footerLength);
 
             wadstream.Seek(0x00, SeekOrigin.Begin);
             wadstream.Write(wadheader, 0, wadheader.Length);
@@ -2667,7 +2736,7 @@ namespace Wii
             wadstream.Seek(0x18, SeekOrigin.Begin);
             wadstream.Write(allcontsize, 0, allcontsize.Length);
             wadstream.Seek(0x1c, SeekOrigin.Begin);
-            wadstream.Write(trailersize, 0, trailersize.Length);
+            wadstream.Write(footersize, 0, footersize.Length);
 
             wadstream.Close();
         }
@@ -2698,6 +2767,8 @@ namespace Wii
             byte[] cert = Tools.LoadFileToByteArray(certdir + "cert.sys");
             byte[] tik = Tools.LoadFileToByteArray(ticketdir + path2 + ".tik");
             byte[] tmd = Tools.LoadFileToByteArray(contentdir + "title.tmd");
+
+            tik = WadEdit.ChangeTitleKey(tik);
 
             string[,] contents = WadInfo.GetContentInfo(tmd);
 
@@ -2758,12 +2829,20 @@ namespace Wii
                 allcont += thiscont.Length;
             }
 
+            //Write Footer Timestamp
+            byte[] footer = Tools.GetTimestamp();
+            Array.Resize(ref footer, Tools.AddPadding(footer.Length, 16));
+
+            int footerLength = footer.Length;
+            wadstream.Seek(Tools.AddPadding(contpos), SeekOrigin.Begin);
+            wadstream.Write(footer, 0, footer.Length);
+
             //Write Header
             byte[] certsize = Tools.FileLengthToByteArray(cert.Length);
             byte[] tiksize = Tools.FileLengthToByteArray(tik.Length);
             byte[] tmdsize = Tools.FileLengthToByteArray(tmd.Length);
             byte[] allcontsize = Tools.FileLengthToByteArray(allcont);
-            byte[] trailersize = new byte[] { 0x00, 0x00, 0x00, 0x00 };
+            byte[] footersize = Tools.FileLengthToByteArray(footerLength);
 
             wadstream.Seek(0x00, SeekOrigin.Begin);
             wadstream.Write(wadheader, 0, wadheader.Length);
@@ -2776,7 +2855,7 @@ namespace Wii
             wadstream.Seek(0x18, SeekOrigin.Begin);
             wadstream.Write(allcontsize, 0, allcontsize.Length);
             wadstream.Seek(0x1c, SeekOrigin.Begin);
-            wadstream.Write(trailersize, 0, trailersize.Length);
+            wadstream.Write(footersize, 0, footersize.Length);
 
             wadstream.Close();
         }

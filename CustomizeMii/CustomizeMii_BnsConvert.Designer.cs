@@ -51,6 +51,8 @@ namespace CustomizeMii
             this.tbAudioFile = new System.Windows.Forms.TextBox();
             this.btnBrowseAudioFile = new System.Windows.Forms.Button();
             this.gbLoop = new System.Windows.Forms.GroupBox();
+            this.tbarLoopStartSample = new System.Windows.Forms.TrackBar();
+            this.lbStartSample = new System.Windows.Forms.Label();
             this.tbLoopStart = new System.Windows.Forms.TextBox();
             this.rbEnterManually = new System.Windows.Forms.RadioButton();
             this.rbFromAudioFile = new System.Windows.Forms.RadioButton();
@@ -71,15 +73,20 @@ namespace CustomizeMii
             this.lbSamplerate = new System.Windows.Forms.Label();
             this.lbBitdepth = new System.Windows.Forms.Label();
             this.cbSourceSound = new System.Windows.Forms.CheckBox();
+            this.gbPrelisten = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btnPlay = new System.Windows.Forms.Button();
             this.gbLoop.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbarLoopStartSample)).BeginInit();
             this.gbWaveInfo.SuspendLayout();
+            this.gbPrelisten.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(186, 179);
+            this.btnCancel.Location = new System.Drawing.Point(186, 189);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(160, 23);
             this.btnCancel.TabIndex = 10;
@@ -90,7 +97,7 @@ namespace CustomizeMii
             // btnConvert
             // 
             this.btnConvert.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnConvert.Location = new System.Drawing.Point(15, 179);
+            this.btnConvert.Location = new System.Drawing.Point(15, 189);
             this.btnConvert.Name = "btnConvert";
             this.btnConvert.Size = new System.Drawing.Size(160, 23);
             this.btnConvert.TabIndex = 9;
@@ -127,41 +134,66 @@ namespace CustomizeMii
             // 
             // gbLoop
             // 
+            this.gbLoop.Controls.Add(this.tbarLoopStartSample);
+            this.gbLoop.Controls.Add(this.lbStartSample);
             this.gbLoop.Controls.Add(this.tbLoopStart);
             this.gbLoop.Controls.Add(this.rbEnterManually);
             this.gbLoop.Controls.Add(this.rbFromAudioFile);
             this.gbLoop.Controls.Add(this.rbNone);
-            this.gbLoop.Location = new System.Drawing.Point(15, 72);
+            this.gbLoop.Location = new System.Drawing.Point(15, 70);
             this.gbLoop.Name = "gbLoop";
-            this.gbLoop.Size = new System.Drawing.Size(331, 94);
+            this.gbLoop.Size = new System.Drawing.Size(331, 113);
             this.gbLoop.TabIndex = 14;
             this.gbLoop.TabStop = false;
             this.gbLoop.Text = "Loop";
             // 
+            // tbarLoopStartSample
+            // 
+            this.tbarLoopStartSample.Enabled = false;
+            this.tbarLoopStartSample.Location = new System.Drawing.Point(107, 62);
+            this.tbarLoopStartSample.Maximum = 1059620;
+            this.tbarLoopStartSample.Name = "tbarLoopStartSample";
+            this.tbarLoopStartSample.Size = new System.Drawing.Size(142, 45);
+            this.tbarLoopStartSample.TabIndex = 3;
+            this.tbarLoopStartSample.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.tbarLoopStartSample.Scroll += new System.EventHandler(this.tbarLoopStartSample_Scroll);
+            // 
+            // lbStartSample
+            // 
+            this.lbStartSample.AutoSize = true;
+            this.lbStartSample.Location = new System.Drawing.Point(35, 74);
+            this.lbStartSample.Name = "lbStartSample";
+            this.lbStartSample.Size = new System.Drawing.Size(66, 13);
+            this.lbStartSample.TabIndex = 2;
+            this.lbStartSample.Text = "(startsample)";
+            // 
             // tbLoopStart
             // 
             this.tbLoopStart.Enabled = false;
-            this.tbLoopStart.Location = new System.Drawing.Point(227, 64);
+            this.tbLoopStart.Location = new System.Drawing.Point(256, 66);
             this.tbLoopStart.Name = "tbLoopStart";
             this.tbLoopStart.Size = new System.Drawing.Size(60, 20);
             this.tbLoopStart.TabIndex = 1;
             this.tbLoopStart.Text = "0";
+            this.tbLoopStart.TextChanged += new System.EventHandler(this.tbLoopStart_TextChanged);
+            this.tbLoopStart.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbLoopStart_KeyPress);
             // 
             // rbEnterManually
             // 
             this.rbEnterManually.AutoSize = true;
-            this.rbEnterManually.Location = new System.Drawing.Point(6, 65);
+            this.rbEnterManually.Location = new System.Drawing.Point(6, 59);
             this.rbEnterManually.Name = "rbEnterManually";
-            this.rbEnterManually.Size = new System.Drawing.Size(215, 17);
+            this.rbEnterManually.Size = new System.Drawing.Size(95, 17);
             this.rbEnterManually.TabIndex = 0;
-            this.rbEnterManually.Text = "Enter Manually          Loop Start Sample:";
+            this.rbEnterManually.Text = "Enter Manually";
             this.rbEnterManually.UseVisualStyleBackColor = true;
             this.rbEnterManually.CheckedChanged += new System.EventHandler(this.rbSelectionChanged);
             // 
             // rbFromAudioFile
             // 
             this.rbFromAudioFile.AutoSize = true;
-            this.rbFromAudioFile.Location = new System.Drawing.Point(6, 42);
+            this.rbFromAudioFile.Enabled = false;
+            this.rbFromAudioFile.Location = new System.Drawing.Point(6, 39);
             this.rbFromAudioFile.Name = "rbFromAudioFile";
             this.rbFromAudioFile.Size = new System.Drawing.Size(281, 17);
             this.rbFromAudioFile.TabIndex = 0;
@@ -200,49 +232,49 @@ namespace CustomizeMii
             this.gbWaveInfo.Controls.Add(this.lbBitdepth);
             this.gbWaveInfo.Location = new System.Drawing.Point(363, 20);
             this.gbWaveInfo.Name = "gbWaveInfo";
-            this.gbWaveInfo.Size = new System.Drawing.Size(135, 182);
+            this.gbWaveInfo.Size = new System.Drawing.Size(135, 192);
             this.gbWaveInfo.TabIndex = 15;
             this.gbWaveInfo.TabStop = false;
             this.gbWaveInfo.Text = "Wave Info";
             // 
             // lbStatusValue
             // 
-            this.lbStatusValue.Location = new System.Drawing.Point(75, 151);
+            this.lbStatusValue.Location = new System.Drawing.Point(75, 157);
             this.lbStatusValue.Name = "lbStatusValue";
             this.lbStatusValue.Size = new System.Drawing.Size(54, 13);
             this.lbStatusValue.TabIndex = 7;
             // 
             // lbLoopStartValue
             // 
-            this.lbLoopStartValue.Location = new System.Drawing.Point(75, 130);
+            this.lbLoopStartValue.Location = new System.Drawing.Point(75, 135);
             this.lbLoopStartValue.Name = "lbLoopStartValue";
             this.lbLoopStartValue.Size = new System.Drawing.Size(54, 13);
             this.lbLoopStartValue.TabIndex = 7;
             // 
             // lbLoopCountValue
             // 
-            this.lbLoopCountValue.Location = new System.Drawing.Point(75, 109);
+            this.lbLoopCountValue.Location = new System.Drawing.Point(75, 113);
             this.lbLoopCountValue.Name = "lbLoopCountValue";
             this.lbLoopCountValue.Size = new System.Drawing.Size(54, 13);
             this.lbLoopCountValue.TabIndex = 7;
             // 
             // lbFormatValue
             // 
-            this.lbFormatValue.Location = new System.Drawing.Point(75, 88);
+            this.lbFormatValue.Location = new System.Drawing.Point(75, 91);
             this.lbFormatValue.Name = "lbFormatValue";
             this.lbFormatValue.Size = new System.Drawing.Size(54, 13);
             this.lbFormatValue.TabIndex = 7;
             // 
             // lbChannelCountValue
             // 
-            this.lbChannelCountValue.Location = new System.Drawing.Point(75, 67);
+            this.lbChannelCountValue.Location = new System.Drawing.Point(75, 69);
             this.lbChannelCountValue.Name = "lbChannelCountValue";
             this.lbChannelCountValue.Size = new System.Drawing.Size(54, 13);
             this.lbChannelCountValue.TabIndex = 7;
             // 
             // lbSamplerateValue
             // 
-            this.lbSamplerateValue.Location = new System.Drawing.Point(75, 46);
+            this.lbSamplerateValue.Location = new System.Drawing.Point(75, 47);
             this.lbSamplerateValue.Name = "lbSamplerateValue";
             this.lbSamplerateValue.Size = new System.Drawing.Size(54, 13);
             this.lbSamplerateValue.TabIndex = 7;
@@ -257,7 +289,7 @@ namespace CustomizeMii
             // lbStatus
             // 
             this.lbStatus.AutoSize = true;
-            this.lbStatus.Location = new System.Drawing.Point(6, 151);
+            this.lbStatus.Location = new System.Drawing.Point(6, 157);
             this.lbStatus.Name = "lbStatus";
             this.lbStatus.Size = new System.Drawing.Size(40, 13);
             this.lbStatus.TabIndex = 6;
@@ -266,7 +298,7 @@ namespace CustomizeMii
             // lbLoopStart
             // 
             this.lbLoopStart.AutoSize = true;
-            this.lbLoopStart.Location = new System.Drawing.Point(6, 130);
+            this.lbLoopStart.Location = new System.Drawing.Point(6, 135);
             this.lbLoopStart.Name = "lbLoopStart";
             this.lbLoopStart.Size = new System.Drawing.Size(59, 13);
             this.lbLoopStart.TabIndex = 5;
@@ -275,7 +307,7 @@ namespace CustomizeMii
             // lbLoopCount
             // 
             this.lbLoopCount.AutoSize = true;
-            this.lbLoopCount.Location = new System.Drawing.Point(6, 109);
+            this.lbLoopCount.Location = new System.Drawing.Point(6, 113);
             this.lbLoopCount.Name = "lbLoopCount";
             this.lbLoopCount.Size = new System.Drawing.Size(39, 13);
             this.lbLoopCount.TabIndex = 4;
@@ -284,7 +316,7 @@ namespace CustomizeMii
             // lbFormat
             // 
             this.lbFormat.AutoSize = true;
-            this.lbFormat.Location = new System.Drawing.Point(6, 88);
+            this.lbFormat.Location = new System.Drawing.Point(6, 91);
             this.lbFormat.Name = "lbFormat";
             this.lbFormat.Size = new System.Drawing.Size(42, 13);
             this.lbFormat.TabIndex = 3;
@@ -293,7 +325,7 @@ namespace CustomizeMii
             // lbChannelCount
             // 
             this.lbChannelCount.AutoSize = true;
-            this.lbChannelCount.Location = new System.Drawing.Point(6, 67);
+            this.lbChannelCount.Location = new System.Drawing.Point(6, 69);
             this.lbChannelCount.Name = "lbChannelCount";
             this.lbChannelCount.Size = new System.Drawing.Size(54, 13);
             this.lbChannelCount.TabIndex = 2;
@@ -302,7 +334,7 @@ namespace CustomizeMii
             // lbSamplerate
             // 
             this.lbSamplerate.AutoSize = true;
-            this.lbSamplerate.Location = new System.Drawing.Point(6, 46);
+            this.lbSamplerate.Location = new System.Drawing.Point(6, 47);
             this.lbSamplerate.Name = "lbSamplerate";
             this.lbSamplerate.Size = new System.Drawing.Size(63, 13);
             this.lbSamplerate.TabIndex = 1;
@@ -321,7 +353,7 @@ namespace CustomizeMii
             // 
             this.cbSourceSound.AutoSize = true;
             this.cbSourceSound.Enabled = false;
-            this.cbSourceSound.Location = new System.Drawing.Point(15, 50);
+            this.cbSourceSound.Location = new System.Drawing.Point(15, 48);
             this.cbSourceSound.Name = "cbSourceSound";
             this.cbSourceSound.Size = new System.Drawing.Size(170, 17);
             this.cbSourceSound.TabIndex = 16;
@@ -329,13 +361,44 @@ namespace CustomizeMii
             this.cbSourceSound.UseVisualStyleBackColor = true;
             this.cbSourceSound.CheckedChanged += new System.EventHandler(this.cbSourceSound_CheckedChanged);
             // 
+            // gbPrelisten
+            // 
+            this.gbPrelisten.Controls.Add(this.label1);
+            this.gbPrelisten.Controls.Add(this.btnPlay);
+            this.gbPrelisten.Location = new System.Drawing.Point(519, 20);
+            this.gbPrelisten.Name = "gbPrelisten";
+            this.gbPrelisten.Size = new System.Drawing.Size(135, 192);
+            this.gbPrelisten.TabIndex = 17;
+            this.gbPrelisten.TabStop = false;
+            this.gbPrelisten.Text = "Prelisten Loop";
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(6, 25);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(123, 118);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Note:\r\n\r\nYou will only hear the looped part, not the part before.\r\nAlso, the Loop" +
+                " might be inaccurate (only a few samples)";
+            // 
+            // btnPlay
+            // 
+            this.btnPlay.Location = new System.Drawing.Point(6, 156);
+            this.btnPlay.Name = "btnPlay";
+            this.btnPlay.Size = new System.Drawing.Size(123, 23);
+            this.btnPlay.TabIndex = 13;
+            this.btnPlay.Text = "Play Loop";
+            this.btnPlay.UseVisualStyleBackColor = true;
+            this.btnPlay.Click += new System.EventHandler(this.btnPlay_Click);
+            // 
             // CustomizeMii_BnsConvert
             // 
             this.AcceptButton = this.btnConvert;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(510, 220);
+            this.ClientSize = new System.Drawing.Size(674, 230);
+            this.Controls.Add(this.gbPrelisten);
             this.Controls.Add(this.cbSourceSound);
             this.Controls.Add(this.gbWaveInfo);
             this.Controls.Add(this.gbLoop);
@@ -351,8 +414,10 @@ namespace CustomizeMii
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CustomizeMii_BnsConvert_FormClosing);
             this.gbLoop.ResumeLayout(false);
             this.gbLoop.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tbarLoopStartSample)).EndInit();
             this.gbWaveInfo.ResumeLayout(false);
             this.gbWaveInfo.PerformLayout();
+            this.gbPrelisten.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -386,6 +451,11 @@ namespace CustomizeMii
         private System.Windows.Forms.Label lbSamplerateValue;
         private System.Windows.Forms.Label lbBitdepthValue;
         private System.Windows.Forms.CheckBox cbSourceSound;
+        private System.Windows.Forms.GroupBox gbPrelisten;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnPlay;
+        private System.Windows.Forms.Label lbStartSample;
+        private System.Windows.Forms.TrackBar tbarLoopStartSample;
 
     }
 }

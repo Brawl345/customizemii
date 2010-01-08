@@ -20,6 +20,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.ComponentModel;
 using WaveFile;
+using System.Media;
 
 namespace CustomizeMii
 {
@@ -36,6 +37,9 @@ namespace CustomizeMii
         private int loopStart;
         private bool error = false;
         private bool cancelled = false;
+        private int sampleCount;
+        private SoundPlayer sPlayer;
+        private bool mp3LengthKnown = false;
 
         public string AudioFile { get { return tbAudioFile.Text; } }
         public bool LoopNone { get { return rbNone.Checked; } }
@@ -53,7 +57,7 @@ namespace CustomizeMii
         private void CustomizeMii_BnsConvert_Load(object sender, EventArgs e)
         {
             //this.Size = new System.Drawing.Size(358, 220);
-            this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, 220);
+            this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, this.Size.Height);
 
             this.CenterToParent();
             bwGatherInfo = new BackgroundWorker();
@@ -81,6 +85,19 @@ namespace CustomizeMii
         private void rbSelectionChanged(object sender, EventArgs e)
         {
             tbLoopStart.Enabled = rbEnterManually.Checked;
+            if (tbAudioFile.Text.ToLower().EndsWith(".mp3")) { tbarLoopStartSample.Enabled = (rbEnterManually.Checked && mp3LengthKnown); }
+            else { tbarLoopStartSample.Enabled = rbEnterManually.Checked; }
+
+            if (!rbNone.Checked && this.Size.Width > 400)
+                this.Size = new System.Drawing.Size(gbPrelisten.Location.X + gbPrelisten.Size.Width + 15, this.Size.Height);
+            else if (rbNone.Checked && this.Size.Width > 400)
+                this.Size = new System.Drawing.Size(gbWaveInfo.Location.X + gbWaveInfo.Size.Width + 15, this.Size.Height);
+
+        }
+
+        private void tbLoopStart_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && e.KeyChar != '\b';
         }
 
         private void btnConvert_Click(object sender, EventArgs e)
@@ -98,12 +115,14 @@ namespace CustomizeMii
                 tbLoopStart.SelectAll();
             }
 
+            if (this.sPlayer != null) { this.sPlayer.Stop(); this.sPlayer.Dispose(); }
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
+            if (this.sPlayer != null) { this.sPlayer.Stop(); this.sPlayer.Dispose(); }
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
@@ -135,7 +154,7 @@ namespace CustomizeMii
                 bwGatherInfo.RunWorkerAsync(audio);
 
                 //this.Size = new System.Drawing.Size(510, 220);
-                this.Size = new System.Drawing.Size(gbWaveInfo.Location.X + gbWaveInfo.Size.Width + 15, 220);
+                this.Size = new System.Drawing.Size(gbWaveInfo.Location.X + gbWaveInfo.Size.Width + 15, this.Size.Height);
             }
             else
             {
@@ -143,7 +162,7 @@ namespace CustomizeMii
                     tbAudioFile.Text = string.Empty;
 
                 //this.Size = new System.Drawing.Size(358, 220);
-                this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, 220);
+                this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, this.Size.Height);
             }
         }
 
@@ -160,6 +179,8 @@ namespace CustomizeMii
                 if (ofd.FileName != tbAudioFile.Text)
                 {
                     btnConvert.Enabled = false;
+                    tbarLoopStartSample.Enabled = false;
+                    mp3LengthKnown = false;
 
                     cbSourceSound.Checked = false;
                     tbAudioFile.Text = ofd.FileName;
@@ -177,8 +198,7 @@ namespace CustomizeMii
 
                         bwGatherInfo.RunWorkerAsync(ofd.FileName);
 
-                        //this.Size = new System.Drawing.Size(510, 220);
-                        this.Size = new System.Drawing.Size(gbWaveInfo.Location.X + gbWaveInfo.Size.Width + 15, 220);
+                        this.Size = new System.Drawing.Size(gbWaveInfo.Location.X + gbWaveInfo.Size.Width + 15, this.Size.Height);
                     }
                     else if (ofd.FileName.EndsWith(".mp3"))
                     {
@@ -188,8 +208,16 @@ namespace CustomizeMii
                         if (rbFromAudioFile.Checked) rbNone.Checked = true;
                         rbFromAudioFile.Enabled = false;
 
-                        //this.Size = new System.Drawing.Size(358, 220);
-                        this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, 220);
+                        this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, this.Size.Height);
+
+                        try
+                        {
+                            MP3Info mp3Info = new MP3Info(ofd.FileName);
+                            tbarLoopStartSample.Maximum = mp3Info.AudioSamples;
+                            mp3LengthKnown = true;
+                            if (rbEnterManually.Checked) tbarLoopStartSample.Enabled = true;
+                        }
+                        catch { }
                     }
                 }
             }
@@ -206,6 +234,9 @@ namespace CustomizeMii
                 { wave = new Wave((byte[])e.Argument); }
                 else
                 { wave = new Wave((string)e.Argument); }
+
+                try { this.sampleCount = wave.SampleCount; }
+                catch { }
 
                 try { bitDepth = wave.BitDepth; }
                 catch { bitDepth = -1; }
@@ -262,6 +293,8 @@ namespace CustomizeMii
             }
 
             bool statusOk = true;
+            tbarLoopStartSample.Maximum = this.sampleCount;
+            if (rbEnterManually.Checked) tbarLoopStartSample.Enabled = true;
 
             if (bitDepth == -1) lbBitdepthValue.Text = "Error";
             else lbBitdepthValue.Text = bitDepth.ToString();
@@ -351,6 +384,64 @@ namespace CustomizeMii
                     lbStatusValue.ForeColor = System.Drawing.Color.Green;
                 }
             }
+        }
+
+        private void btnPlay_Click(object sender, EventArgs e)
+        {
+            if (btnPlay.Text == "Stop")
+            {
+                if (sPlayer != null)
+                {
+                    sPlayer.Stop();
+                    sPlayer = null;
+
+                    btnPlay.Text = "Play Loop";
+                }
+            }
+            else
+            {
+                try
+                {
+                    int loopStart = rbFromAudioFile.Checked ? int.Parse(lbLoopStartValue.Text) : int.Parse(tbLoopStart.Text);
+
+                    Wave wave;
+                    if (cbSourceSound.Checked)
+                    {
+                        using (FileStream fs = new FileStream(CustomizeMii_Main.TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", FileMode.Open))
+                        {
+                            byte[] audio = new byte[fs.Length - 32];
+                            fs.Seek(32, SeekOrigin.Begin);
+                            fs.Read(audio, 0, audio.Length);
+
+                            wave = new Wave(audio);
+                        }
+                    }
+                    else wave = new Wave(tbAudioFile.Text);
+
+                    sPlayer = new SoundPlayer(wave.TrimStart(loopStart));
+                    sPlayer.PlayLooping();
+
+                    btnPlay.Text = "Stop";
+                }
+                catch (Exception ex)
+                {
+                    sPlayer = null;
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void tbarLoopStartSample_Scroll(object sender, EventArgs e)
+        {
+            try { tbLoopStart.Text = tbarLoopStartSample.Value.ToString(); }
+            catch { }
+        }
+
+        private void tbLoopStart_TextChanged(object sender, EventArgs e)
+        {
+            if (tbarLoopStartSample.Enabled)
+                try { tbarLoopStartSample.Value = int.Parse(tbLoopStart.Text); }
+                catch { }
         }
     }
 }

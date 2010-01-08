@@ -473,6 +473,7 @@ namespace CustomizeMii
                 string[] ChannelTitles = Wii.WadInfo.GetChannelTitles(WadFile);
                 string TitleID = Wii.WadInfo.GetTitleID(WadFile, 1);
 
+                SetText(tbTitleID, TitleID);
                 SetText(tbAllLanguages, ChannelTitles[1]);
 
                 if (ChannelTitles[0] != ChannelTitles[1])
@@ -488,7 +489,18 @@ namespace CustomizeMii
                 if (ChannelTitles[6] != ChannelTitles[1])
                     SetText(tbDutch, ChannelTitles[6]);
 
-                SetText(tbTitleID, TitleID);
+                string[] trailer = Directory.GetFiles(TempUnpackPath, "*.trailer");
+                if (trailer.Length > 0)
+                {
+                    DateTime timestamp = Wii.WadInfo.GetCreationTime(trailer[0]);
+
+                    if (timestamp > new DateTime(1970, 1, 1))
+                    {
+                        SetLabel(lbCreatedValue, timestamp.ToString() + " (UTC)");
+                    }
+                    else SetLabel(lbCreatedValue, "No Timestamp!");
+                }
+                else SetLabel(lbCreatedValue, "No Timestamp!");
 
                 EventHandler AddBannerTpls = new EventHandler(this.AddBannerTpls);
                 EventHandler AddIconTpls = new EventHandler(this.AddIconTpls);
@@ -725,7 +737,7 @@ namespace CustomizeMii
 
                 bwCreateWad.ReportProgress(95, "Packing WAD...");
                 if (File.Exists(wadInfo.outFile)) File.Delete(wadInfo.outFile);
-                Wii.WadPack.PackWad(TempUnpackPath, wadInfo.outFile, false);
+                Wii.WadPack.PackWad(TempUnpackPath, wadInfo.outFile);
 
                 bwCreateWad.ReportProgress(100, " ");
                 CreationTimer.Stop();

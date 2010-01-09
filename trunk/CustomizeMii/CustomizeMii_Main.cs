@@ -2208,6 +2208,7 @@ namespace CustomizeMii
                                 // a new window (wiiload - window or whatever) ?!
                                 // If it finishes successfully, the variable >> sendWadReady << will turn into 1,
                                 // if it errors, it will turn into -1, as long as it's running it is 0.
+
                             }
                             catch (Exception ex)
                             {

@@ -37,7 +37,7 @@ namespace TransmitMii
         }
 
         [DllImport("zlib1.dll")]
-        public static extern ZLibError compress2(byte[] dest, ref int destLength, byte[] source, int sourceLength, int level);
+        private static extern ZLibError compress2(byte[] dest, ref int destLength, byte[] source, int sourceLength, int level);
 
         public static byte[] Compress(byte[] inFile)
         {

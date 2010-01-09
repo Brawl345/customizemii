@@ -27,7 +27,7 @@ namespace TransmitMii
 {
     public partial class TransmitMii_Main : Form
     {
-        const string version = "1.15"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "1.2"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private bool IsRunning = false;
         private string fileName;
         private string statusText;
@@ -61,8 +61,10 @@ namespace TransmitMii
         {
             this.Text = this.Text.Replace("X", version);
             this.Icon = Properties.Resources.TransmitMii_Icon;
-            UpdateCheck();
             ExtensionCheck();
+
+            MethodInvoker Update = new MethodInvoker(UpdateCheck);
+            Update.BeginInvoke(null, null);
 
             UpdateStatus = new EventHandler(this.StatusUpdate);
             EnableButtons = new EventHandler(this.ButtonEnable);
@@ -163,8 +165,8 @@ namespace TransmitMii
         private void btnBrowseFile_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "DOL|*.dol|ELF|*.elf|WAD|*.wad|All|*.dol;*.elf;*.wad";
-            ofd.FilterIndex = 4;
+            ofd.Filter = "DOL|*.dol|ELF|*.elf|WAD|*.wad|ZIP|*.zip|All|*.dol;*.elf;*.wad;*.zip";
+            ofd.FilterIndex = 5;
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {

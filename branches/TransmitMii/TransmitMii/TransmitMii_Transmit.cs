@@ -22,10 +22,6 @@ namespace TransmitMii
 {
     partial class TransmitMii_Main
     {
-        const bool JODI_Compress = true;
-        const bool HAXX_Compress = false;
-        const bool USBX_Compress = false;
-
         TcpClient theClient;
         NetworkStream theStream;
         System.Diagnostics.Stopwatch stopper = new System.Diagnostics.Stopwatch();
@@ -64,6 +60,7 @@ namespace TransmitMii
                 compress = false;
 
             if ((int)(protocol) == 0) compress = false;
+            if (fileName.ToLower().EndsWith(".zip")) compress = false; //There won't be much to compress in Zips
 
             theClient = new TcpClient();
 

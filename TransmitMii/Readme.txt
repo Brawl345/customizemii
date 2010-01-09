@@ -9,6 +9,15 @@ TransmitMii is hosted on the CustomizeMii project page: http://customizemii.goog
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 1.2
+	- Improvement in startup speed (thanks shadow1643)
+	- Added ability to send ZIPs (to HBC)
+	  ZIP files must conatin the *appfolder* containing
+		boot.dol
+		meta.xml (optional)
+		icon.png (optional)
+	  and will be extracted to SD:/apps/*appfolder*
+
 Version 1.15
 	- Fixed transmitting to HBC -1.0.4 (HAXX)
 	- Fixed transmitting to USB Loader GX

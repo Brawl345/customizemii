@@ -11,7 +11,7 @@ namespace Helpers
     {
         public static MemoryStream CreateInstaller(string wadFile, byte iosToUse)
         {
-            const int injectionPosition = 0x5A78C;
+            const int injectionPosition = 0x5A74C;
 
             //1. Open the stub installer from resources
             MemoryStream compressedStubInstallerStream = LoadCompressedStubInstaller("CustomizeMiiInstaller.dol.z");

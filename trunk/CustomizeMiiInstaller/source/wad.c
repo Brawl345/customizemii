@@ -323,8 +323,8 @@ void DumpHash(u8 * hash)
 s32 CompareHashes(u8 * hash1, u8 * hash2) 
 {
 
-	printf("\nCalculated SHA1 Hash : "); DumpHash(hash1);
-	printf("\nStored SHA1 Hash     : "); DumpHash(hash2);
+	printf("\nCalculated SHA1 Hash: "); DumpHash(hash1);
+	printf("\nStored SHA1 Hash    : "); DumpHash(hash2);
 	sleep(3);
 	
 	if (memcmp(hash1, hash2, 20)==0) 
@@ -353,16 +353,16 @@ s32 Wad_InstallFromMemory()
 {
 	/* Check integrity of the wad file using SHA */
 	/* SHA digest of the installed wad will be from XX-XX region in the injected data */
-	printf("\n\n");
+	printf("\n");
 	printf("\r\t\t>> Checking integrity of the contents...");
 	if (Wad_EnsureInjectedData()) 
 	{
-		printf("\r\t\t>> Wad file integrity check succeeded\n\n");	
+		printf("\n\n\t\t>> Wad file integrity check succeeded\n\n");	
 		mopen(install);	
 		return __Wad_Install();
 	} else 
 	{
-		printf("\r\t\t>> Wad file integrity check failed! Will not install the wad, possible corruption during transfer...");
+		printf("\n\n\t\t>> Wad file integrity check failed! Will not install the wad, possible corruption during transfer...");
 	}
 }
 

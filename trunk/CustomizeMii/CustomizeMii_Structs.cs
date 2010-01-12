@@ -14,9 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- namespace CustomizeMii
+
+namespace CustomizeMii
 {
+    public struct TransmitInfo
+    {
+        public bool usedCompression;
+        public double compressionRatio;
+        public double transmittedLength;
+        public int timeElapsed;
+    }
+
+    public enum TransmitProtocol : int
+    {
+        JODI = 0,
+        HAXX = 1
+    }
+
     public struct BnsConversionInfo
     {
         public enum LoopType
@@ -43,6 +57,10 @@
         public string outFile;
         public NandLoader nandLoader;
         public bool sendToWii;
+        public TransmitProtocol transmitProtocol;
+        public string transmitIp;
+        public int transmitIos;
+        public bool saveAfterTransmit;
     }
 
     public struct Progress

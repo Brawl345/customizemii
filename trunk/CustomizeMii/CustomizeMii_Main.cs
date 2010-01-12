@@ -45,7 +45,7 @@ namespace CustomizeMii
         #endregion
 
         #region Variables
-        public bool Mono = false;
+        public static bool Mono = false;
         public static string TempPath = Path.GetTempPath() + "CustomizeMii_Temp\\XXX\\";
         public static string TempWadPath = Path.GetTempPath() + "CustomizeMii_Temp\\XXX\\TempWad.wad";
         public static string TempUnpackPath = Path.GetTempPath() + "CustomizeMii_Temp\\XXX\\Unpack\\";
@@ -80,7 +80,6 @@ namespace CustomizeMii
         private Progress currentProgress;
         private EventHandler ProgressUpdate;
         private int UnpackFolderErrorCount = 0;
-        private Stopwatch CreationTimer = new Stopwatch();
         private List<string> BannerTransparents = new List<string>();
         private List<string> IconTransparents = new List<string>();
         private string Mp3Path;
@@ -311,7 +310,9 @@ namespace CustomizeMii
             tTip.SetToolTip(btnBrlanExtract, "Extract the selected brlan file...");
             tTip.SetToolTip(btnOptionsExtract, "Extract contents of the WAD...");
             tTip.SetToolTip(btnForwarder, "Create a forwarder that will be inserted as a DOL...");
-            
+
+            tTip.SetToolTip(llbTranslateChannel, "Translates the word \"Channel\" to each language...");
+
             tTip.SetToolTip(cbLz77, "Use Lz77 compression for the banner.bin and icon.bin...\nIf the created WAD does not work, try it without compression first...");
             tTip.SetToolTip(cbFailureChecks, "Turn off the security checks...\nNot recommended, you may get a bricking WAD...");
         }
@@ -324,7 +325,7 @@ namespace CustomizeMii
                 return false;
         }
 
-        void rtbInstructions_LinkClicked(object sender, LinkClickedEventArgs e)
+        private void rtbInstructions_LinkClicked(object sender, LinkClickedEventArgs e)
         {
             try
             {
@@ -385,10 +386,6 @@ namespace CustomizeMii
 
                 gImg.DrawLine(Pens.Gray, new Point((int)separatorBtn, 0), new Point((int)separatorBtn, btnCreateWad.Height));
 
-                //gImg.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
-                //gImg.DrawString("Send", btnCreateWad.Font, Brushes.Black, new PointF(95, 10));
-                //gImg.DrawString("Save", btnCreateWad.Font, Brushes.Black, new PointF(320, 10));
-
                 Image tmpCreate = Properties.Resources.btnCreate;
                 Image tmpSend = Properties.Resources.btnSend;
                 gImg.DrawImage(ResizeImage(tmpCreate, tmpCreate.Width, tmpCreate.Height), new Point(280, 0));
@@ -398,33 +395,11 @@ namespace CustomizeMii
             }
         }
 
-        private void ErrorBox(string message)
-        {
-            BoxInvoker invoker = new BoxInvoker(this.errorBox);
-            this.Invoke(invoker, new object[] { message });
-        }
-
-        private void errorBox(string message)
-        {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void InfoBox(string message)
-        {
-            BoxInvoker invoker = new BoxInvoker(this.infoBox);
-            this.Invoke(invoker, new object[] { message });
-        }
-
-        private void infoBox(string message)
-        {
-            MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
         private bool CheckInet()
         {
             try
             {
-                System.Net.IPHostEntry IpHost = System.Net.Dns.GetHostEntry("www.google.com");
+                System.Net.IPHostEntry ipHost = System.Net.Dns.GetHostEntry("www.google.com");
                 return true;
             }
             catch
@@ -442,220 +417,6 @@ namespace CustomizeMii
                 lbStatusText.Text = currentProgress.progressState;
                 currentProgress.progressState = string.Empty;
             }
-        }
-
-        private void AddBannerTpls(object sender, EventArgs e)
-        {
-            try
-            {
-                string[] BannerTpls;
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerTpls = Directory.GetFiles(TempUnpackBannerTplPath);
-                else
-                    BannerTpls = Directory.GetFiles(TempBannerPath + "arc\\timg");
-
-                AddBannerTpls(BannerTpls);
-            }
-            catch { }
-        }
-
-        private void AddIconTpls(object sender, EventArgs e)
-        {
-            try
-            {
-                string[] IconTpls;
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconTpls = Directory.GetFiles(TempUnpackIconTplPath);
-                else
-                    IconTpls = Directory.GetFiles(TempIconPath + "arc\\timg");
-
-                AddIconTpls(IconTpls);
-            }
-            catch { }
-        }
-
-        private void AddBannerTpls(string[] tpls)
-        {
-            if (tpls.Length > 0)
-            {
-                lbxBannerTpls.Items.Clear();
-                BannerTplPath = tpls[0].Remove(tpls[0].LastIndexOf('\\') + 1);
-
-                for (int i = 0; i < tpls.Length; i++)
-                {
-                    if (BannerTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
-                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) + " (Transparent)");
-                    else
-                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1));
-                }
-            }
-        }
-
-        private void AddIconTpls(string[] tpls)
-        {
-            if (tpls.Length > 0)
-            {
-                lbxIconTpls.Items.Clear();
-                IconTplPath = tpls[0].Remove(tpls[0].LastIndexOf('\\') + 1);
-
-                for (int i = 0; i < tpls.Length; i++)
-                {
-                    if (IconTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
-                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) + " (Transparent)");
-                    else
-                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1));
-                }
-            }
-        }
-
-        private void AddBrlyts(object sender, EventArgs e)
-        {
-            try
-            {
-                string[] BannerBrlyt;
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerBrlyt = Directory.GetFiles(TempUnpackBannerBrlytPath);
-                else
-                    BannerBrlyt = Directory.GetFiles(TempBannerPath + "arc\\blyt");
-
-                string[] IconBrlyt;
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconBrlyt = Directory.GetFiles(TempUnpackIconBrlytPath);
-                else
-                    IconBrlyt = Directory.GetFiles(TempIconPath + "arc\\blyt");
-
-                AddBannerBrlyt(BannerBrlyt);
-                AddIconBrlyt(IconBrlyt);
-
-                if (lbxBrlytBanner.SelectedIndex == -1 && lbxBrlytIcon.SelectedIndex == -1)
-                {
-                    if (lbxBrlytBanner.Items.Count > 0) lbxBrlytBanner.SelectedIndex = 0;
-                    else if (lbxBrlytIcon.Items.Count > 0) lbxBrlytIcon.SelectedIndex = 0;
-                }
-            }
-            catch { }
-        }
-
-        private void AddBrlans(object sender, EventArgs e)
-        {
-            try
-            {
-                string[] BannerBrlan;
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerBrlan = Directory.GetFiles(TempUnpackBannerBrlanPath);
-                else
-                    BannerBrlan = Directory.GetFiles(TempBannerPath + "arc\\anim");
-
-                string[] IconBrlan;
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconBrlan = Directory.GetFiles(TempUnpackIconBrlanPath);
-                else
-                    IconBrlan = Directory.GetFiles(TempIconPath + "arc\\anim");
-
-                AddBannerBrlan(BannerBrlan);
-                AddIconBrlan(IconBrlan);
-
-                if (lbxBrlanBanner.SelectedIndex == -1 && lbxBrlanIcon.SelectedIndex == -1)
-                {
-                    if (lbxBrlanBanner.Items.Count > 0) lbxBrlanBanner.SelectedIndex = 0;
-                    else if (lbxBrlanIcon.Items.Count > 0) lbxBrlanIcon.SelectedIndex = 0;
-                }
-            }
-            catch { }
-        }
-
-        private void AddBannerBrlyt(string[] brlyt)
-        {
-            if (brlyt.Length > 0)
-            {
-                lbxBrlytBanner.Items.Clear();
-                BannerBrlytPath = brlyt[0].Remove(brlyt[0].LastIndexOf('\\') + 1);
-
-                for (int i = 0; i < brlyt.Length; i++)
-                {
-                    lbxBrlytBanner.Items.Add(brlyt[i].Remove(0, brlyt[i].LastIndexOf('\\') + 1));
-                }
-            }
-        }
-
-        private void AddIconBrlyt(string[] brlyt)
-        {
-            if (brlyt.Length > 0)
-            {
-                lbxBrlytIcon.Items.Clear();
-                IconBrlytPath = brlyt[0].Remove(brlyt[0].LastIndexOf('\\') + 1);
-
-                for (int i = 0; i < brlyt.Length; i++)
-                {
-                    lbxBrlytIcon.Items.Add(brlyt[i].Remove(0, brlyt[i].LastIndexOf('\\') + 1));
-                }
-            }
-        }
-
-        private void AddBannerBrlan(string[] brlan)
-        {
-            if (brlan.Length > 0)
-            {
-                lbxBrlanBanner.Items.Clear();
-                BannerBrlanPath = brlan[0].Remove(brlan[0].LastIndexOf('\\') + 1);
-
-                for (int i = 0; i < brlan.Length; i++)
-                {
-                    lbxBrlanBanner.Items.Add(brlan[i].Remove(0, brlan[i].LastIndexOf('\\') + 1));
-                }
-            }
-        }
-
-        private void AddIconBrlan(string[] brlan)
-        {
-            if (brlan.Length > 0)
-            {
-                lbxBrlanIcon.Items.Clear();
-                IconBrlanPath = brlan[0].Remove(brlan[0].LastIndexOf('\\') + 1);
-
-                for (int i = 0; i < brlan.Length; i++)
-                {
-                    lbxBrlanIcon.Items.Add(brlan[i].Remove(0, brlan[i].LastIndexOf('\\') + 1));
-                }
-            }
-        }
-
-        private void SetText(TextBox tb, string text)
-        {
-            SetTextInvoker invoker = new SetTextInvoker(this.SetText);
-            this.Invoke(invoker, text, tb);
-        }
-
-        private void SetText(string text, TextBox tb)
-        {
-            tb.Text = text;
-        }
-
-        private void SetLabel(Label lb, string text)
-        {
-            SetLabelInvoker invoker = new SetLabelInvoker(this.SetLabel);
-            this.Invoke(invoker, text, lb);
-        }
-
-        private void SetLabel(string text, Label lb)
-        {
-            lb.Text = text;
-        }
-
-        private string GetCurBannerPath()
-        {
-            if (string.IsNullOrEmpty(BannerReplace))
-                return TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\";
-            else
-                return TempBannerPath + "arc\\";
-        }
-
-        private string GetCurIconPath()
-        {
-            if (string.IsNullOrEmpty(IconReplace))
-                return TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\";
-            else
-                return TempIconPath + "arc\\";
         }
 
         private void SetSourceWad(object sender, EventArgs e)
@@ -756,7 +517,7 @@ namespace CustomizeMii
             }
         }
 
-        void tmrCredits_Tick(object sender, EventArgs e)
+        private void tmrCredits_Tick(object sender, EventArgs e)
         {
             if (lbCreditThanks.Location.Y == -130) lbCreditThanks.Location = new Point(lbCreditThanks.Location.X, panCredits.Height);
             lbCreditThanks.Location = new Point(lbCreditThanks.Location.X, lbCreditThanks.Location.Y - 1);
@@ -835,84 +596,6 @@ namespace CustomizeMii
                         AddIconBrlan(IconBrlan);
                     }
                     catch { }
-                }
-            }
-        }
-
-        private Image ResizeImage(Image img, int x, int y)
-        {
-            Image newimage = new Bitmap(x, y);
-            using (Graphics gfx = Graphics.FromImage(newimage))
-            {
-                gfx.DrawImage(img, 0, 0, x, y);
-            }
-            return newimage;
-        }
-
-        private void MakeBannerTplsTransparent()
-        {
-            foreach (string thisTpl in lbxBannerTpls.Items)
-            {
-                if (thisTpl.EndsWith("(Transparent)"))
-                {
-                    string Tpl = BannerTplPath + thisTpl.Replace(" (Transparent)", string.Empty);
-                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
-                    int Width = Wii.TPL.GetTextureWidth(TplArray);
-                    int Height = Wii.TPL.GetTextureHeight(TplArray);
-
-                    Image Img = new Bitmap(Width, Height);
-                    Wii.TPL.ConvertToTPL(Img, Tpl, 5);
-                }
-            }
-        }
-
-        private void MakeIconTplsTransparent()
-        {
-            foreach (string thisTpl in lbxIconTpls.Items)
-            {
-                if (thisTpl.EndsWith("(Transparent)"))
-                {
-                    string Tpl = IconTplPath + thisTpl.Replace(" (Transparent)", string.Empty);
-                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
-                    int Width = Wii.TPL.GetTextureWidth(TplArray);
-                    int Height = Wii.TPL.GetTextureHeight(TplArray);
-
-                    Image Img = new Bitmap(Width, Height);
-                    Wii.TPL.ConvertToTPL(Img, Tpl, 5);
-                }
-            }
-        }
-
-        private void EnableControls(object sender, EventArgs e)
-        {
-            for (int i = 0; i < tabControl.TabCount; i++)
-            {
-                if (tabControl.TabPages[i] != tabSource)
-                {
-                    foreach (Control Ctrl in tabControl.TabPages[i].Controls)
-                    {
-                        if (Ctrl is Button) Ctrl.Enabled = true;
-                        else if ((Ctrl is TextBox) && (Ctrl.Tag != (object)"Disabled")) Ctrl.Enabled = true;
-                        else if (Ctrl is CheckBox && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = true;
-                        else if (Ctrl is ComboBox) Ctrl.Enabled = true;
-                    }
-                }
-            }
-        }
-
-        private void DisableControls(object sender, EventArgs e)
-        {
-            for (int i = 0; i < tabControl.TabCount; i++)
-            {
-                if (tabControl.TabPages[i] != tabSource)
-                {
-                    foreach (Control Ctrl in tabControl.TabPages[i].Controls)
-                    {
-                        if (Ctrl is Button) Ctrl.Enabled = false;
-                        else if ((Ctrl is TextBox) && (Ctrl.Tag != (object)"Disabled")) Ctrl.Enabled = false;
-                        else if (Ctrl is CheckBox && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = false;
-                        else if (Ctrl is ComboBox) Ctrl.Enabled = false;
-                    }
                 }
             }
         }
@@ -1012,9 +695,9 @@ namespace CustomizeMii
         {
             if (lbxBaseWads.SelectedIndex != -1)
             {
-                if (CheckInet() == true)
+                if (pbProgress.Value == 100)
                 {
-                    if (pbProgress.Value == 100)
+                    if (CheckInet() == true)
                     {
 #if Mono
                         CommonKeyCheck();
@@ -1043,11 +726,10 @@ namespace CustomizeMii
                             }
                         }
                     }
-
-                }
-                else
-                {
-                    ErrorBox("You're not connected to the Internet!");
+                    else
+                    {
+                        ErrorBox("You're not connected to the Internet!");
+                    }
                 }
             }
         }
@@ -2187,32 +1869,40 @@ namespace CustomizeMii
                 {
                     if (!string.IsNullOrEmpty(tbSourceWad.Text))
                     {
-                        if (cbFailureChecks.Checked == true || FailureCheck() == true)
+                        if (!File.Exists(Application.StartupPath + "\\CustomizeMiiInstaller.dll"))
                         {
-                            try
+                            ErrorBox("The CustomizeMiiInstaller.dll wasn't found!");
+                        }
+                        else
+                        {
+                            if (cbFailureChecks.Checked == true || FailureCheck() == true)
                             {
-                                WadCreationInfo wadInfo = new WadCreationInfo();
-                                wadInfo.outFile = TempPath + "SendToWii.wad";
-                                wadInfo.nandLoader = (WadCreationInfo.NandLoader)cmbNandLoader.SelectedIndex;
-                                wadInfo.sendToWii = true;
+                                CustomizeMii_Transmit cmt = new CustomizeMii_Transmit();
 
-                                BackgroundWorker bwCreateWad = new BackgroundWorker();
-                                bwCreateWad.DoWork += new DoWorkEventHandler(bwCreateWad_DoWork);
-                                bwCreateWad.ProgressChanged += new ProgressChangedEventHandler(bwCreateWad_ProgressChanged);
-                                bwCreateWad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwCreateWad_RunWorkerCompleted);
-                                bwCreateWad.WorkerReportsProgress = true;
-                                bwCreateWad.RunWorkerAsync(wadInfo);
+                                if (cmt.ShowDialog() == DialogResult.OK)
+                                {
+                                    try
+                                    {
+                                        WadCreationInfo wadInfo = new WadCreationInfo();
+                                        wadInfo.outFile = TempPath + "SendToWii.wad";
+                                        wadInfo.nandLoader = (WadCreationInfo.NandLoader)cmbNandLoader.SelectedIndex;
+                                        wadInfo.sendToWii = true;
+                                        wadInfo.transmitProtocol = (TransmitProtocol)cmt.Protocol;
+                                        wadInfo.transmitIp = cmt.IPAddress;
+                                        wadInfo.transmitIos = int.Parse(cmt.IOS);
 
-                                // @WiiCrazy: The WAD will be saved to >> TempTempPath + "SendToWii.wad" <<
-                                // here. Now a loop that waits for the BackgroundWorker to finish and then opens
-                                // a new window (wiiload - window or whatever) ?!
-                                // If it finishes successfully, the variable >> sendWadReady << will turn into 1,
-                                // if it errors, it will turn into -1, as long as it's running it is 0.
-
-                            }
-                            catch (Exception ex)
-                            {
-                                ErrorBox(ex.Message);
+                                        BackgroundWorker bwCreateWad = new BackgroundWorker();
+                                        bwCreateWad.DoWork += new DoWorkEventHandler(bwCreateWad_DoWork);
+                                        bwCreateWad.ProgressChanged += new ProgressChangedEventHandler(bwCreateWad_ProgressChanged);
+                                        bwCreateWad.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwCreateWad_RunWorkerCompleted);
+                                        bwCreateWad.WorkerReportsProgress = true;
+                                        bwCreateWad.RunWorkerAsync(wadInfo);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        ErrorBox(ex.Message);
+                                    }
+                                }
                             }
                         }
                     }
@@ -2934,6 +2624,46 @@ namespace CustomizeMii
                 }
                 catch (Exception ex) { ErrorBox(ex.Message); }
             }
+            else if (cmSender.OwnerItem == tsExtractBrl)
+            {
+                try
+                {
+                    FolderBrowserDialog fbd = new FolderBrowserDialog();
+                    fbd.Description = "Select the path where the files will be extracted to.";
+
+                    if (fbd.ShowDialog() == DialogResult.OK)
+                    {
+                        if (cmSender == cmExtractBrlyt || cmSender == cmExtractBothBrl)
+                        {
+                            //Extract brlyts
+                            string[] bannerFiles = Directory.GetFiles(GetCurBannerPath() + "blyt", "*.brlyt");
+                            string[] iconFiles = Directory.GetFiles(GetCurIconPath() + "blyt", "*.brlyt");
+
+                            foreach (string thisFile in bannerFiles)
+                                File.Copy(thisFile, fbd.SelectedPath + "\\" + Path.GetFileName(thisFile),true);
+
+                            foreach (string thisFile in iconFiles)
+                                File.Copy(thisFile, fbd.SelectedPath + "\\" + Path.GetFileName(thisFile), true);
+                        }
+
+                        if (cmSender == cmExtractBothBrl || cmSender == cmExtractBrlan)
+                        {
+                            //Extract brlans
+                            string[] bannerFiles = Directory.GetFiles(GetCurBannerPath() + "anim", "*.brlan");
+                            string[] iconFiles = Directory.GetFiles(GetCurIconPath() + "anim", "*.brlan");
+
+                            foreach (string thisFile in bannerFiles)
+                                File.Copy(thisFile, fbd.SelectedPath + "\\" + Path.GetFileName(thisFile), true);
+
+                            foreach (string thisFile in iconFiles)
+                                File.Copy(thisFile, fbd.SelectedPath + "\\" + Path.GetFileName(thisFile), true);
+                        }
+
+                        InfoBox("Extracted files successfully!");
+                    }
+                }
+                catch (Exception ex) { ErrorBox(ex.Message); }
+            }
             else //DOL
             {
                 try
@@ -3160,6 +2890,50 @@ namespace CustomizeMii
             {
                 SetText(tbDol, string.Empty);
                 btnBrowseDol.Text = "Browse...";
+                ErrorBox(ex.Message);
+            }
+        }
+
+        private void llbTranslateChannel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (!tbAllLanguages.Text.ToLower().Contains("channel"))
+            {
+                tbAllLanguages.Focus();
+                tbAllLanguages.SelectAll();
+                return;
+            }
+
+            string tempText = tbAllLanguages.Text;
+            int startIndex = tempText.ToLower().IndexOf("channel");
+
+            try
+            {
+                tbEnglish.Text = tempText.Remove(startIndex, 7).Insert(startIndex, "Channel");
+                tbJapanese.Text = tempText.Remove(startIndex, 7).Insert(startIndex, "チャンネル");
+                tbGerman.Text = tempText.Remove(startIndex, 7).Insert(startIndex, "Kanal");
+                tbDutch.Text = tempText.Remove(startIndex, 7).Insert(startIndex, "Kanaal");
+
+                if (tempText[startIndex - 1] != ' ') tbFrench.Text = tempText.Remove(startIndex, 7).Insert(0, "Chaîne ");
+                else tbFrench.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Chaîne ");
+                if (tempText[startIndex - 1] != ' ') tbSpanish.Text = tempText.Remove(startIndex, 7).Insert(0, "Canal ");
+                else tbSpanish.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Canal ");
+                if (tempText[startIndex - 1] != ' ') tbItalian.Text = tempText.Remove(startIndex, 7).Insert(0, "Canale ");
+                else tbItalian.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Canale ");
+
+                tbAllLanguages.Text = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                tbAllLanguages.Text = tempText;
+
+                tbEnglish.Text = string.Empty;
+                tbJapanese.Text = string.Empty;
+                tbGerman.Text = string.Empty;
+                tbFrench.Text = string.Empty;
+                tbSpanish.Text = string.Empty;
+                tbItalian.Text = string.Empty;
+                tbDutch.Text = string.Empty;
+
                 ErrorBox(ex.Message);
             }
         }

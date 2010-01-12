@@ -20,14 +20,19 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using BNS;
+using System.Net.Sockets;
 
 namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
+        private Stopwatch CreationTimer = new Stopwatch();
+        private Stopwatch TransmitTimer = new Stopwatch();
+        private TransmitInfo transmitInfo;
         public int sendWadReady = 0;
         private bool sendToWii = false;
         private bool internalSound;
+        private WadCreationInfo wadCreationInfo;
 
         void bwBannerReplace_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -529,7 +534,7 @@ namespace CustomizeMii
             }
         }
 
-        void bwCreateWad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        void bwTransmit_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             EventHandler EnableControls = new EventHandler(this.EnableControls);
             EventHandler Initialize = new EventHandler(this.Initialize);
@@ -537,6 +542,219 @@ namespace CustomizeMii
             lbStatusText.Text = string.Empty;
             this.Invoke(EnableControls);
             this.Invoke(Initialize);
+
+            if (transmitInfo.timeElapsed > 0)
+            {
+                System.Windows.Forms.DialogResult dlg;
+
+                if (transmitInfo.usedCompression)
+                    dlg = System.Windows.Forms.MessageBox.Show(
+                        string.Format("Transmitted {0} kB in {1} milliseconds...\nCompression Ratio: {2}%\n\nDo you want to save the wad file?",
+                        transmitInfo.transmittedLength, transmitInfo.timeElapsed, transmitInfo.compressionRatio),
+                        "Save File?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question);
+                else
+                    dlg = System.Windows.Forms.MessageBox.Show(
+                        string.Format("Transmitted {0} kB in {1} milliseconds...\n\nDo you want to save the wad file?",
+                        transmitInfo.transmittedLength, transmitInfo.timeElapsed),
+                        "Save File?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question);
+
+                if (dlg == System.Windows.Forms.DialogResult.Yes)
+                {
+                    System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
+                    sfd.Filter = "Wii Channels|*.wad";
+
+                    if (!string.IsNullOrEmpty(tbAllLanguages.Text))
+                        sfd.FileName = tbAllLanguages.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
+                    else
+                        sfd.FileName = tbEnglish.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
+
+                    if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        File.Copy(TempPath + "SendToWii.wad", sfd.FileName, true);
+                }
+            }
+
+            try { File.Delete(TempPath + "SendToWii.wad"); }
+            catch { }
+        }
+
+        void bwTransmit_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            currentProgress.progressValue = e.ProgressPercentage;
+            currentProgress.progressState = (string)e.UserState;
+
+            this.Invoke(ProgressUpdate);
+        }
+
+        void bwTransmit_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                BackgroundWorker bwTransmit = sender as BackgroundWorker;
+
+                //Insert wad into stub dol
+                string fileName = "CMiiInstaller.dol";
+                byte[] fileData = CustomizeMiiInstaller.InstallerHelper.CreateInstaller(TempPath + "SendToWii.wad", (byte)wadCreationInfo.transmitIos).ToArray();
+
+                //Transmit installer
+                transmitInfo.timeElapsed = 0; TransmitTimer.Reset(); TransmitTimer.Start();
+                bool compress = File.Exists(System.Windows.Forms.Application.StartupPath + "\\zlib1.dll");
+
+                if (!Environment.OSVersion.ToString().Contains("Windows"))
+                    compress = false;
+
+                if ((int)(wadCreationInfo.transmitProtocol) == 1) compress = false;
+
+                TcpClient theClient = new TcpClient();
+
+                byte[] compFileData;
+                int Blocksize = 4 * 1024;
+                if (wadCreationInfo.transmitProtocol != TransmitProtocol.JODI) Blocksize = 16 * 1024;
+                byte[] buffer = new byte[4];
+                string theIP = wadCreationInfo.transmitIp;
+
+                bwTransmit.ReportProgress(0, "Connecting...");
+                //StatusUpdate("Connecting...");
+                try { theClient.Connect(theIP, 4299); }
+                catch (Exception ex) { theClient.Close(); throw new Exception("Connection Failed:\n" + ex.Message); }
+                NetworkStream theStream = theClient.GetStream();
+
+                bwTransmit.ReportProgress(0, "Connected... Sending Magic...");
+                //StatusUpdate("Connected... Sending Magic...");
+                buffer[0] = (byte)'H';
+                buffer[1] = (byte)'A';
+                buffer[2] = (byte)'X';
+                buffer[3] = (byte)'X';
+                try { theStream.Write(buffer, 0, 4); }
+                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Magic:\n" + ex.Message); }
+
+                bwTransmit.ReportProgress(0, "Magic Sent... Sending Version Info...");
+                //StatusUpdate("Magic Sent... Sending Version Info...");
+                buffer[0] = 0;
+                buffer[1] = wadCreationInfo.transmitProtocol == TransmitProtocol.JODI ? (byte)5 : (byte)4;
+                buffer[2] = (byte)(((fileName.Length + 2) >> 8) & 0xff);
+                buffer[3] = (byte)((fileName.Length + 2) & 0xff);
+
+                try { theStream.Write(buffer, 0, 4); }
+                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Version Info:\n" + ex.Message); }
+
+                if (compress)
+                {
+                    bwTransmit.ReportProgress(0, "Version Info Sent... Compressing File...");
+                    //StatusUpdate("Version Info Sent... Compressing File...");
+                    try { compFileData = TransmitMii.zlib.Compress(fileData); }
+                    catch (Exception ex)
+                    {
+                        ErrorBox(ex.Message);
+                        //Compression failed, let's continue without compression
+                        compFileData = fileData;
+                        fileData = new byte[0];
+                    }
+
+                    bwTransmit.ReportProgress(0, "Compressed File... Sending Filesize...");
+                    //StatusUpdate("Compressed File... Sending Filesize...");
+                }
+                else
+                {
+                    compFileData = fileData;
+                    fileData = new byte[0];
+
+                    bwTransmit.ReportProgress(0, "Version Info Sent... Sending Filesize...");
+                    //StatusUpdate("Version Info Sent... Sending Filesize...");
+                }
+
+                //First compressed filesize, then uncompressed filesize
+                buffer[0] = (byte)((compFileData.Length >> 24) & 0xff);
+                buffer[1] = (byte)((compFileData.Length >> 16) & 0xff);
+                buffer[2] = (byte)((compFileData.Length >> 8) & 0xff);
+                buffer[3] = (byte)(compFileData.Length & 0xff);
+                try { theStream.Write(buffer, 0, 4); }
+                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Filesize:\n" + ex.Message); }
+
+                if (wadCreationInfo.transmitProtocol != TransmitProtocol.HAXX)
+                {
+                    buffer[0] = (byte)((fileData.Length >> 24) & 0xff);
+                    buffer[1] = (byte)((fileData.Length >> 16) & 0xff);
+                    buffer[2] = (byte)((fileData.Length >> 8) & 0xff);
+                    buffer[3] = (byte)(fileData.Length & 0xff);
+                    try { theStream.Write(buffer, 0, 4); }
+                    catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Filesize:\n" + ex.Message); }
+                }
+
+                bwTransmit.ReportProgress(0, "Filesize Sent... Sending File...");
+                //StatusUpdate("Filesize Sent... Sending File...");
+                int off = 0;
+                int cur = 0;
+                int count = compFileData.Length / Blocksize;
+                int left = compFileData.Length % Blocksize;
+
+                try
+                {
+                    do
+                    {
+                        bwTransmit.ReportProgress((cur + 1) * 100 / count, "Sending File...");
+                        //StatusUpdate("Sending File: " + ((cur + 1) * 100 / count).ToString() + "%");
+                        theStream.Write(compFileData, off, Blocksize);
+                        off += Blocksize;
+                        cur++;
+                    } while (cur < count);
+
+                    if (left > 0)
+                    {
+                        theStream.Write(compFileData, off, compFileData.Length - off);
+                    }
+                }
+                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending File:\n" + ex.Message); }
+
+                bwTransmit.ReportProgress(0, "File Sent... Sending Arguments...");
+                //StatusUpdate("File Sent... Sending Arguments...");
+                byte[] theArgs = new byte[fileName.Length + 2];
+                for (int i = 0; i < fileName.Length; i++) { theArgs[i] = (byte)fileName.ToCharArray()[i]; }
+                try { theStream.Write(theArgs, 0, theArgs.Length); }
+                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Arguments:\n" + ex.Message); }
+
+                theStream.Close();
+                theClient.Close();
+
+                bwTransmit.ReportProgress(0, string.Empty);
+                //StatusUpdate(string.Empty);
+
+                TransmitTimer.Stop();
+                transmitInfo.timeElapsed = (int)TransmitTimer.ElapsedMilliseconds;
+                transmitInfo.usedCompression = compress;
+                transmitInfo.transmittedLength = Math.Round(compFileData.Length * 0.0009765625, 2);
+                if (compress && fileData.Length != 0)
+                    transmitInfo.compressionRatio = (compFileData.Length * 100) / fileData.Length;
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+            }
+        }
+
+        void bwCreateWad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (!this.sendToWii)
+            {
+                EventHandler EnableControls = new EventHandler(this.EnableControls);
+                EventHandler Initialize = new EventHandler(this.Initialize);
+                pbProgress.Value = 100;
+                lbStatusText.Text = string.Empty;
+                this.Invoke(EnableControls);
+                this.Invoke(Initialize);
+            }
+            else
+            {
+                if (sendWadReady == 1)
+                {
+                    //Start new BackgroundWorker to Transmit
+                    BackgroundWorker bwTransmit = new BackgroundWorker();
+                    bwTransmit.WorkerReportsProgress = true;
+                    bwTransmit.DoWork += new DoWorkEventHandler(bwTransmit_DoWork);
+                    bwTransmit.ProgressChanged += new ProgressChangedEventHandler(bwTransmit_ProgressChanged);
+                    bwTransmit.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwTransmit_RunWorkerCompleted);
+                    bwTransmit.RunWorkerAsync();
+                }
+            }
         }
 
         void bwCreateWad_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -562,6 +780,9 @@ namespace CustomizeMii
                 bwCreateWad.ReportProgress(0, "Making TPLs transparent");
                 MakeBannerTplsTransparent();
                 MakeIconTplsTransparent();
+
+                bwCreateWad.ReportProgress(3, "Fixing TPL Filters...");
+                FixTpls();
 
                 bwCreateWad.ReportProgress(5, "Packing icon.bin...");
                 byte[] iconbin;
@@ -751,6 +972,8 @@ namespace CustomizeMii
                     InfoBox(string.Format("Successfully created custom channel!\nTime elapsed: {0} ms\nFilesize: {1} MB\nApprox. Blocks: {2}", CreationTimer.ElapsedMilliseconds, fileSize, Wii.WadInfo.GetNandBlocks(wadInfo.outFile)));
                 }
                 else sendWadReady = 1;
+
+                wadCreationInfo = wadInfo;
             }
             catch (Exception ex)
             {

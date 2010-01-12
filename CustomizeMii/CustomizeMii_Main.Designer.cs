@@ -63,6 +63,7 @@ namespace CustomizeMii
             this.tbSourceWad = new System.Windows.Forms.TextBox();
             this.lbSource = new System.Windows.Forms.Label();
             this.tabTitle = new System.Windows.Forms.TabPage();
+            this.llbTranslateChannel = new System.Windows.Forms.LinkLabel();
             this.tbItalian = new System.Windows.Forms.TextBox();
             this.tbFrench = new System.Windows.Forms.TextBox();
             this.tbJapanese = new System.Windows.Forms.TextBox();
@@ -140,6 +141,7 @@ namespace CustomizeMii
             this.tabInstructions = new System.Windows.Forms.TabPage();
             this.rtbInstructions = new System.Windows.Forms.RichTextBox();
             this.tabCredits = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
             this.lbForwardMiiVersion = new System.Windows.Forms.Label();
             this.panCredits = new System.Windows.Forms.Panel();
             this.lbCreditThanks = new System.Windows.Forms.Label();
@@ -164,6 +166,10 @@ namespace CustomizeMii
             this.cmExtractBannerImages = new System.Windows.Forms.ToolStripMenuItem();
             this.cmExtractIconImages = new System.Windows.Forms.ToolStripMenuItem();
             this.cmExtractBothImages = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsExtractBrl = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractBrlyt = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractBrlan = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmExtractBothBrl = new System.Windows.Forms.ToolStripMenuItem();
             this.cmSound = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmLoadAudioFile = new System.Windows.Forms.ToolStripMenuItem();
             this.cmConvertToBns = new System.Windows.Forms.ToolStripMenuItem();
@@ -377,6 +383,7 @@ namespace CustomizeMii
             // 
             // tabTitle
             // 
+            this.tabTitle.Controls.Add(this.llbTranslateChannel);
             this.tabTitle.Controls.Add(this.tbItalian);
             this.tabTitle.Controls.Add(this.tbFrench);
             this.tabTitle.Controls.Add(this.tbJapanese);
@@ -401,6 +408,17 @@ namespace CustomizeMii
             this.tabTitle.TabIndex = 1;
             this.tabTitle.Text = "Title";
             this.tabTitle.UseVisualStyleBackColor = true;
+            // 
+            // llbTranslateChannel
+            // 
+            this.llbTranslateChannel.AutoSize = true;
+            this.llbTranslateChannel.Location = new System.Drawing.Point(322, 42);
+            this.llbTranslateChannel.Name = "llbTranslateChannel";
+            this.llbTranslateChannel.Size = new System.Drawing.Size(103, 13);
+            this.llbTranslateChannel.TabIndex = 17;
+            this.llbTranslateChannel.TabStop = true;
+            this.llbTranslateChannel.Text = "Translate \"Channel\"";
+            this.llbTranslateChannel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbTranslateChannel_LinkClicked);
             // 
             // tbItalian
             // 
@@ -1213,6 +1231,7 @@ namespace CustomizeMii
             // 
             // tabCredits
             // 
+            this.tabCredits.Controls.Add(this.label1);
             this.tabCredits.Controls.Add(this.lbForwardMiiVersion);
             this.tabCredits.Controls.Add(this.panCredits);
             this.tabCredits.Controls.Add(this.llbUpdateAvailabe);
@@ -1227,9 +1246,18 @@ namespace CustomizeMii
             this.tabCredits.Text = "About";
             this.tabCredits.UseVisualStyleBackColor = true;
             // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(0, 28);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(443, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "CustomizeMii Installer by WiiCrazy / I.R.on";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
             // lbForwardMiiVersion
             // 
-            this.lbForwardMiiVersion.Location = new System.Drawing.Point(0, 62);
+            this.lbForwardMiiVersion.Location = new System.Drawing.Point(0, 68);
             this.lbForwardMiiVersion.Name = "lbForwardMiiVersion";
             this.lbForwardMiiVersion.Size = new System.Drawing.Size(443, 13);
             this.lbForwardMiiVersion.TabIndex = 6;
@@ -1258,7 +1286,7 @@ namespace CustomizeMii
             // llbUpdateAvailabe
             // 
             this.llbUpdateAvailabe.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llbUpdateAvailabe.Location = new System.Drawing.Point(0, 62);
+            this.llbUpdateAvailabe.Location = new System.Drawing.Point(0, 67);
             this.llbUpdateAvailabe.Name = "llbUpdateAvailabe";
             this.llbUpdateAvailabe.Size = new System.Drawing.Size(443, 13);
             this.llbUpdateAvailabe.TabIndex = 4;
@@ -1270,18 +1298,19 @@ namespace CustomizeMii
             // 
             // llbSite
             // 
-            this.llbSite.Location = new System.Drawing.Point(0, 35);
+            this.llbSite.Location = new System.Drawing.Point(0, 47);
             this.llbSite.Name = "llbSite";
             this.llbSite.Size = new System.Drawing.Size(443, 13);
             this.llbSite.TabIndex = 3;
             this.llbSite.TabStop = true;
+            this.llbSite.Tag = "Independent";
             this.llbSite.Text = "http://customizemii.googlecode.com";
             this.llbSite.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.llbSite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbSite_LinkClicked);
             // 
             // lbCreditVersion
             // 
-            this.lbCreditVersion.Location = new System.Drawing.Point(0, 13);
+            this.lbCreditVersion.Location = new System.Drawing.Point(0, 10);
             this.lbCreditVersion.Name = "lbCreditVersion";
             this.lbCreditVersion.Size = new System.Drawing.Size(443, 13);
             this.lbCreditVersion.TabIndex = 1;
@@ -1360,21 +1389,22 @@ namespace CustomizeMii
             this.cmExtractWad,
             this.cmExtractDol,
             this.tsExtractSound,
-            this.tsExtractImages});
+            this.tsExtractImages,
+            this.tsExtractBrl});
             this.cmOptionsExtract.Name = "cmOptionsExtract";
-            this.cmOptionsExtract.Size = new System.Drawing.Size(153, 92);
+            this.cmOptionsExtract.Size = new System.Drawing.Size(183, 114);
             // 
             // cmExtractWad
             // 
             this.cmExtractWad.Name = "cmExtractWad";
-            this.cmExtractWad.Size = new System.Drawing.Size(152, 22);
+            this.cmExtractWad.Size = new System.Drawing.Size(182, 22);
             this.cmExtractWad.Text = "WAD Contents";
             this.cmExtractWad.Click += new System.EventHandler(this.cmExtractWad_Click);
             // 
             // cmExtractDol
             // 
             this.cmExtractDol.Name = "cmExtractDol";
-            this.cmExtractDol.Size = new System.Drawing.Size(152, 22);
+            this.cmExtractDol.Size = new System.Drawing.Size(182, 22);
             this.cmExtractDol.Text = "DOL";
             this.cmExtractDol.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
             // 
@@ -1384,7 +1414,7 @@ namespace CustomizeMii
             this.cmExtractSoundAsBin,
             this.cmExtractSoundAsAudio});
             this.tsExtractSound.Name = "tsExtractSound";
-            this.tsExtractSound.Size = new System.Drawing.Size(152, 22);
+            this.tsExtractSound.Size = new System.Drawing.Size(182, 22);
             this.tsExtractSound.Text = "Sound";
             // 
             // cmExtractSoundAsBin
@@ -1408,7 +1438,7 @@ namespace CustomizeMii
             this.cmExtractIconImages,
             this.cmExtractBothImages});
             this.tsExtractImages.Name = "tsExtractImages";
-            this.tsExtractImages.Size = new System.Drawing.Size(152, 22);
+            this.tsExtractImages.Size = new System.Drawing.Size(182, 22);
             this.tsExtractImages.Text = "Images";
             // 
             // cmExtractBannerImages
@@ -1431,6 +1461,37 @@ namespace CustomizeMii
             this.cmExtractBothImages.Size = new System.Drawing.Size(111, 22);
             this.cmExtractBothImages.Text = "Both";
             this.cmExtractBothImages.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // tsExtractBrl
+            // 
+            this.tsExtractBrl.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmExtractBrlyt,
+            this.cmExtractBrlan,
+            this.cmExtractBothBrl});
+            this.tsExtractBrl.Name = "tsExtractBrl";
+            this.tsExtractBrl.Size = new System.Drawing.Size(182, 22);
+            this.tsExtractBrl.Text = "Layout && Animation";
+            // 
+            // cmExtractBrlyt
+            // 
+            this.cmExtractBrlyt.Name = "cmExtractBrlyt";
+            this.cmExtractBrlyt.Size = new System.Drawing.Size(109, 22);
+            this.cmExtractBrlyt.Text = "brlyt\'s";
+            this.cmExtractBrlyt.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // cmExtractBrlan
+            // 
+            this.cmExtractBrlan.Name = "cmExtractBrlan";
+            this.cmExtractBrlan.Size = new System.Drawing.Size(109, 22);
+            this.cmExtractBrlan.Text = "brlan\'s";
+            this.cmExtractBrlan.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
+            // 
+            // cmExtractBothBrl
+            // 
+            this.cmExtractBothBrl.Name = "cmExtractBothBrl";
+            this.cmExtractBothBrl.Size = new System.Drawing.Size(109, 22);
+            this.cmExtractBothBrl.Text = "Both";
+            this.cmExtractBothBrl.Click += new System.EventHandler(this.cmOptionsExtract_MouseClick);
             // 
             // cmSound
             // 
@@ -1648,6 +1709,12 @@ namespace CustomizeMii
         private System.Windows.Forms.Label lbForwardMiiVersion;
         private System.Windows.Forms.Label lbCreated;
         private System.Windows.Forms.Label lbCreatedValue;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem tsExtractBrl;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractBrlyt;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractBrlan;
+        private System.Windows.Forms.ToolStripMenuItem cmExtractBothBrl;
+        private System.Windows.Forms.LinkLabel llbTranslateChannel;
     }
 }
 

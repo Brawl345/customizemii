@@ -10,12 +10,14 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 Changelog:
 
 Version 2.1
+	- Added CustomizeMii Installer (by WiiCrazy / I.R.on)
+	- Fixed rough edges (artifacts) on images (will be fixed automatically)
 	- Replaced the TPL preview window with the one from ShowMiiWads for easier handling
 	- Added loop prelistening to the BNS conversion window (only for wave files)
 	- Added drag & drop ability cause the file dialogs kept bothering me
 	- Improvement in startup speed (thanks shadow1643)
-	- Added Unix timestamp as footer (interesting to know when channels were created, huh?)
-	- Little improvements
+	- Added creation/last edited time (only for CustomizeMii 2.1+ channels)
+	- Little improvements and fixes
 	
 Version 2.01
 	- Base WAD downloading works again
@@ -69,6 +71,7 @@ The author can't be held responsible for any damages arising from the use of it.
 -----------------------------------------------------------------------------------------
 Thanks:
 
+WiiCrazy / I.R.on for CustomizeMii Installer
 Xuzz for his idea and hard work
 Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py
 SquidMan for Zetsubou

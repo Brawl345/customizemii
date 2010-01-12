@@ -1,4 +1,21 @@
-﻿using System;
+﻿/* This file is part of CustomizeMii
+ * Copyright (C) 2009 Leathl
+ * 
+ * CustomizeMii is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CustomizeMii is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.IO;
@@ -8,6 +25,334 @@ namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
+        private void FixTpls()
+        {
+            string[] bannerTpls = Directory.GetFiles(GetCurBannerPath() + "timg\\", "*.tpl");
+            string[] iconTpls = Directory.GetFiles(GetCurIconPath() + "timg\\", "*.tpl");
+
+            foreach (string thisTpl in bannerTpls)
+                Wii.TPL.FixFilter(thisTpl);
+            
+            foreach (string thisTpl in iconTpls)
+                Wii.TPL.FixFilter(thisTpl);
+        }
+
+        private void EnableControls(object sender, EventArgs e)
+        {
+            for (int i = 0; i < tabControl.TabCount; i++)
+            {
+                if (tabControl.TabPages[i] != tabSource)
+                {
+                    foreach (Control Ctrl in tabControl.TabPages[i].Controls)
+                    {
+                        if (Ctrl is Button) Ctrl.Enabled = true;
+                        else if ((Ctrl is TextBox) && (Ctrl.Tag != (object)"Disabled")) Ctrl.Enabled = true;
+                        else if (Ctrl is CheckBox && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = true;
+                        else if (Ctrl is ComboBox) Ctrl.Enabled = true;
+                        else if (Ctrl is LinkLabel && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = true;
+                    }
+                }
+            }
+        }
+
+        private void DisableControls(object sender, EventArgs e)
+        {
+            for (int i = 0; i < tabControl.TabCount; i++)
+            {
+                if (tabControl.TabPages[i] != tabSource)
+                {
+                    foreach (Control Ctrl in tabControl.TabPages[i].Controls)
+                    {
+                        if (Ctrl is Button) Ctrl.Enabled = false;
+                        else if ((Ctrl is TextBox) && (Ctrl.Tag != (object)"Disabled")) Ctrl.Enabled = false;
+                        else if (Ctrl is CheckBox && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = false;
+                        else if (Ctrl is ComboBox) Ctrl.Enabled = false;
+                        else if (Ctrl is LinkLabel && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = false;
+                    }
+                }
+            }
+        }
+
+        private Image ResizeImage(Image img, int x, int y)
+        {
+            Image newimage = new Bitmap(x, y);
+            using (Graphics gfx = Graphics.FromImage(newimage))
+            {
+                gfx.DrawImage(img, 0, 0, x, y);
+            }
+            return newimage;
+        }
+
+        private string GetCurBannerPath()
+        {
+            if (string.IsNullOrEmpty(BannerReplace))
+                return TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\";
+            else
+                return TempBannerPath + "arc\\";
+        }
+
+        private string GetCurIconPath()
+        {
+            if (string.IsNullOrEmpty(IconReplace))
+                return TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\";
+            else
+                return TempIconPath + "arc\\";
+        }
+
+        private void SetText(TextBox tb, string text)
+        {
+            SetTextInvoker invoker = new SetTextInvoker(this.SetText);
+            this.Invoke(invoker, text, tb);
+        }
+
+        private void SetText(string text, TextBox tb)
+        {
+            tb.Text = text;
+        }
+
+        private void SetLabel(Label lb, string text)
+        {
+            SetLabelInvoker invoker = new SetLabelInvoker(this.SetLabel);
+            this.Invoke(invoker, text, lb);
+        }
+
+        private void SetLabel(string text, Label lb)
+        {
+            lb.Text = text;
+        }
+
+        private void AddBannerTpls(object sender, EventArgs e)
+        {
+            try
+            {
+                string[] BannerTpls;
+                if (string.IsNullOrEmpty(BannerReplace))
+                    BannerTpls = Directory.GetFiles(TempUnpackBannerTplPath);
+                else
+                    BannerTpls = Directory.GetFiles(TempBannerPath + "arc\\timg");
+
+                AddBannerTpls(BannerTpls);
+            }
+            catch { }
+        }
+
+        private void AddIconTpls(object sender, EventArgs e)
+        {
+            try
+            {
+                string[] IconTpls;
+                if (string.IsNullOrEmpty(IconReplace))
+                    IconTpls = Directory.GetFiles(TempUnpackIconTplPath);
+                else
+                    IconTpls = Directory.GetFiles(TempIconPath + "arc\\timg");
+
+                AddIconTpls(IconTpls);
+            }
+            catch { }
+        }
+
+        private void AddBannerTpls(string[] tpls)
+        {
+            if (tpls.Length > 0)
+            {
+                lbxBannerTpls.Items.Clear();
+                BannerTplPath = tpls[0].Remove(tpls[0].LastIndexOf('\\') + 1);
+
+                for (int i = 0; i < tpls.Length; i++)
+                {
+                    if (BannerTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
+                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) + " (Transparent)");
+                    else
+                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1));
+                }
+            }
+        }
+
+        private void AddIconTpls(string[] tpls)
+        {
+            if (tpls.Length > 0)
+            {
+                lbxIconTpls.Items.Clear();
+                IconTplPath = tpls[0].Remove(tpls[0].LastIndexOf('\\') + 1);
+
+                for (int i = 0; i < tpls.Length; i++)
+                {
+                    if (IconTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
+                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) + " (Transparent)");
+                    else
+                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1));
+                }
+            }
+        }
+
+        private void AddBrlyts(object sender, EventArgs e)
+        {
+            try
+            {
+                string[] BannerBrlyt;
+                if (string.IsNullOrEmpty(BannerReplace))
+                    BannerBrlyt = Directory.GetFiles(TempUnpackBannerBrlytPath);
+                else
+                    BannerBrlyt = Directory.GetFiles(TempBannerPath + "arc\\blyt");
+
+                string[] IconBrlyt;
+                if (string.IsNullOrEmpty(IconReplace))
+                    IconBrlyt = Directory.GetFiles(TempUnpackIconBrlytPath);
+                else
+                    IconBrlyt = Directory.GetFiles(TempIconPath + "arc\\blyt");
+
+                AddBannerBrlyt(BannerBrlyt);
+                AddIconBrlyt(IconBrlyt);
+
+                if (lbxBrlytBanner.SelectedIndex == -1 && lbxBrlytIcon.SelectedIndex == -1)
+                {
+                    if (lbxBrlytBanner.Items.Count > 0) lbxBrlytBanner.SelectedIndex = 0;
+                    else if (lbxBrlytIcon.Items.Count > 0) lbxBrlytIcon.SelectedIndex = 0;
+                }
+            }
+            catch { }
+        }
+
+        private void AddBrlans(object sender, EventArgs e)
+        {
+            try
+            {
+                string[] BannerBrlan;
+                if (string.IsNullOrEmpty(BannerReplace))
+                    BannerBrlan = Directory.GetFiles(TempUnpackBannerBrlanPath);
+                else
+                    BannerBrlan = Directory.GetFiles(TempBannerPath + "arc\\anim");
+
+                string[] IconBrlan;
+                if (string.IsNullOrEmpty(IconReplace))
+                    IconBrlan = Directory.GetFiles(TempUnpackIconBrlanPath);
+                else
+                    IconBrlan = Directory.GetFiles(TempIconPath + "arc\\anim");
+
+                AddBannerBrlan(BannerBrlan);
+                AddIconBrlan(IconBrlan);
+
+                if (lbxBrlanBanner.SelectedIndex == -1 && lbxBrlanIcon.SelectedIndex == -1)
+                {
+                    if (lbxBrlanBanner.Items.Count > 0) lbxBrlanBanner.SelectedIndex = 0;
+                    else if (lbxBrlanIcon.Items.Count > 0) lbxBrlanIcon.SelectedIndex = 0;
+                }
+            }
+            catch { }
+        }
+
+        private void AddBannerBrlyt(string[] brlyt)
+        {
+            if (brlyt.Length > 0)
+            {
+                lbxBrlytBanner.Items.Clear();
+                BannerBrlytPath = brlyt[0].Remove(brlyt[0].LastIndexOf('\\') + 1);
+
+                for (int i = 0; i < brlyt.Length; i++)
+                {
+                    lbxBrlytBanner.Items.Add(brlyt[i].Remove(0, brlyt[i].LastIndexOf('\\') + 1));
+                }
+            }
+        }
+
+        private void AddIconBrlyt(string[] brlyt)
+        {
+            if (brlyt.Length > 0)
+            {
+                lbxBrlytIcon.Items.Clear();
+                IconBrlytPath = brlyt[0].Remove(brlyt[0].LastIndexOf('\\') + 1);
+
+                for (int i = 0; i < brlyt.Length; i++)
+                {
+                    lbxBrlytIcon.Items.Add(brlyt[i].Remove(0, brlyt[i].LastIndexOf('\\') + 1));
+                }
+            }
+        }
+
+        private void AddBannerBrlan(string[] brlan)
+        {
+            if (brlan.Length > 0)
+            {
+                lbxBrlanBanner.Items.Clear();
+                BannerBrlanPath = brlan[0].Remove(brlan[0].LastIndexOf('\\') + 1);
+
+                for (int i = 0; i < brlan.Length; i++)
+                {
+                    lbxBrlanBanner.Items.Add(brlan[i].Remove(0, brlan[i].LastIndexOf('\\') + 1));
+                }
+            }
+        }
+
+        private void AddIconBrlan(string[] brlan)
+        {
+            if (brlan.Length > 0)
+            {
+                lbxBrlanIcon.Items.Clear();
+                IconBrlanPath = brlan[0].Remove(brlan[0].LastIndexOf('\\') + 1);
+
+                for (int i = 0; i < brlan.Length; i++)
+                {
+                    lbxBrlanIcon.Items.Add(brlan[i].Remove(0, brlan[i].LastIndexOf('\\') + 1));
+                }
+            }
+        }
+
+        private void ErrorBox(string message)
+        {
+            BoxInvoker invoker = new BoxInvoker(this.errorBox);
+            this.Invoke(invoker, new object[] { message });
+        }
+
+        private void errorBox(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void InfoBox(string message)
+        {
+            BoxInvoker invoker = new BoxInvoker(this.infoBox);
+            this.Invoke(invoker, new object[] { message });
+        }
+
+        private void infoBox(string message)
+        {
+            MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void MakeBannerTplsTransparent()
+        {
+            foreach (string thisTpl in lbxBannerTpls.Items)
+            {
+                if (thisTpl.EndsWith("(Transparent)"))
+                {
+                    string Tpl = GetCurBannerPath() + "timg\\" + thisTpl.Replace(" (Transparent)", string.Empty);
+                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
+                    int Width = Wii.TPL.GetTextureWidth(TplArray);
+                    int Height = Wii.TPL.GetTextureHeight(TplArray);
+
+                    Image Img = new Bitmap(Width, Height);
+                    Wii.TPL.ConvertToTPL(Img, Tpl, 5);
+                }
+            }
+        }
+
+        private void MakeIconTplsTransparent()
+        {
+            foreach (string thisTpl in lbxIconTpls.Items)
+            {
+                if (thisTpl.EndsWith("(Transparent)"))
+                {
+                    string Tpl = GetCurIconPath() + "timg\\" + thisTpl.Replace(" (Transparent)", string.Empty);
+                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
+                    int Width = Wii.TPL.GetTextureWidth(TplArray);
+                    int Height = Wii.TPL.GetTextureHeight(TplArray);
+
+                    Image Img = new Bitmap(Width, Height);
+                    Wii.TPL.ConvertToTPL(Img, Tpl, 5);
+                }
+            }
+        }
+
         private void AddTpl(ListBox lbx)
         {
             AddTpl(lbx, null);
@@ -92,7 +437,7 @@ namespace CustomizeMii
 
         private void LoadChannel(string inputFile)
         {
-            if (this.Mono) CommonKeyCheck();
+            if (Mono) CommonKeyCheck();
 
             if (pbProgress.Value == 100)
             {

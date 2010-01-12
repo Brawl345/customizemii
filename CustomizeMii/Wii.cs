@@ -683,49 +683,6 @@ namespace Wii
                     {
                         string[] titles = new string[7];
 
-                        //Detection from footer is turned off, cause the footer
-                        //can be easily edited and thus the titles in it could be simply wrong
-
-                        //int footer = GetFooterSize(wadfile);
-                        //if (footer > 0)
-                        //{
-                        //    int footerpos = wadfile.Length - footer;
-                        //    int count = 0;
-                        //    int imetpos = 0;
-
-                        //    if ((wadfile.Length - (wadfile.Length - footer)) < 250) return new string[7];
-
-                        //    for (int z = 0; z < 250; z++)
-                        //    {
-                        //        if (Convert.ToChar(wadfile[footerpos + z]) == 'I')
-                        //            if (Convert.ToChar(wadfile[footerpos + z + 1]) == 'M')
-                        //                if (Convert.ToChar(wadfile[footerpos + z + 2]) == 'E')
-                        //                    if (Convert.ToChar(wadfile[footerpos + z + 3]) == 'T')
-                        //                    {
-                        //                        imetpos = footerpos + z;
-                        //                        break;
-                        //                    }
-                        //    }
-
-                        //    int jappos = imetpos + 29;
-
-                        //    for (int i = jappos; i < jappos + 588; i += 84)
-                        //    {
-                        //        for (int j = 0; j < 40; j += 2)
-                        //        {
-                        //            if (wadfile[i + j] != 0x00)
-                        //            {
-                        //                char temp = Convert.ToChar(wadfile[i + j]);
-                        //                titles[count] += temp;
-                        //            }
-                        //        }
-
-                        //        count++;
-                        //    }
-
-                        //    return titles;
-                        //}
-
                         string[,] conts = GetContentInfo(wadfile);
                         byte[] titlekey = GetTitleKey(wadfile);
                         int nullapp = 0;
@@ -741,36 +698,56 @@ namespace Wii
 
                         if (contenthandle.Length < 400) return new string[7];
 
-                        for (int z = 0; z < 400; z++)
+                        if (!channeltype.Contains("Downloaded"))
                         {
-                            if (Convert.ToChar(contenthandle[z]) == 'I')
-                                if (Convert.ToChar(contenthandle[z + 1]) == 'M')
-                                    if (Convert.ToChar(contenthandle[z + 2]) == 'E')
-                                        if (Convert.ToChar(contenthandle[z + 3]) == 'T')
-                                        {
-                                            imetpos = z;
-                                            break;
-                                        }
-                        }
-
-                        int jappos = imetpos + 29;
-                        int count = 0;
-
-                        for (int i = jappos; i < jappos + 588; i += 84)
-                        {
-                            for (int j = 0; j < 40; j += 2)
+                            for (int z = 0; z < 400; z++)
                             {
-                                if (contenthandle[i + j] != 0x00)
+                                if (Convert.ToChar(contenthandle[z]) == 'I')
+                                    if (Convert.ToChar(contenthandle[z + 1]) == 'M')
+                                        if (Convert.ToChar(contenthandle[z + 2]) == 'E')
+                                            if (Convert.ToChar(contenthandle[z + 3]) == 'T')
+                                            {
+                                                imetpos = z;
+                                                break;
+                                            }
+                            }
+
+                            int jappos = imetpos + 29;
+                            int count = 0;
+
+                            for (int i = jappos; i < jappos + 588; i += 84)
+                            {
+                                for (int j = 0; j < 40; j += 2)
                                 {
-                                    char temp = BitConverter.ToChar(new byte[] { contenthandle[i + j], contenthandle[i + j - 1] }, 0);
-                                    titles[count] += temp;
+                                    if (contenthandle[i + j] != 0x00)
+                                    {
+                                        char temp = BitConverter.ToChar(new byte[] { contenthandle[i + j], contenthandle[i + j - 1] }, 0);
+                                        titles[count] += temp;
+                                    }
+                                }
+
+                                count++;
+                            }
+
+                            return titles;
+                        }
+                        else
+                        {
+                            //DLC's
+                            for (int j = 97; j < 97 + 40; j += 2)
+                            {
+                                if (contenthandle[j] != 0x00)
+                                {
+                                    char temp = BitConverter.ToChar(new byte[] { contenthandle[j], contenthandle[j - 1] }, 0);
+                                    titles[0] += temp;
                                 }
                             }
 
-                            count++;
-                        }
+                            for (int i = 1; i < 7; i++)
+                                titles[i] = titles[0];
 
-                        return titles;
+                            return titles;
+                        }
                     }
                     else return new string[7];
                 }
@@ -1557,45 +1534,45 @@ namespace Wii
                 if (japchars.Length > count)
                 {
                     contenthandle[x + 29] = BitConverter.GetBytes(japchars[count])[0];
-                    contenthandle[x + 30] = BitConverter.GetBytes(japchars[count])[1];
+                    contenthandle[x + 28] = BitConverter.GetBytes(japchars[count])[1];
                 }
-                else { contenthandle[x + 29] = 0x00; }
+                else { contenthandle[x + 29] = 0x00; contenthandle[x + 28] = 0x00; }
                 if (engchars.Length > count)
                 {
                     contenthandle[x + 29 + 84] = BitConverter.GetBytes(engchars[count])[0];
                     contenthandle[x + 29 + 84 - 1] = BitConverter.GetBytes(engchars[count])[1];
                 }
-                else { contenthandle[x + 29 + 84] = 0x00; }
+                else { contenthandle[x + 29 + 84] = 0x00; contenthandle[x + 29 + 84 - 1] = 0x00; }
                 if (gerchars.Length > count)
                 {
                     contenthandle[x + 29 + 84 * 2] = BitConverter.GetBytes(gerchars[count])[0];
                     contenthandle[x + 29 + 84 * 2 - 1] = BitConverter.GetBytes(gerchars[count])[1];
                 }
-                else { contenthandle[x + 29 + 84 * 2] = 0x00; }
+                else { contenthandle[x + 29 + 84 * 2] = 0x00; contenthandle[x + 29 + 84 * 2 - 1] = 0x00; }
                 if (frachars.Length > count)
                 {
                     contenthandle[x + 29 + 84 * 3] = BitConverter.GetBytes(frachars[count])[0];
                     contenthandle[x + 29 + 84 * 3 - 1] = BitConverter.GetBytes(frachars[count])[1];
                 }
-                else { contenthandle[x + 29 + 84 * 3] = 0x00; }
+                else { contenthandle[x + 29 + 84 * 3] = 0x00; contenthandle[x + 29 + 84 * 3 - 1] = 0x00; }
                 if (spachars.Length > count)
                 {
                     contenthandle[x + 29 + 84 * 4] = BitConverter.GetBytes(spachars[count])[0];
                     contenthandle[x + 29 + 84 * 4 - 1] = BitConverter.GetBytes(spachars[count])[1];
                 }
-                else { contenthandle[x + 29 + 84 * 4] = 0x00; }
+                else { contenthandle[x + 29 + 84 * 4] = 0x00; contenthandle[x + 29 + 84 * 4 - 1] = 0x00; }
                 if (itachars.Length > count)
                 {
                     contenthandle[x + 29 + 84 * 5] = BitConverter.GetBytes(itachars[count])[0];
                     contenthandle[x + 29 + 84 * 5 - 1] = BitConverter.GetBytes(itachars[count])[1];
                 }
-                else { contenthandle[x + 29 + 84 * 5] = 0x00; }
+                else { contenthandle[x + 29 + 84 * 5] = 0x00; contenthandle[x + 29 + 84 * 5 - 1] = 0x00; }
                 if (dutchars.Length > count)
                 {
                     contenthandle[x + 29 + 84 * 6] = BitConverter.GetBytes(dutchars[count])[0];
                     contenthandle[x + 29 + 84 * 6 - 1] = BitConverter.GetBytes(dutchars[count])[1];
                 }
-                else { contenthandle[x + 29 + 84 * 6] = 0x00; }
+                else { contenthandle[x + 29 + 84 * 6] = 0x00; contenthandle[x + 29 + 84 * 6 - 1] = 0x00; }
 
                 count++;
             }
@@ -4232,6 +4209,30 @@ namespace Wii
 
     public class TPL
     {
+	    /// <summary>
+        /// Fixes rough edges (artifacts), if necessary
+        /// </summary>
+        /// <param name="tplFile"></param>
+        public static void FixFilter(string tplFile)
+        {
+            using (FileStream fs = new FileStream(tplFile, FileMode.Open))
+            {
+                fs.Seek(41, SeekOrigin.Begin);
+                if (fs.ReadByte() == 0x01)
+                {
+                    fs.Seek(-1, SeekOrigin.Current);
+                    fs.Write(new byte[] { 0x00, 0x00, 0x01 }, 0, 3);
+                }
+
+                fs.Seek(45, SeekOrigin.Begin);
+                if (fs.ReadByte() == 0x01)
+                {
+                    fs.Seek(-1, SeekOrigin.Current);
+                    fs.Write(new byte[] { 0x00, 0x00, 0x01 }, 0, 3);
+                }
+            }
+        }
+	
         /// <summary>
         /// Converts a Tpl to a Bitmap
         /// </summary>
@@ -4956,7 +4957,7 @@ namespace Wii
                 UInt16 texwidth = (UInt16)img.Width;
                 UInt32 texformat;
                 UInt32 texdataoffset = 0x40;
-                byte[] rest = new byte[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 01, 00, 00, 00, 01, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                byte[] rest = new byte[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 01, 00, 00, 00, 01, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
                 //This should do it for our needs.. rest includes padding
 
                 switch (format)
@@ -5648,9 +5649,13 @@ namespace Wii
                 {
                     string wonum = tpls[i].Remove(tpls[i].LastIndexOf('.') - 1) + "00.tpl";
                     string wonum2 = tpls[i].Remove(tpls[i].LastIndexOf('.') - 2) + "00.tpl";
+                    string wonum3 = tpls[i].Remove(tpls[i].LastIndexOf('.') - 1) + "01.tpl";
+                    string wonum4 = tpls[i].Remove(tpls[i].LastIndexOf('.') - 2) + "01.tpl";
 
                     if (Tools.StringExistsInStringArray(wonum, brlytTpls) == false &&
-                        Tools.StringExistsInStringArray(wonum2, brlytTpls) == false)
+                        Tools.StringExistsInStringArray(wonum2, brlytTpls) == false &&
+                        Tools.StringExistsInStringArray(wonum3, brlytTpls) == false &&
+                        Tools.StringExistsInStringArray(wonum4, brlytTpls) == false)
                     {
                         unuseds.Add(tpls[i]);
                         missing = true;

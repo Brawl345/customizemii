@@ -86,7 +86,7 @@ namespace CustomizeMiiInstaller
 
         private static MemoryStream LoadCompressedStubInstaller(string installerResourceName)
         {
-            using (BinaryReader resLoader = new BinaryReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Helpers.Resources." + installerResourceName)))
+            using (BinaryReader resLoader = new BinaryReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CustomizeMiiInstaller.Resources." + installerResourceName)))
             {
                 MemoryStream ms = new MemoryStream();
                 byte[] temp = resLoader.ReadBytes((int)resLoader.BaseStream.Length);

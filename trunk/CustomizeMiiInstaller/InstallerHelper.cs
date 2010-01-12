@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
@@ -26,6 +27,16 @@ namespace CustomizeMiiInstaller
         public static MemoryStream CreateInstaller(string wadFile, byte iosToUse)
         {
             const int injectionPosition = 0x5A74C;
+            const int maxAllowedSizeForWads = 4 * 1024 * 1024 - 32; //(Max 4MB-32bytes )
+
+            //0. Read length of the wad to ensure it has an allowed size
+            byte[] wadFileBytes = File.ReadAllBytes(wadFile);
+            uint wadLength = (uint)wadFileBytes.Length;
+
+            if (wadLength > maxAllowedSizeForWads)
+            {
+                throw new ArgumentException(String.Format("The file {0} is sized above the max allowed limit of {1} for network installation.", wadFile, maxAllowedSizeForWads));
+            }
 
             //1. Open the stub installer from resources
             MemoryStream compressedStubInstallerStream = LoadCompressedStubInstaller("CustomizeMiiInstaller.dol.z");
@@ -49,9 +60,6 @@ namespace CustomizeMiiInstaller
             }            
 
             //3. Take SHA of the wad and store it in the stub installer along with the size of the wad
-
-            byte[] wadFileBytes = File.ReadAllBytes(wadFile);
-            uint wadLength = (uint) wadFileBytes.Length;
 
             byte[] shaHash;
             using (SHA1 shaGen = SHA1.Create())

@@ -2620,6 +2620,40 @@ namespace Wii
         public static byte[] wadheader = new byte[8] { 0x00, 0x00, 0x00, 0x20, 0x49, 0x73, 0x00, 0x00 };
 
         /// <summary>
+        /// Gets the estimated size, might be !WRONG! due to Lz77 compression
+        /// </summary>
+        /// <param name="contentFolder"></param>
+        public static int GetEstimatedSize(string contentdirectory)
+        {
+            if (contentdirectory[contentdirectory.Length - 1] != '\\') { contentdirectory = contentdirectory + "\\"; }
+
+            if (!Directory.Exists(contentdirectory)) throw new DirectoryNotFoundException("The directory doesn't exists:\r\n" + contentdirectory);
+            if (Directory.GetFiles(contentdirectory, "*.app").Length < 1) throw new Exception("No *.app file was found");
+            if (Directory.GetFiles(contentdirectory, "*.cert").Length < 1) throw new Exception("No *.cert file was found");
+            if (Directory.GetFiles(contentdirectory, "*.tik").Length < 1) throw new Exception("No *.tik file was found");
+            if (Directory.GetFiles(contentdirectory, "*.tmd").Length < 1) throw new Exception("No *.tmd file was found");
+
+            int size = 64; //Wad Header
+
+            string[] certfile = Directory.GetFiles(contentdirectory, "*.cert");
+            string[] tikfile = Directory.GetFiles(contentdirectory, "*.tik");
+            string[] tmdfile = Directory.GetFiles(contentdirectory, "*.tmd");
+            string[,] contents = WadInfo.GetContentInfo(File.ReadAllBytes(tmdfile[0]));
+
+            FileInfo fi = new FileInfo(certfile[0]);
+            size += Tools.AddPadding((int)fi.Length);
+            fi = new FileInfo(tikfile[0]);
+            size += Tools.AddPadding((int)fi.Length);
+            fi = new FileInfo(tmdfile[0]);
+            size += Tools.AddPadding((int)fi.Length);
+
+            for (int i = 0; i < contents.GetLength(0); i++)
+                size += Tools.AddPadding(int.Parse(contents[i, 3]));
+
+            return size + 16; //Footer Timestamp
+        }
+
+        /// <summary>
         /// Packs the contents in the given directory and creates the destination wad file 
         /// </summary>
         /// <param name="directory"></param>
@@ -2689,9 +2723,8 @@ namespace Wii
 
             //Write Footer Timestamp
             byte[] footer = Tools.GetTimestamp();
-            Array.Resize(ref footer, Tools.AddPadding(footer.Length, 16));
+            Array.Resize(ref footer, Tools.AddPadding(footer.Length));
 
-            int footerLength = footer.Length;
             wadstream.Seek(Tools.AddPadding(contpos), SeekOrigin.Begin);
             wadstream.Write(footer, 0, footer.Length);
 
@@ -2700,7 +2733,7 @@ namespace Wii
             byte[] tiksize = Tools.FileLengthToByteArray(tik.Length);
             byte[] tmdsize = Tools.FileLengthToByteArray(tmd.Length);
             byte[] allcontsize = Tools.FileLengthToByteArray(allcont);
-            byte[] footersize = Tools.FileLengthToByteArray(footerLength);
+            byte[] footersize = Tools.FileLengthToByteArray(footer.Length);
 
             wadstream.Seek(0x00, SeekOrigin.Begin);
             wadstream.Write(wadheader, 0, wadheader.Length);

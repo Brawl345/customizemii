@@ -22,6 +22,16 @@ using System.Security.Cryptography;
 
 namespace CustomizeMiiInstaller
 {
+    public class CustomizeMiiInstaller_Plugin
+    {
+        const string version = "1.0";
+
+        public static string GetVersion()
+        {
+            return version;
+        }
+    }
+
     public class InstallerHelper
     {
         public static MemoryStream CreateInstaller(string wadFile, byte iosToUse)

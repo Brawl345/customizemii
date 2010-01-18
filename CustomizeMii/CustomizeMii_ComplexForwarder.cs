@@ -31,6 +31,10 @@ namespace CustomizeMii
         public CustomizeMii_ComplexForwarder()
         {
             InitializeComponent();
+        }
+
+        private void CustomizeMii_ComplexForwarder_Load(object sender, EventArgs e)
+        {
             this.CenterToParent();
         }
 
@@ -54,18 +58,21 @@ namespace CustomizeMii
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(tbAppFolder.Text))
+            TextBox[] tbs = new TextBox[] { tb1, tb2, tb3, tb4 };
+            foreach (TextBox tbThis in tbs)
             {
-                tbAppFolder.Focus();
+                if ((!tbThis.Text.StartsWith("USB:/") && !tbThis.Text.StartsWith("SD:/")) ||
+                    (!tbThis.Text.EndsWith(".dol") && !tbThis.Text.EndsWith(".elf")))
+                { tbThis.Focus(); tbThis.SelectAll(); return; }
             }
-            else
-            {
-                if (!File.Exists(tbImage43.Text)) tbImage43.Text = string.Empty;
-                if (!File.Exists(tbImage169.Text)) tbImage169.Text = string.Empty;
-           
-                this.DialogResult = DialogResult.OK;
-                this.Close();
-            }
+
+            tb1.Focus();
+
+            if (!File.Exists(tbImage43.Text)) tbImage43.Text = string.Empty;
+            if (!File.Exists(tbImage169.Text)) tbImage169.Text = string.Empty;
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)

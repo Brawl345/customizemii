@@ -25,14 +25,16 @@ namespace CustomizeMii
 
         internal class Complex
         {
-            private string thisAppFolder;
-            private bool elfFirst = false;
-            private bool usbFirst = false;
+            private string path1 = "SD:/apps/example/boot.dol";
+            private string path2 = "SD:/apps/example/boot.elf";
+            private string path3 = "USB:/apps/example/boot.dol";
+            private string path4 = "USB:/apps/example/boot.elf";
             private string image43;
             private string image169;
-            public string AppFolder { get { return thisAppFolder; } set { thisAppFolder = value; } }
-            public bool ElfFirst { get { return elfFirst; } set { elfFirst = value; } }
-            public bool UsbFirst { get { return usbFirst; } set { usbFirst = value; } }
+            public string Path1 { get { return path1; } set { path1 = value; } }
+            public string Path2 { get { return path2; } set { path2 = value; } }
+            public string Path3 { get { return path3; } set { path3 = value; } }
+            public string Path4 { get { return path4; } set { path4 = value; } }
             public string Image43 { get { return image43; } set { image43 = value; } }
             public string Image169 { get { return image169; } set { image169 = value; } }
 
@@ -43,15 +45,16 @@ namespace CustomizeMii
 
             public void Save(string Destination)
             {
-                GXForwarder Forwarder = new GXForwarder(thisAppFolder, usbFirst, elfFirst, image43, image169);
+                GXForwarder Forwarder = new GXForwarder(image43, image169, path1, path2, path3, path4);
                 Forwarder.Save(Destination, true);
             }
 
             public void Clear()
             {
-                thisAppFolder = string.Empty;
-                elfFirst = false;
-                usbFirst = false;
+                path1 = "SD:/apps/example/boot.dol";
+                path2 = "SD:/apps/example/boot.elf";
+                path3 = "USB:/apps/example/boot.dol";
+                path4 = "USB:/apps/example/boot.elf";
                 image43 = string.Empty;
                 image169 = string.Empty;
             }

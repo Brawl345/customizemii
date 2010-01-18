@@ -24,7 +24,7 @@ using System.Resources;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("CustomizeMii")]
-[assembly: AssemblyDescription("CustomizeMii is a custom channel creator for the Wii")]
+[assembly: AssemblyDescription("A custom channel creator for the Wii")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CustomizeMii")]

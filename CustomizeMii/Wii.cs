@@ -5615,10 +5615,11 @@ namespace Wii
         /// <param name="tpls"></param>
         /// <param name="missingtpls"></param>
         /// <returns></returns>
-        public static bool CheckForMissingTpls(string brlyt, string[] tpls, out string[] missingtpls)
+        public static bool CheckForMissingTpls(string brlyt, string brlan, string[] tpls, out string[] missingtpls)
         {
             byte[] brlytArray = Tools.LoadFileToByteArray(brlyt);
-            return CheckForMissingTpls(brlytArray, tpls, out missingtpls);
+            byte[] brlanArray = Tools.LoadFileToByteArray(brlan);
+            return CheckForMissingTpls(brlytArray, brlanArray, tpls, out missingtpls);
         }
 
         /// <summary>
@@ -5629,10 +5630,10 @@ namespace Wii
         /// <param name="tpls"></param>
         /// <param name="missingtpls"></param>
         /// <returns></returns>
-        public static bool CheckForMissingTpls(byte[] brlyt, string[] tpls, out string[] missingtpls)
+        public static bool CheckForMissingTpls(byte[] brlyt, byte[] brlan, string[] tpls, out string[] missingtpls)
         {
             List<string> missings = new List<string>();
-            string[] brlytTpls = GetBrlytTpls(brlyt);
+            string[] brlytTpls = GetBrlytTpls(brlyt, brlan);
             bool missing = false;
 
             for (int i = 0; i < brlytTpls.Length; i++)
@@ -5656,10 +5657,11 @@ namespace Wii
         /// <param name="tpls"></param>
         /// <param name="unusedtpls"></param>
         /// <returns></returns>
-        public static bool CheckForUnusedTpls(string brlyt, string[] tpls, out string[] unusedtpls)
+        public static bool CheckForUnusedTpls(string brlyt, string brlan, string[] tpls, out string[] unusedtpls)
         {
             byte[] brlytArray = Tools.LoadFileToByteArray(brlyt);
-            return CheckForUnusedTpls(brlytArray, tpls, out unusedtpls);
+            byte[] brlanArray = Tools.LoadFileToByteArray(brlan);
+            return CheckForUnusedTpls(brlytArray, brlanArray, tpls, out unusedtpls);
         }
 
         /// <summary>
@@ -5670,10 +5672,10 @@ namespace Wii
         /// <param name="tpls"></param>
         /// <param name="unusedtpls"></param>
         /// <returns></returns>
-        public static bool CheckForUnusedTpls(byte[] brlyt, string[] tpls, out string[] unusedtpls)
+        public static bool CheckForUnusedTpls(byte[] brlyt, byte[] brlan, string[] tpls, out string[] unusedtpls)
         {
             List<string> unuseds = new List<string>();
-            string[] brlytTpls = GetBrlytTpls(brlyt);
+            string[] brlytTpls = GetBrlytTpls(brlyt, brlan);
             bool missing = false;
 
             for (int i = 0; i < tpls.Length; i++)
@@ -5705,10 +5707,11 @@ namespace Wii
         /// </summary>
         /// <param name="brlyt"></param>
         /// <returns></returns>
-        public static string[] GetBrlytTpls(string brlyt)
+        public static string[] GetBrlytTpls(string brlyt, string brlan)
         {
             byte[] temp = Tools.LoadFileToByteArray(brlyt);
-            return GetBrlytTpls(temp);
+            byte[] temp2 = Tools.LoadFileToByteArray(brlan);
+            return GetBrlytTpls(temp, temp2);
         }
 
         /// <summary>
@@ -5716,7 +5719,7 @@ namespace Wii
         /// </summary>
         /// <param name="brlyt"></param>
         /// <returns></returns>
-        public static string[] GetBrlytTpls(byte[] brlyt)
+        public static string[] GetBrlytTpls(byte[] brlyt, byte[] brlan)
         {
             int texcount = Tools.HexStringToInt(brlyt[44].ToString("x2") + brlyt[45].ToString("x2"));
             int texnamepos = 48 + (texcount * 8);
@@ -5734,7 +5737,69 @@ namespace Wii
                 texnamepos++;
             }
 
+            //Lets also get brlan tpls (frame animations)
+            string[] brlanTpls = GetBrlanTpls(brlan);
+            foreach (string thisTpl in brlanTpls)
+            {
+                if (thisTpl.EndsWith(".tpl"))
+                {
+                    if (!Tpls.Contains(thisTpl))
+                        Tpls.Add(thisTpl);
+                }
+            }
+
             return Tpls.ToArray();
+        }
+
+        /// <summary>
+        /// Returns the name of all Tpls specified in the brlan
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <returns></returns>
+        public static string[] GetBrlanTpls(string brlan)
+        {
+            byte[] temp = Tools.LoadFileToByteArray(brlan);
+            return GetBrlanTpls(temp);
+        }
+
+        /// <summary>
+        /// Returns the name of all Tpls specified in the brlan
+        /// </summary>
+        /// <param name="brlyt"></param>
+        /// <returns></returns>
+        public static string[] GetBrlanTpls(byte[] brlan)
+        {
+            List<string> tpls = new List<string>();
+            int texcount = Tools.HexStringToInt(brlan[28].ToString("x2") + brlan[29].ToString("x2"));
+            int pailen;
+            if (brlan[32] == 0x00 && brlan[33] == 0x00 && brlan[34] == 0x00 && brlan[35] == 0x00)
+                pailen = Tools.HexStringToInt(brlan[36].ToString("x2") + brlan[37].ToString("x2") + brlan[38].ToString("x2") + brlan[39].ToString("x2"));
+            else
+                pailen = Tools.HexStringToInt(brlan[32].ToString("x2") + brlan[33].ToString("x2") + brlan[34].ToString("x2") + brlan[35].ToString("x2"));
+
+            int texnameendpos = 16 + pailen;
+
+            for (int i = texnameendpos; i > 0; i--)
+            {
+                if (brlan[i] != 0x00)
+                { texnameendpos = i + 1; break; }
+            }
+
+            for (int i = 0; i < texcount; i++)
+            {
+                List<char> thisTex = new List<char>();
+                while (brlan[texnameendpos] != 0x00)
+                {
+                    thisTex.Add((char)brlan[texnameendpos--]);
+                }
+
+                thisTex.Reverse();
+                tpls.Add(new string(thisTex.ToArray()));
+                texnameendpos--;
+            }
+
+            tpls.Reverse();
+            return tpls.ToArray();
         }
 
         /// <summary>
@@ -5744,9 +5809,9 @@ namespace Wii
         /// <param name="brlyt"></param>
         /// <param name="TplName"></param>
         /// <returns></returns>
-        public static bool IsTplInBrlyt(byte[] brlyt, string TplName)
+        public static bool IsTplInBrlyt(byte[] brlyt, byte[] brlan, string TplName)
         {
-            string[] brlytTpls = GetBrlytTpls(brlyt);
+            string[] brlytTpls = GetBrlytTpls(brlyt, brlan);
             bool exists = Array.Exists(brlytTpls, Tpl => Tpl == TplName);
             return exists;
         }

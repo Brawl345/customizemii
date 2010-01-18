@@ -36,8 +36,10 @@ namespace CustomizeMii
 
         void bwBannerReplace_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pbProgress.Value = 100;
-            lbStatusText.Text = string.Empty;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
             SetText(tbReplace, BannerReplace);
         }
 
@@ -104,8 +106,10 @@ namespace CustomizeMii
 
         void bwIconReplace_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pbProgress.Value = 100;
-            lbStatusText.Text = string.Empty;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
             SetText(tbReplace, IconReplace);
         }
 
@@ -172,8 +176,10 @@ namespace CustomizeMii
 
         void bwSoundReplace_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pbProgress.Value = 100;
-            lbStatusText.Text = string.Empty;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
             SetText(tbReplace, SoundReplace);
         }
 
@@ -252,9 +258,11 @@ namespace CustomizeMii
 
             if (File.Exists(TempWavePath)) File.Delete(TempWavePath);
 
-            lbStatusText.Text = string.Empty;
             Mp3Path = string.Empty;
-            pbProgress.Value = 100;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
         }
 
         void bwConvertToBns_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -371,9 +379,11 @@ namespace CustomizeMii
                 }
             }
 
-            lbStatusText.Text = string.Empty;
             Mp3Path = string.Empty;
-            pbProgress.Value = 100;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
         }
 
         void bwConvertMp3_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -435,8 +445,10 @@ namespace CustomizeMii
 
         void bwLoadChannel_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pbProgress.Value = 100;
-            lbStatusText.Text = string.Empty;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
         }
 
         void bwLoadChannel_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -538,13 +550,15 @@ namespace CustomizeMii
         {
             EventHandler EnableControls = new EventHandler(this.EnableControls);
             EventHandler Initialize = new EventHandler(this.Initialize);
-            pbProgress.Value = 100;
-            lbStatusText.Text = string.Empty;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+
+            this.Invoke(ProgressUpdate);
             this.Invoke(EnableControls);
-            this.Invoke(Initialize);
 
             if (transmitInfo.timeElapsed > 0)
             {
+                this.Invoke(Initialize);
                 System.Windows.Forms.DialogResult dlg;
 
                 if (transmitInfo.usedCompression)
@@ -737,8 +751,10 @@ namespace CustomizeMii
             {
                 EventHandler EnableControls = new EventHandler(this.EnableControls);
                 EventHandler Initialize = new EventHandler(this.Initialize);
-                pbProgress.Value = 100;
-                lbStatusText.Text = string.Empty;
+                currentProgress.progressValue = 100;
+                currentProgress.progressState = " ";
+
+                this.Invoke(ProgressUpdate);
                 this.Invoke(EnableControls);
                 this.Invoke(Initialize);
             }
@@ -878,7 +894,7 @@ namespace CustomizeMii
                         {
                             CreateForwarderSimple(TempUnpackPath + "\\00000002.app");
                         }
-                        else if (tbDol.Text.StartsWith("Complex Forwarder:"))
+                        else if (tbDol.Text.StartsWith("Complex Forwarder"))
                         {
                             bwCreateWad.ReportProgress(82, "Compiling Forwarder...");
                             CreateForwarderComplex(TempUnpackPath + "\\00000002.app");
@@ -967,7 +983,6 @@ namespace CustomizeMii
                 {
                     FileInfo fi = new FileInfo(wadInfo.outFile);
                     double fileSize = Math.Round(fi.Length * 0.0009765625 * 0.0009765625, 2);
-
 
                     InfoBox(string.Format("Successfully created custom channel!\nTime elapsed: {0} ms\nFilesize: {1} MB\nApprox. Blocks: {2}", CreationTimer.ElapsedMilliseconds, fileSize, Wii.WadInfo.GetNandBlocks(wadInfo.outFile)));
                 }

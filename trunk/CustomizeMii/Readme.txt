@@ -17,7 +17,11 @@ Version 2.1
 	- Added drag & drop ability cause the file dialogs kept bothering me
 	- Improvement in startup speed (thanks shadow1643)
 	- Added creation/last edited time (only for CustomizeMii 2.1+ channels)
+	- Added a button to translate the word "Channel" to every language
+	- Improved detection of required TPLs
 	- Little improvements and fixes
+	- Changed the complex forwarder to be more configurable (choose any path you want)
+	- ForwardMii is now bundled with CustomizeMii
 	
 Version 2.01
 	- Base WAD downloading works again
@@ -71,8 +75,8 @@ The author can't be held responsible for any damages arising from the use of it.
 -----------------------------------------------------------------------------------------
 Thanks:
 
-WiiCrazy / I.R.on for CustomizeMii Installer
 Xuzz for his idea and hard work
+WiiCrazy / I.R.on for CustomizeMii Installer
 Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py
 SquidMan for Zetsubou
 Andre Perrot for gbalzss

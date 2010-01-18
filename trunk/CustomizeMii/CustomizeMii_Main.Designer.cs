@@ -141,11 +141,11 @@ namespace CustomizeMii
             this.tabInstructions = new System.Windows.Forms.TabPage();
             this.rtbInstructions = new System.Windows.Forms.RichTextBox();
             this.tabCredits = new System.Windows.Forms.TabPage();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lbCreditInstaller = new System.Windows.Forms.Label();
             this.lbForwardMiiVersion = new System.Windows.Forms.Label();
             this.panCredits = new System.Windows.Forms.Panel();
             this.lbCreditThanks = new System.Windows.Forms.Label();
-            this.llbUpdateAvailabe = new System.Windows.Forms.LinkLabel();
+            this.llbUpdateAvailable = new System.Windows.Forms.LinkLabel();
             this.llbSite = new System.Windows.Forms.LinkLabel();
             this.lbCreditVersion = new System.Windows.Forms.Label();
             this.lbCreditInfo = new System.Windows.Forms.Label();
@@ -412,6 +412,7 @@ namespace CustomizeMii
             // llbTranslateChannel
             // 
             this.llbTranslateChannel.AutoSize = true;
+            this.llbTranslateChannel.Enabled = false;
             this.llbTranslateChannel.Location = new System.Drawing.Point(322, 42);
             this.llbTranslateChannel.Name = "llbTranslateChannel";
             this.llbTranslateChannel.Size = new System.Drawing.Size(103, 13);
@@ -555,6 +556,7 @@ namespace CustomizeMii
             this.tbAllLanguages.Name = "tbAllLanguages";
             this.tbAllLanguages.Size = new System.Drawing.Size(311, 20);
             this.tbAllLanguages.TabIndex = 1;
+            this.tbAllLanguages.TextChanged += new System.EventHandler(this.tbAllLanguages_TextChanged);
             // 
             // lbAllLanguages
             // 
@@ -639,8 +641,8 @@ namespace CustomizeMii
             this.lbOptionsOptional.Name = "lbOptionsOptional";
             this.lbOptionsOptional.Size = new System.Drawing.Size(457, 34);
             this.lbOptionsOptional.TabIndex = 10;
-            this.lbOptionsOptional.Text = "These are optional. Fill them in only if you want to change them.\r\nIf you want a " +
-                "looped sound, set the loop points first (e.g. with Wavosaur).";
+            this.lbOptionsOptional.Text = "These are optional. Fill them in only if you want to change them.\r\nIt is highly r" +
+                "ecommended to convert your sound to BNS.";
             this.lbOptionsOptional.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnBrowseSound
@@ -1231,10 +1233,10 @@ namespace CustomizeMii
             // 
             // tabCredits
             // 
-            this.tabCredits.Controls.Add(this.label1);
+            this.tabCredits.Controls.Add(this.lbCreditInstaller);
             this.tabCredits.Controls.Add(this.lbForwardMiiVersion);
             this.tabCredits.Controls.Add(this.panCredits);
-            this.tabCredits.Controls.Add(this.llbUpdateAvailabe);
+            this.tabCredits.Controls.Add(this.llbUpdateAvailable);
             this.tabCredits.Controls.Add(this.llbSite);
             this.tabCredits.Controls.Add(this.lbCreditVersion);
             this.tabCredits.Controls.Add(this.lbCreditInfo);
@@ -1246,14 +1248,14 @@ namespace CustomizeMii
             this.tabCredits.Text = "About";
             this.tabCredits.UseVisualStyleBackColor = true;
             // 
-            // label1
+            // lbCreditInstaller
             // 
-            this.label1.Location = new System.Drawing.Point(0, 28);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(443, 13);
-            this.label1.TabIndex = 7;
-            this.label1.Text = "CustomizeMii Installer by WiiCrazy / I.R.on";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbCreditInstaller.Location = new System.Drawing.Point(0, 28);
+            this.lbCreditInstaller.Name = "lbCreditInstaller";
+            this.lbCreditInstaller.Size = new System.Drawing.Size(443, 13);
+            this.lbCreditInstaller.TabIndex = 7;
+            this.lbCreditInstaller.Text = "CustomizeMii Installer X by WiiCrazy / I.R.on";
+            this.lbCreditInstaller.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lbForwardMiiVersion
             // 
@@ -1283,18 +1285,18 @@ namespace CustomizeMii
             this.lbCreditThanks.Text = resources.GetString("lbCreditThanks.Text");
             this.lbCreditThanks.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // llbUpdateAvailabe
+            // llbUpdateAvailable
             // 
-            this.llbUpdateAvailabe.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llbUpdateAvailabe.Location = new System.Drawing.Point(0, 67);
-            this.llbUpdateAvailabe.Name = "llbUpdateAvailabe";
-            this.llbUpdateAvailabe.Size = new System.Drawing.Size(443, 13);
-            this.llbUpdateAvailabe.TabIndex = 4;
-            this.llbUpdateAvailabe.TabStop = true;
-            this.llbUpdateAvailabe.Text = "Version X is availabe, get it here!";
-            this.llbUpdateAvailabe.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.llbUpdateAvailabe.Visible = false;
-            this.llbUpdateAvailabe.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbUpdateAvailabe_LinkClicked);
+            this.llbUpdateAvailable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llbUpdateAvailable.Location = new System.Drawing.Point(0, 67);
+            this.llbUpdateAvailable.Name = "llbUpdateAvailable";
+            this.llbUpdateAvailable.Size = new System.Drawing.Size(443, 13);
+            this.llbUpdateAvailable.TabIndex = 4;
+            this.llbUpdateAvailable.TabStop = true;
+            this.llbUpdateAvailable.Text = "Version X is available, get it here!";
+            this.llbUpdateAvailable.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.llbUpdateAvailable.Visible = false;
+            this.llbUpdateAvailable.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbUpdateAvailable_LinkClicked);
             // 
             // llbSite
             // 
@@ -1673,7 +1675,7 @@ namespace CustomizeMii
         private System.Windows.Forms.Label lbBrlanActions;
         private System.Windows.Forms.Label lbBrlytWarning;
         private System.Windows.Forms.Label lbBrlanWarning;
-        private System.Windows.Forms.LinkLabel llbUpdateAvailabe;
+        private System.Windows.Forms.LinkLabel llbUpdateAvailable;
         private System.Windows.Forms.Button btnDeleteBanner;
         private System.Windows.Forms.Button btnAddBanner;
         private System.Windows.Forms.Button btnAddIcon;
@@ -1709,7 +1711,7 @@ namespace CustomizeMii
         private System.Windows.Forms.Label lbForwardMiiVersion;
         private System.Windows.Forms.Label lbCreated;
         private System.Windows.Forms.Label lbCreatedValue;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lbCreditInstaller;
         private System.Windows.Forms.ToolStripMenuItem tsExtractBrl;
         private System.Windows.Forms.ToolStripMenuItem cmExtractBrlyt;
         private System.Windows.Forms.ToolStripMenuItem cmExtractBrlan;

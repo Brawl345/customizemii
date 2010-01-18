@@ -43,10 +43,10 @@
 #define USB_FIRST false
 #define ELF_FIRST false
 
-#define SD_DOL "SD:/apps/appfolder/boot.dol"
-#define SD_ELF "SD:/apps/appfolder/boot.elf"
-#define USB_DOL "USB:/apps/appfolder/boot.dol"
-#define USB_ELF "USB:/apps/appfolder/boot.elf"
+#define SD_DOL "---path1---"
+#define SD_ELF "---path2---"
+#define USB_DOL "---path3---"
+#define USB_ELF "---path4---"
 
 static PNGUPROP imgProp;
 static IMGCTX ctx;

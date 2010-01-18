@@ -47,6 +47,7 @@ namespace CustomizeMii
         private void CustomizeMii_InputBox_Load(object sender, EventArgs e)
         {
             this.CenterToParent();
+            if (this.Location.X == 0 && this.Location.Y == 0) this.CenterToScreen();
         }
 
         private void btnExit_Click(object sender, EventArgs e)

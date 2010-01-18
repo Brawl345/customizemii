@@ -45,8 +45,7 @@ namespace CustomizeMii
         /// </summary>
         private void InitializeComponent()
         {
-            this.lbAppFolder = new System.Windows.Forms.Label();
-            this.tbAppFolder = new System.Windows.Forms.TextBox();
+            this.tb1 = new System.Windows.Forms.TextBox();
             this.cbImage43 = new System.Windows.Forms.CheckBox();
             this.cbImage169 = new System.Windows.Forms.CheckBox();
             this.tbImage43 = new System.Windows.Forms.TextBox();
@@ -56,28 +55,25 @@ namespace CustomizeMii
             this.label1 = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.tb2 = new System.Windows.Forms.TextBox();
+            this.tb3 = new System.Windows.Forms.TextBox();
+            this.tb4 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // lbAppFolder
+            // tb1
             // 
-            this.lbAppFolder.AutoSize = true;
-            this.lbAppFolder.Location = new System.Drawing.Point(12, 17);
-            this.lbAppFolder.Name = "lbAppFolder";
-            this.lbAppFolder.Size = new System.Drawing.Size(107, 13);
-            this.lbAppFolder.TabIndex = 0;
-            this.lbAppFolder.Text = "Application Directory:";
-            // 
-            // tbAppFolder
-            // 
-            this.tbAppFolder.Location = new System.Drawing.Point(125, 14);
-            this.tbAppFolder.Name = "tbAppFolder";
-            this.tbAppFolder.Size = new System.Drawing.Size(221, 20);
-            this.tbAppFolder.TabIndex = 1;
+            this.tb1.Location = new System.Drawing.Point(12, 62);
+            this.tb1.Name = "tb1";
+            this.tb1.Size = new System.Drawing.Size(334, 20);
+            this.tb1.TabIndex = 1;
+            this.tb1.Text = "SD:/apps/example/boot.dol";
             // 
             // cbImage43
             // 
+            this.cbImage43.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cbImage43.AutoSize = true;
-            this.cbImage43.Location = new System.Drawing.Point(15, 111);
+            this.cbImage43.Location = new System.Drawing.Point(15, 224);
             this.cbImage43.Name = "cbImage43";
             this.cbImage43.Size = new System.Drawing.Size(73, 17);
             this.cbImage43.TabIndex = 3;
@@ -87,8 +83,9 @@ namespace CustomizeMii
             // 
             // cbImage169
             // 
+            this.cbImage169.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.cbImage169.AutoSize = true;
-            this.cbImage169.Location = new System.Drawing.Point(15, 141);
+            this.cbImage169.Location = new System.Drawing.Point(15, 254);
             this.cbImage169.Name = "cbImage169";
             this.cbImage169.Size = new System.Drawing.Size(79, 17);
             this.cbImage169.TabIndex = 3;
@@ -98,24 +95,27 @@ namespace CustomizeMii
             // 
             // tbImage43
             // 
+            this.tbImage43.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.tbImage43.Enabled = false;
-            this.tbImage43.Location = new System.Drawing.Point(94, 109);
+            this.tbImage43.Location = new System.Drawing.Point(94, 222);
             this.tbImage43.Name = "tbImage43";
             this.tbImage43.Size = new System.Drawing.Size(171, 20);
             this.tbImage43.TabIndex = 4;
             // 
             // tbImage169
             // 
+            this.tbImage169.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.tbImage169.Enabled = false;
-            this.tbImage169.Location = new System.Drawing.Point(94, 138);
+            this.tbImage169.Location = new System.Drawing.Point(94, 251);
             this.tbImage169.Name = "tbImage169";
             this.tbImage169.Size = new System.Drawing.Size(171, 20);
             this.tbImage169.TabIndex = 5;
             // 
             // btnBrowseImage43
             // 
+            this.btnBrowseImage43.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnBrowseImage43.Enabled = false;
-            this.btnBrowseImage43.Location = new System.Drawing.Point(271, 109);
+            this.btnBrowseImage43.Location = new System.Drawing.Point(271, 222);
             this.btnBrowseImage43.Name = "btnBrowseImage43";
             this.btnBrowseImage43.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseImage43.TabIndex = 6;
@@ -125,8 +125,9 @@ namespace CustomizeMii
             // 
             // btnBrowseImage169
             // 
+            this.btnBrowseImage169.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnBrowseImage169.Enabled = false;
-            this.btnBrowseImage169.Location = new System.Drawing.Point(271, 138);
+            this.btnBrowseImage169.Location = new System.Drawing.Point(271, 251);
             this.btnBrowseImage169.Name = "btnBrowseImage169";
             this.btnBrowseImage169.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseImage169.TabIndex = 6;
@@ -136,7 +137,8 @@ namespace CustomizeMii
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(0, 55);
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.label1.Location = new System.Drawing.Point(0, 174);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(358, 40);
             this.label1.TabIndex = 7;
@@ -146,7 +148,8 @@ namespace CustomizeMii
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(15, 179);
+            this.btnOK.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.btnOK.Location = new System.Drawing.Point(15, 292);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(160, 23);
             this.btnOK.TabIndex = 8;
@@ -156,8 +159,9 @@ namespace CustomizeMii
             // 
             // btnCancel
             // 
+            this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(186, 179);
+            this.btnCancel.Location = new System.Drawing.Point(186, 292);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(160, 23);
             this.btnCancel.TabIndex = 8;
@@ -165,15 +169,51 @@ namespace CustomizeMii
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.label2.Location = new System.Drawing.Point(0, 14);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(358, 40);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "The forwarder will try to load in this order.\r\nEntries must begin with \"SD:/\" or " +
+                "\"USB:/\" and end with \".dol\" or \".elf\"!\r\nYou may enter whatever path you want.";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // tb2
+            // 
+            this.tb2.Location = new System.Drawing.Point(12, 88);
+            this.tb2.Name = "tb2";
+            this.tb2.Size = new System.Drawing.Size(334, 20);
+            this.tb2.TabIndex = 1;
+            this.tb2.Text = "SD:/apps/example/boot.elf";
+            // 
+            // tb3
+            // 
+            this.tb3.Location = new System.Drawing.Point(12, 114);
+            this.tb3.Name = "tb3";
+            this.tb3.Size = new System.Drawing.Size(334, 20);
+            this.tb3.TabIndex = 1;
+            this.tb3.Text = "USB:/apps/example/boot.dol";
+            // 
+            // tb4
+            // 
+            this.tb4.Location = new System.Drawing.Point(12, 140);
+            this.tb4.Name = "tb4";
+            this.tb4.Size = new System.Drawing.Size(334, 20);
+            this.tb4.TabIndex = 1;
+            this.tb4.Text = "USB:/apps/example/boot.elf";
+            // 
             // CustomizeMii_ComplexForwarder
             // 
             this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(358, 220);
+            this.ClientSize = new System.Drawing.Size(358, 333);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnBrowseImage169);
             this.Controls.Add(this.btnBrowseImage43);
@@ -181,11 +221,14 @@ namespace CustomizeMii
             this.Controls.Add(this.tbImage43);
             this.Controls.Add(this.cbImage169);
             this.Controls.Add(this.cbImage43);
-            this.Controls.Add(this.tbAppFolder);
-            this.Controls.Add(this.lbAppFolder);
+            this.Controls.Add(this.tb4);
+            this.Controls.Add(this.tb3);
+            this.Controls.Add(this.tb2);
+            this.Controls.Add(this.tb1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "CustomizeMii_ComplexForwarder";
             this.Text = "CustomizeMii_ComplexForwarder";
+            this.Load += new System.EventHandler(this.CustomizeMii_ComplexForwarder_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -193,9 +236,8 @@ namespace CustomizeMii
 
         #endregion
 
-        private System.Windows.Forms.Label lbAppFolder;
         private System.Windows.Forms.Label label1;
-        public System.Windows.Forms.TextBox tbAppFolder;
+        public System.Windows.Forms.TextBox tb1;
         public System.Windows.Forms.CheckBox cbImage43;
         public System.Windows.Forms.CheckBox cbImage169;
         public System.Windows.Forms.TextBox tbImage43;
@@ -204,5 +246,9 @@ namespace CustomizeMii
         public System.Windows.Forms.Button btnBrowseImage169;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Label label2;
+        public System.Windows.Forms.TextBox tb2;
+        public System.Windows.Forms.TextBox tb3;
+        public System.Windows.Forms.TextBox tb4;
     }
 }

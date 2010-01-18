@@ -12,6 +12,23 @@ Thanks to icefire / Xuzz for the basic idea of this Application!<br>
 -----------------------------------------------------------------------------------------
 ==Changelog:==
 
+===Version 2.1===
+	* Added CustomizeMii Installer (by WiiCrazy / I.R.on)
+	* Fixed rough edges (artifacts) on images (will be fixed automatically)
+	* Replaced the TPL preview window with the one from ShowMiiWads for easier handling
+	* Added loop prelistening to the BNS conversion window (only for wave files)
+	* Added drag & drop ability cause the file dialogs kept bothering me
+	* Improvement in startup speed (thanks shadow1643)
+	* Added creation/last edited time (only for CustomizeMii 2.1+ channels)
+	* Added a button to translate the word "Channel" to every language
+	* Improved detection of required TPLs
+	* Little improvements and fixes
+	* Changed the complex forwarder to be more configurable (choose any path you want)
+	* ForwardMii is now bundled with CustomizeMii
+
+===Version 2.01===
+	* Base WAD downloading works again
+	
 ===Version 2.0===
 	* Added BNS conversion (Mono and Stereo, with and without loop)
 	* Fixed MP3 conversion (some files didn't convert)
@@ -62,12 +79,13 @@ The author can't be held responsible for any damages arising from the use of it.
 ==Thanks:==
 
 Xuzz for his idea and hard work<br>
+WiiCrazy / I.R.on for CustomizeMii Installer<br>
 Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py<br>
 SquidMan for Zetsubou<br>
 Andre Perrot for gbalzss<br>
 comex and Waninkoko for both their NAND Loader<br>
-djdynamite123 for the forwarder base files (ForwardMii-Plugin)<br>
-The USB Loader GX Team for their forwarder source (ForwardMii-Plugin)
+djdynamite123 for the forwarder base files<br>
+The USB Loader GX Team for their forwarder source
 -----------------------------------------------------------------------------------------
 <br>
 -----------------------------------------------------------------------------------------

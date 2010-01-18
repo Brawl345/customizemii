@@ -69,8 +69,8 @@ namespace CustomizeMii
             this.cmbProtocol.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbProtocol.FormattingEnabled = true;
             this.cmbProtocol.Items.AddRange(new object[] {
-            "Homebrewchannel 1.0.5+ (JODI)",
-            "Homebrewchannel -1.0.4 (HAXX)"});
+            "Homebrew Channel 1.0.5+ (JODI)",
+            "Homebrew Channel -1.0.4 (HAXX)"});
             this.cmbProtocol.Location = new System.Drawing.Point(67, 13);
             this.cmbProtocol.Name = "cmbProtocol";
             this.cmbProtocol.Size = new System.Drawing.Size(194, 21);

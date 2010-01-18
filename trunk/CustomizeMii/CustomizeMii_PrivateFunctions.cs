@@ -16,15 +16,306 @@
  */
 
 using System;
-using System.Windows.Forms;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Drawing;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
+        private bool FailureCheck()
+        {
+            try
+            {
+                currentProgress.progressValue = 100;
+                currentProgress.progressState = "Error Checks...";
+                this.Invoke(ProgressUpdate);
+
+                //Check Unpack Folder
+                if (CheckUnpackFolder() == false)
+                {
+                    if (UnpackFolderErrorCount > 0)
+                    {
+                        ErrorBox("Something's wrong with the temporary files.\nYou may have to start again." +
+                            "\n\nIf this message keeps bothering you, please report as much information " +
+                            "as possible at the issue tracker: http://code.google.com/p/customizemii/issues/list");
+                    }
+                    else
+                    {
+                        ErrorBox("Something's wrong with the temporary files.\nYou may have to start again.");
+                    }
+
+                    UnpackFolderErrorCount++;
+                    return false;
+                }
+
+                //Check Channel Title Boxes
+                if (!(!string.IsNullOrEmpty(tbAllLanguages.Text) ||
+                    (!string.IsNullOrEmpty(tbEnglish.Text) &&
+                    !string.IsNullOrEmpty(tbJapanese.Text) &&
+                    !string.IsNullOrEmpty(tbGerman.Text) &&
+                    !string.IsNullOrEmpty(tbFrench.Text) &&
+                    !string.IsNullOrEmpty(tbSpanish.Text) &&
+                    !string.IsNullOrEmpty(tbItalian.Text) &&
+                    !string.IsNullOrEmpty(tbDutch.Text))))
+                {
+                    ErrorBox("You must either enter a general Channel Title or one for each language!");
+                    return false;
+                }
+
+                //Check Title ID Length + Chars
+                if (tbTitleID.Text.Length != 4)
+                {
+                    ErrorBox("The Title ID must be 4 characters long!"); return false;
+                }
+
+                Regex allowedchars = new Regex("[A-Z0-9]{4}$");
+                if (!allowedchars.IsMatch(tbTitleID.Text.ToUpper()))
+                {
+                    ErrorBox("Please enter a valid Title ID!"); return false;
+                }
+
+                //Check brlan files
+                string[] ValidBrlans = new string[] { "banner.brlan", "icon.brlan", "banner_loop.brlan", "icon_loop.brlan", "banner_start.brlan", "icon_start.brlan" };
+                foreach (string thisBrlan in lbxBrlanBanner.Items)
+                {
+                    if (!Wii.Tools.StringExistsInStringArray(thisBrlan.ToLower(), ValidBrlans))
+                    {
+                        ErrorBox(thisBrlan + " is not a valid brlan filename!");
+                        return false;
+                    }
+                }
+                foreach (string thisBrlan in lbxBrlanIcon.Items)
+                {
+                    if (!Wii.Tools.StringExistsInStringArray(thisBrlan.ToLower(), ValidBrlans))
+                    {
+                        ErrorBox(thisBrlan + " is not a valid brlan filename!");
+                        return false;
+                    }
+                }
+
+                //Check TPLs
+                List<string> BannerTpls = new List<string>();
+                List<string> IconTpls = new List<string>();
+                foreach (string thisTpl in lbxBannerTpls.Items) BannerTpls.Add(thisTpl.Replace(" (Transparent)", string.Empty));
+                foreach (string thisTpl in lbxIconTpls.Items) IconTpls.Add(thisTpl.Replace(" (Transparent)", string.Empty));
+
+                string[] BannerBrlytPath;
+                string[] BannerBrlanPath;
+                string[] IconBrlytPath;
+                string[] IconBrlanPath;
+
+                if (string.IsNullOrEmpty(BannerReplace))
+                {
+                    BannerBrlytPath = Directory.GetFiles(TempUnpackBannerBrlytPath);
+                    BannerBrlanPath = Directory.GetFiles(TempUnpackBannerBrlanPath);
+                }
+                else
+                {
+                    BannerBrlytPath = Directory.GetFiles(TempBannerPath + "arc\\blyt");
+                    BannerBrlanPath = Directory.GetFiles(TempBannerPath + "arc\\anim");
+                }
+                if (string.IsNullOrEmpty(IconReplace))
+                {
+                    IconBrlytPath = Directory.GetFiles(TempUnpackIconBrlytPath);
+                    IconBrlanPath = Directory.GetFiles(TempUnpackIconBrlanPath);
+                }
+                else
+                {
+                    IconBrlytPath = Directory.GetFiles(TempIconPath + "arc\\blyt");
+                    IconBrlanPath = Directory.GetFiles(TempIconPath + "arc\\anim");
+                }
+
+                string[] BannerMissing;
+                string[] BannerUnused;
+                string[] IconMissing;
+                string[] IconUnused;
+
+                //Check for missing TPLs
+                if (Wii.Brlyt.CheckForMissingTpls(BannerBrlytPath[0], BannerBrlanPath[0], BannerTpls.ToArray(), out BannerMissing) == true)
+                {
+                    ErrorBox("The following Banner TPLs are required by the banner.brlyt, but missing:\n\n" + string.Join("\n", BannerMissing));
+                    return false;
+                }
+                if (Wii.Brlyt.CheckForMissingTpls(IconBrlytPath[0], IconBrlanPath[0], IconTpls.ToArray(), out IconMissing) == true)
+                {
+                    ErrorBox("The following Icon TPLs are required by the icon.brlyt, but missing:\n\n" + string.Join("\n", IconMissing));
+                    return false;
+                }
+
+                //Check Sound length
+                int soundLength = 0;
+                if (!string.IsNullOrEmpty(tbSound.Text) && string.IsNullOrEmpty(SoundReplace))
+                {
+                    if (!tbSound.Text.ToLower().EndsWith(".bns") && !tbSound.Text.StartsWith("BNS:"))
+                    {
+                        string SoundFile = tbSound.Text;
+                        if (tbSound.Text.ToLower().EndsWith(".mp3")) SoundFile = TempWavePath;
+
+                        soundLength = Wii.Sound.GetWaveLength(SoundFile);
+                        if (soundLength > SoundMaxLength)
+                        {
+                            ErrorBox(string.Format("Your Sound is longer than {0} seconds and thus not supported.\nIt is recommended to use a Sound shorter than {1} seconds, the maximum length is {0} seconds!", SoundMaxLength, SoundWarningLength));
+                            return false;
+                        }
+                    }
+                }
+
+                /*Errors till here..
+                  From here only Warnings!*/
+
+                if (soundLength > SoundWarningLength)
+                {
+                    if (MessageBox.Show(string.Format("Your Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", SoundWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                        return false;
+                }
+
+                //Check BNS sound length
+                if (tbSound.Text.StartsWith("BNS:") || tbSound.Text.ToLower().EndsWith(".bns"))
+                {
+                    string bnsFile = tbSound.Text;
+                    if (tbSound.Text.StartsWith("BNS:")) bnsFile = TempBnsPath;
+
+                    int bnsLength = Wii.Sound.GetBnsLength(bnsFile);
+                    if (bnsLength > BnsWarningLength)
+                    {
+                        if (MessageBox.Show(string.Format("Your BNS Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", BnsWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                            return false;
+                    }
+                }
+
+                //Check if brlyt or brlan were changed
+                if (BrlytChanged == true && BrlanChanged == false)
+                {
+                    if (MessageBox.Show("You have changed the brlyt, but didn't change the brlan.\nAre you sure this is correct?", "brlyt Changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                        return false;
+                }
+                else if (BrlanChanged == true && BrlytChanged == false)
+                {
+                    if (MessageBox.Show("You have changed the brlan, but didn't change the brlyt.\nAre you sure this is correct?", "brlan Changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                        return false;
+                }
+
+                //Check for unused TPLs (Do this at the end of the failure checks, because we don't want a
+                //                       MessageBox asking if unused TPLs should be deleted and after that any error)           
+                if (Wii.Brlyt.CheckForUnusedTpls(BannerBrlytPath[0], BannerBrlanPath[0], BannerTpls.ToArray(), out BannerUnused) == true)
+                {
+                    DialogResult dlgresult = MessageBox.Show(
+                        "The following Banner TPLs are unused by the banner.brlyt:\n\n" +
+                        string.Join("\n", BannerUnused) +
+                        "\n\nDo you want them to be deleted before the WAD is being created? (Saves space!)",
+                        "Delete unused TPLs?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    if (dlgresult == DialogResult.Yes)
+                    {
+                        foreach (string thisTpl in BannerUnused)
+                        {
+                            if (string.IsNullOrEmpty(BannerReplace))
+                                File.Delete(TempUnpackBannerTplPath + thisTpl);
+                            else
+                                File.Delete(TempBannerPath + "arc\\timg\\" + thisTpl);
+                        }
+                    }
+                    else if (dlgresult == DialogResult.Cancel) return false;
+                }
+                if (Wii.Brlyt.CheckForUnusedTpls(IconBrlytPath[0], IconBrlanPath[0], IconTpls.ToArray(), out IconUnused) == true)
+                {
+                    DialogResult dlgresult = MessageBox.Show(
+                        "The following Icon TPLs are unused by the icon.brlyt:\n\n" +
+                        string.Join("\n", IconUnused) +
+                        "\n\nDo you want them to be deleted before the WAD is being created? (Saves memory!)",
+                        "Delete unused TPLs?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    if (dlgresult == DialogResult.Yes)
+                    {
+                        foreach (string thisTpl in IconUnused)
+                        {
+                            if (string.IsNullOrEmpty(IconReplace))
+                                File.Delete(TempUnpackIconTplPath + thisTpl);
+                            else
+                                File.Delete(TempIconPath + "arc\\timg\\" + thisTpl);
+                        }
+                    }
+                    else if (dlgresult == DialogResult.Cancel) return false;
+                }
+
+                currentProgress.progressState = " ";
+                currentProgress.progressValue = 100;
+                this.Invoke(ProgressUpdate);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+                return false;
+            }
+        }
+
+        private void ForwarderDialogSimple()
+        {
+            CustomizeMii_InputBox ib = new CustomizeMii_InputBox(false);
+            ib.Size = new Size(ib.Size.Width, 120);
+            ib.lbInfo.Text = "Enter the application folder where the forwarder will point to (3-18 chars)";
+            ib.tbInput.MaxLength = 18;
+            ib.btnExit.Text = "Cancel";
+            ib.cbElf.Visible = true;
+
+            ib.tbInput.Text = SimpleForwarder.AppFolder;
+            ib.cbElf.Checked = SimpleForwarder.ForwardToElf;
+
+            if (ib.ShowDialog() == DialogResult.OK)
+            {
+                SimpleForwarder.ForwardToElf = ib.cbElf.Checked;
+                SimpleForwarder.AppFolder = ib.Input;
+                SetText(tbDol, string.Format("Simple Forwarder: \"SD:\\apps\\{0}\\boot.{1}\"",
+                    SimpleForwarder.AppFolder, SimpleForwarder.ForwardToElf == true ? "elf" : "dol"));
+                btnBrowseDol.Text = "Clear";
+            }
+        }
+
+        private void ForwarderDialogComplex()
+        {
+            CustomizeMii_ComplexForwarder cf = new CustomizeMii_ComplexForwarder();
+            cf.tb1.Text = ComplexForwarder.Path1;
+            cf.tb2.Text = ComplexForwarder.Path2;
+            cf.tb3.Text = ComplexForwarder.Path3;
+            cf.tb4.Text = ComplexForwarder.Path4;
+
+            if (!string.IsNullOrEmpty(ComplexForwarder.Image43))
+            {
+                cf.cbImage43.Checked = true;
+                cf.tbImage43.Enabled = true;
+                cf.btnBrowseImage43.Enabled = true;
+
+                cf.tbImage43.Text = ComplexForwarder.Image43;
+            }
+            if (!string.IsNullOrEmpty(ComplexForwarder.Image169))
+            {
+                cf.cbImage169.Checked = true;
+                cf.tbImage169.Enabled = true;
+                cf.btnBrowseImage169.Enabled = true;
+
+                cf.tbImage169.Text = ComplexForwarder.Image169;
+            }
+
+            if (cf.ShowDialog() == DialogResult.OK)
+            {
+                ComplexForwarder.Path1 = cf.tb1.Text;
+                ComplexForwarder.Path2 = cf.tb2.Text;
+                ComplexForwarder.Path3 = cf.tb3.Text;
+                ComplexForwarder.Path4 = cf.tb4.Text;
+
+                ComplexForwarder.Image43 = cf.tbImage43.Text;
+                ComplexForwarder.Image169 = cf.tbImage169.Text;
+
+                SetText(tbDol, string.Format("Complex Forwarder"));
+                btnBrowseDol.Text = "Clear";
+            }
+        }
+
         private void FixTpls()
         {
             string[] bannerTpls = Directory.GetFiles(GetCurBannerPath() + "timg\\", "*.tpl");
@@ -49,7 +340,7 @@ namespace CustomizeMii
                         else if ((Ctrl is TextBox) && (Ctrl.Tag != (object)"Disabled")) Ctrl.Enabled = true;
                         else if (Ctrl is CheckBox && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = true;
                         else if (Ctrl is ComboBox) Ctrl.Enabled = true;
-                        else if (Ctrl is LinkLabel && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = true;
+                        //else if (Ctrl is LinkLabel && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = true;
                     }
                 }
             }
@@ -67,7 +358,7 @@ namespace CustomizeMii
                         else if ((Ctrl is TextBox) && (Ctrl.Tag != (object)"Disabled")) Ctrl.Enabled = false;
                         else if (Ctrl is CheckBox && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = false;
                         else if (Ctrl is ComboBox) Ctrl.Enabled = false;
-                        else if (Ctrl is LinkLabel && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = false;
+                        //else if (Ctrl is LinkLabel && Ctrl.Tag != (object)"Independent") Ctrl.Enabled = false;
                     }
                 }
             }
@@ -384,7 +675,8 @@ namespace CustomizeMii
                     if (lbx == lbxBannerTpls) CurPath = GetCurBannerPath();
                     else CurPath = GetCurIconPath();
 
-                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurPath + string.Format("blyt\\{0}.brlyt", lbx == lbxBannerTpls ? "banner" : "icon"));
+                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurPath + string.Format("blyt\\{0}.brlyt", lbx == lbxBannerTpls ? "banner" : "icon"),
+                        CurPath + string.Format("anim\\{0}.brlan", lbx == lbxBannerTpls ? (File.Exists(CurPath + "anim\\banner.brlan")) ? "banner" : "banner_loop" : "icon"));
                     string TplName = Path.GetFileNameWithoutExtension(inputFile) + ".tpl";
                     int TplFormat = 6;
 

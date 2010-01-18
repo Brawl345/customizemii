@@ -29,14 +29,16 @@ namespace ForwardMii
     public class GXForwarder
     {
         private readonly string TempDir = Path.GetTempPath() + "ForwardMii_Temp\\" + Guid.NewGuid() + "\\";
-        private string thisAppFolder;
-        private bool elfFirst = false;
-        private bool usbFirst = false;
+        private string path1;
+        private string path2;
+        private string path3;
+        private string path4;
         private string image43;
         private string image169;
-        public string AppFolder { get { return thisAppFolder; } set { thisAppFolder = value; } }
-        public bool ElfFirst { get { return elfFirst; } set { elfFirst = value; } }
-        public bool UsbFirst { get { return usbFirst; } set { usbFirst = value; } }
+        public string Path1 { get { return path1; } set { path1 = value; } }
+        public string Path2 { get { return path2; } set { path2 = value; } }
+        public string Path3 { get { return path3; } set { path3 = value; } }
+        public string Path4 { get { return path4; } set { path4 = value; } }
         public string Image43 { get { return image43; } set { image43 = value; } }
         public string Image169 { get { return image169; } set { image169 = value; } }
 
@@ -45,50 +47,32 @@ namespace ForwardMii
 
         }
 
-        public GXForwarder(string AppFolder)
+        public GXForwarder(params string[] paths)
         {
             if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            thisAppFolder = AppFolder;
+            path1 = paths[0];
+            path2 = paths[1];
+            path3 = paths[2];
+            path4 = paths[3];
         }
 
-        public GXForwarder(string AppFolder, bool UsbFirst)
+        public GXForwarder(string Image43, string Image169, params string[] paths)
         {
             if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            thisAppFolder = AppFolder;
-            usbFirst = UsbFirst;
-        }
-
-        public GXForwarder(string AppFolder, string Image43, string Image169)
-        {
-            if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            thisAppFolder = AppFolder;
+            path1 = paths[0];
+            path2 = paths[1];
+            path3 = paths[2];
+            path4 = paths[3];
             image43 = Image43;
             image169 = Image169;
-        }
-
-        public GXForwarder(string AppFolder, bool UsbFirst, bool ElfFirst)
-        {
-            if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            thisAppFolder = AppFolder;
-            usbFirst = UsbFirst;
-            elfFirst = ElfFirst;
-        }
-
-        public GXForwarder(string AppFolder, bool UsbFirst, bool ElfFirst, string Image43, string Image169)
-        {
-            if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            thisAppFolder = AppFolder;
-            image43 = Image43;
-            image169 = Image169;
-            usbFirst = UsbFirst;
-            elfFirst = ElfFirst;
         }
 
         public void Clear()
         {
-            thisAppFolder = string.Empty;
-            elfFirst = false;
-            usbFirst = false;
+            path1 = string.Empty;
+            path2 = string.Empty;
+            path3 = string.Empty;
+            path4 = string.Empty;
             image43 = string.Empty;
             image169 = string.Empty;
         }
@@ -254,12 +238,14 @@ namespace ForwardMii
 
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i].Contains("appfolder"))
-                    lines[i] = lines[i].Replace("appfolder", thisAppFolder);
-                else if (lines[i].Contains("#define USB_FIRST"))
-                    lines[i] = lines[i].Replace("false", usbFirst.ToString().ToLower());
-                else if (lines[i].Contains("#define ELF_FIRST"))
-                    lines[i] = lines[i].Replace("false", elfFirst.ToString().ToLower());
+                if (lines[i].Contains("---path1---"))
+                    lines[i] = lines[i].Replace("---path1---", path1);
+                else if (lines[i].Contains("---path2---"))
+                    lines[i] = lines[i].Replace("---path2---", path2);
+                else if (lines[i].Contains("---path3---"))
+                    lines[i] = lines[i].Replace("---path3---", path3);
+                else if (lines[i].Contains("---path4---"))
+                    lines[i] = lines[i].Replace("---path4---", path4);
             }
 
             using (FileStream fs = new FileStream(TempDir + "source\\main.cpp", FileMode.Create))

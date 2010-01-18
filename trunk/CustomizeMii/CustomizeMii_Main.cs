@@ -25,7 +25,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 #if !Mono
@@ -159,6 +158,9 @@ namespace CustomizeMii
         {
             this.Text = this.Text.Replace("X", version);
             this.lbCreditVersion.Text = this.lbCreditVersion.Text.Replace("X", version);
+            if (File.Exists(Application.StartupPath + "\\CustomizeMiiInstaller.dll"))
+                this.lbCreditInstaller.Text = this.lbCreditInstaller.Text.Replace("X", GetInstallerVersion());
+            else this.lbCreditInstaller.Text = this.lbCreditInstaller.Text.Replace(" X", string.Empty);
             if (Directory.Exists(TempPath)) Directory.Delete(TempPath, true);
             ProgressUpdate = new EventHandler(this.UpdateProgress);
             SetButtonText();
@@ -194,7 +196,7 @@ namespace CustomizeMii
         {
             try
             {
-                lbForwardMiiVersion.Text = lbForwardMiiVersion.Text.Replace("X", ForwardMii_Plugin.GetVersion());
+                lbForwardMiiVersion.Text = lbForwardMiiVersion.Text.Replace("X", GetForwardMiiVersion());
                 lbForwardMiiVersion.Visible = true;
             }
             catch { }
@@ -414,6 +416,7 @@ namespace CustomizeMii
 
             if (!string.IsNullOrEmpty(currentProgress.progressState))
             {
+                if (currentProgress.progressState == " ") currentProgress.progressState = string.Empty;
                 lbStatusText.Text = currentProgress.progressState;
                 currentProgress.progressState = string.Empty;
             }
@@ -422,66 +425,6 @@ namespace CustomizeMii
         private void SetSourceWad(object sender, EventArgs e)
         {
             tbSourceWad.Text = SourceWad;
-        }
-
-        private void ForwarderDialogSimple()
-        {
-            CustomizeMii_InputBox ib = new CustomizeMii_InputBox(false);
-            ib.Size = new Size(ib.Size.Width, 120);
-            ib.lbInfo.Text = "Enter the application folder where the forwarder will point to (3-18 chars)";
-            ib.tbInput.MaxLength = 18;
-            ib.btnExit.Text = "Close";
-            ib.cbElf.Visible = true;
-
-            ib.tbInput.Text = SimpleForwarder.AppFolder;
-            ib.cbElf.Checked = SimpleForwarder.ForwardToElf;
-
-            if (ib.ShowDialog() == DialogResult.OK)
-            {
-                SimpleForwarder.ForwardToElf = ib.cbElf.Checked;
-                SimpleForwarder.AppFolder = ib.Input;
-                SetText(tbDol, string.Format("Simple Forwarder: \"SD:\\apps\\{0}\\boot.{1}\"",
-                    SimpleForwarder.AppFolder, SimpleForwarder.ForwardToElf == true ? "elf" : "dol"));
-                btnBrowseDol.Text = "Clear";
-            }
-        }
-
-        private void ForwarderDialogComplex()
-        {
-            CustomizeMii_ComplexForwarder cf = new CustomizeMii_ComplexForwarder();
-            cf.tbAppFolder.Text = ComplexForwarder.AppFolder;
-            //cf.rbSD.Checked = !ComplexForwarder.UsbFirst;
-            //cf.rbUSB.Checked = ComplexForwarder.UsbFirst;
-            //cf.rbDOL.Checked = !ComplexForwarder.ElfFirst;
-            //cf.rbELF.Checked = ComplexForwarder.ElfFirst;
-
-            if (!string.IsNullOrEmpty(ComplexForwarder.Image43))
-            {
-                cf.cbImage43.Checked = true;
-                cf.tbImage43.Enabled = true;
-                cf.btnBrowseImage43.Enabled = true;
-
-                cf.tbImage43.Text = ComplexForwarder.Image43;
-            }
-            if (!string.IsNullOrEmpty(ComplexForwarder.Image169))
-            {
-                cf.cbImage169.Checked = true;
-                cf.tbImage169.Enabled = true;
-                cf.btnBrowseImage169.Enabled = true;
-
-                cf.tbImage169.Text = ComplexForwarder.Image169;
-            }
-
-            if (cf.ShowDialog() == DialogResult.OK)
-            {
-                ComplexForwarder.AppFolder = cf.tbAppFolder.Text;
-                //ComplexForwarder.UsbFirst = cf.rbUSB.Checked;
-                //ComplexForwarder.ElfFirst = cf.rbELF.Checked;
-                ComplexForwarder.Image43 = cf.tbImage43.Text;
-                ComplexForwarder.Image169 = cf.tbImage169.Text;
-
-                SetText(tbDol, string.Format("Complex Forwarder: \"{0}\"", ComplexForwarder.AppFolder));
-            }
         }
 
         private void tabControl_Selecting(object sender, TabControlCancelEventArgs e)
@@ -617,13 +560,14 @@ namespace CustomizeMii
 
                     if (newVersion > thisVersion)
                     {
-                        llbUpdateAvailabe.Text = llbUpdateAvailabe.Text.Replace("X", NewVersion);
-                        llbUpdateAvailabe.Visible = true;
+                        llbUpdateAvailable.Text = llbUpdateAvailable.Text.Replace("X", NewVersion);
+                        llbUpdateAvailable.Visible = true;
                         lbForwardMiiVersion.Tag = "Update";
+                        lbForwardMiiVersion.Visible = false;
 
                         if (MessageBox.Show("Version " + NewVersion +
-                            " is availabe.\nDo you want the download page to be opened?",
-                            "Update availabe", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
+                            " is available.\nDo you want the download page to be opened?",
+                            "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
                             DialogResult.Yes)
                         {
                             Process.Start("http://code.google.com/p/customizemii/downloads/list");
@@ -632,6 +576,11 @@ namespace CustomizeMii
                 }
                 catch { }
             }
+        }
+
+        private string GetInstallerVersion()
+        {
+            return CustomizeMiiInstaller.CustomizeMiiInstaller_Plugin.GetVersion();
         }
 
 #if !Mono
@@ -661,8 +610,8 @@ namespace CustomizeMii
                             if (newVersion > thisVersion)
                             {
                                 if (MessageBox.Show("Version " + NewVersion +
-                                    " of the ForwardMii-Plugin is availabe.\nDo you want the download page to be opened?",
-                                    "ForwardMii Update availabe", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
+                                    " of the ForwardMii-Plugin is available.\nDo you want the download page to be opened?",
+                                    "ForwardMii Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
                                     DialogResult.Yes)
                                 {
                                     Process.Start("http://code.google.com/p/customizemii/downloads/list");
@@ -705,25 +654,11 @@ namespace CustomizeMii
 
                         if (tbSourceWad.Text != SourceWadUrls[lbxBaseWads.SelectedIndex])
                         {
-                            try
-                            {
-                                SourceWad = "http://customizemii.googlecode.com/svn/branches/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
-                                tbSourceWad.Text = SourceWad;
-                                WebClient Client = new WebClient();
-                                Client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(Client_DownloadProgressChanged);
-                                Client.DownloadFileCompleted += new AsyncCompletedEventHandler(Client_DownloadFileCompleted);
+                            SourceWad = "http://customizemii.googlecode.com/svn/branches/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
+                            tbSourceWad.Text = SourceWad;
 
-                                lbStatusText.Text = "Downloading Base WAD...";
-                                pbProgress.Value = 0;
-                                if (!Directory.Exists(TempWadPath.Remove(TempWadPath.LastIndexOf('\\'))))
-                                    Directory.CreateDirectory(TempWadPath.Remove(TempWadPath.LastIndexOf('\\')));
-                                Client.DownloadFileAsync(new Uri(SourceWad), TempWadPath);
-                            }
-                            catch (Exception ex)
-                            {
-                                tbSourceWad.Text = string.Empty;
-                                ErrorBox(ex.Message);
-                            }
+                            System.Threading.Thread dlThread = new System.Threading.Thread(new System.Threading.ThreadStart(DownloadBaseWad));
+                            dlThread.Start();
                         }
                     }
                     else
@@ -734,15 +669,41 @@ namespace CustomizeMii
             }
         }
 
+        void DownloadBaseWad()
+        {
+            try
+            {
+                WebClient Client = new WebClient();
+                Client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(Client_DownloadProgressChanged);
+                Client.DownloadFileCompleted += new AsyncCompletedEventHandler(Client_DownloadFileCompleted);
+
+                currentProgress.progressState = "Downloading Base WAD...";
+                currentProgress.progressValue= 0;
+                this.Invoke(ProgressUpdate);
+
+                if (!Directory.Exists(TempWadPath.Remove(TempWadPath.LastIndexOf('\\'))))
+                    Directory.CreateDirectory(TempWadPath.Remove(TempWadPath.LastIndexOf('\\')));
+                Client.DownloadFileAsync(new Uri(SourceWad), TempWadPath);
+            }
+            catch (Exception ex)
+            {
+                SetText(tbSourceWad, string.Empty);
+                ErrorBox(ex.Message);
+            }
+        }
+
         void Client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            pbProgress.Value = e.ProgressPercentage;
+            currentProgress.progressValue = e.ProgressPercentage;
+            currentProgress.progressState = "Downloading Base WAD...";
+            this.Invoke(ProgressUpdate);
         }
 
         void Client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            pbProgress.Value = 100;
-            lbStatusText.Text = string.Empty;
+            currentProgress.progressValue = 0;
+            currentProgress.progressState = string.Empty;
+            this.Invoke(ProgressUpdate);
 
             if (File.Exists(TempWadPath))
             {
@@ -781,7 +742,7 @@ namespace CustomizeMii
                         catch (Exception ex) { ErrorBox(ex.Message); }
                     }
                     else
-                        InfoBox("There's no preview of this channel availabe, sorry!");
+                        InfoBox("There's no preview of this channel available, sorry!");
                 }
                 else
                 {
@@ -1332,211 +1293,6 @@ namespace CustomizeMii
             }
         }
 
-        private bool FailureCheck()
-        {
-            try
-            {
-                //Check Unpack Folder
-                if (CheckUnpackFolder() == false)
-                {
-                    if (UnpackFolderErrorCount > 0)
-                    {
-                        ErrorBox("Something's wrong with the temporary files.\nYou may have to start again." +
-                            "\n\nIf this message keeps bothering you, please report as much information " +
-                            "as possible at the issue tracker: http://code.google.com/p/customizemii/issues/list");
-                    }
-                    else
-                    {
-                        ErrorBox("Something's wrong with the temporary files.\nYou may have to start again.");
-                    }
-
-                    UnpackFolderErrorCount++;
-                    return false;
-                }
-
-                //Check Channel Title Boxes
-                if (!(!string.IsNullOrEmpty(tbAllLanguages.Text) ||
-                    (!string.IsNullOrEmpty(tbEnglish.Text) &&
-                    !string.IsNullOrEmpty(tbJapanese.Text) &&
-                    !string.IsNullOrEmpty(tbGerman.Text) &&
-                    !string.IsNullOrEmpty(tbFrench.Text) &&
-                    !string.IsNullOrEmpty(tbSpanish.Text) &&
-                    !string.IsNullOrEmpty(tbItalian.Text) &&
-                    !string.IsNullOrEmpty(tbDutch.Text))))
-                {
-                    ErrorBox("You must either enter a general Channel Title or one for each language!");
-                    return false;
-                }
-
-                //Check Title ID Length + Chars
-                if (tbTitleID.Text.Length != 4)
-                {
-                    ErrorBox("The Title ID must be 4 characters long!"); return false;
-                }
-
-                Regex allowedchars = new Regex("[A-Z0-9]{4}$");
-                if (!allowedchars.IsMatch(tbTitleID.Text.ToUpper()))
-                {
-                    ErrorBox("Please enter a valid Title ID!"); return false;
-                }
-
-                //Check brlan files
-                string[] ValidBrlans = new string[] { "banner.brlan", "icon.brlan", "banner_loop.brlan", "icon_loop.brlan", "banner_start.brlan", "icon_start.brlan" };
-                foreach (string thisBrlan in lbxBrlanBanner.Items)
-                {
-                    if (!Wii.Tools.StringExistsInStringArray(thisBrlan.ToLower(), ValidBrlans))
-                    {
-                        ErrorBox(thisBrlan + " is not a valid brlan filename!");
-                        return false;
-                    }
-                }
-                foreach (string thisBrlan in lbxBrlanIcon.Items)
-                {
-                    if (!Wii.Tools.StringExistsInStringArray(thisBrlan.ToLower(), ValidBrlans))
-                    {
-                        ErrorBox(thisBrlan + " is not a valid brlan filename!");
-                        return false;
-                    }
-                }
-
-                //Check TPLs
-                List<string> BannerTpls = new List<string>();
-                List<string> IconTpls = new List<string>();
-                foreach (string thisTpl in lbxBannerTpls.Items) BannerTpls.Add(thisTpl.Replace(" (Transparent)", string.Empty));
-                foreach (string thisTpl in lbxIconTpls.Items) IconTpls.Add(thisTpl.Replace(" (Transparent)", string.Empty));
-
-                string[] BannerBrlytPath;
-                string[] IconBrlytPath;
-
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerBrlytPath = Directory.GetFiles(TempUnpackBannerBrlytPath);
-                else
-                    BannerBrlytPath = Directory.GetFiles(TempBannerPath + "arc\\blyt");
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconBrlytPath = Directory.GetFiles(TempUnpackIconBrlytPath);
-                else
-                    IconBrlytPath = Directory.GetFiles(TempIconPath + "arc\\blyt");
-
-                string[] BannerMissing;
-                string[] BannerUnused;
-                string[] IconMissing;
-                string[] IconUnused;
-
-                //Check for missing TPLs
-                if (Wii.Brlyt.CheckForMissingTpls(BannerBrlytPath[0], BannerTpls.ToArray(), out BannerMissing) == true)
-                {
-                    ErrorBox("The following Banner TPLs are required by the banner.brlyt, but missing:\n\n" + string.Join("\n", BannerMissing));
-                    return false;
-                }
-                if (Wii.Brlyt.CheckForMissingTpls(IconBrlytPath[0], IconTpls.ToArray(), out IconMissing) == true)
-                {
-                    ErrorBox("The following Icon TPLs are required by the icon.brlyt, but missing:\n\n" + string.Join("\n", IconMissing));
-                    return false;
-                }
-
-                //Check Sound length
-                int soundLength = 0;
-                if (!string.IsNullOrEmpty(tbSound.Text) && string.IsNullOrEmpty(SoundReplace))
-                {
-                    if (!tbSound.Text.ToLower().EndsWith(".bns") && !tbSound.Text.StartsWith("BNS:"))
-                    {
-                        string SoundFile = tbSound.Text;
-                        if (tbSound.Text.ToLower().EndsWith(".mp3")) SoundFile = TempWavePath;
-
-                        soundLength = Wii.Sound.GetWaveLength(SoundFile);
-                        if (soundLength > SoundMaxLength)
-                        {
-                            ErrorBox(string.Format("Your Sound is longer than {0} seconds and thus not supported.\nIt is recommended to use a Sound shorter than {1} seconds, the maximum length is {0} seconds!", SoundMaxLength, SoundWarningLength));
-                            return false;
-                        }
-                    }
-                }
-
-                /*Errors till here..
-                  From here only Warnings!*/
-
-                if (soundLength > SoundWarningLength)
-                {
-                    if (MessageBox.Show(string.Format("Your Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", SoundWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                        return false;
-                }
-
-                //Check BNS sound length
-                if (tbSound.Text.StartsWith("BNS:") || tbSound.Text.ToLower().EndsWith(".bns"))
-                {
-                    string bnsFile = tbSound.Text;
-                    if (tbSound.Text.StartsWith("BNS:")) bnsFile = TempBnsPath;
-
-                    int bnsLength = Wii.Sound.GetBnsLength(bnsFile);
-                    if (bnsLength > BnsWarningLength)
-                    {
-                        if (MessageBox.Show(string.Format("Your BNS Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", BnsWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                            return false;
-                    }
-                }
-
-                //Check if brlyt or brlan were changed
-                if (BrlytChanged == true && BrlanChanged == false)
-                {
-                    if (MessageBox.Show("You have changed the brlyt, but didn't change the brlan.\nAre you sure this is correct?", "brlyt Changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                        return false;
-                }
-                else if (BrlanChanged == true && BrlytChanged == false)
-                {
-                    if (MessageBox.Show("You have changed the brlan, but didn't change the brlyt.\nAre you sure this is correct?", "brlan Changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                        return false;
-                }
-
-                //Check for unused TPLs (Do this at the end of the failure checks, because we don't want a
-                //                       MessageBox asking if unused TPLs should be deleted and after that any error)           
-                if (Wii.Brlyt.CheckForUnusedTpls(BannerBrlytPath[0], BannerTpls.ToArray(), out BannerUnused) == true)
-                {
-                    DialogResult dlgresult = MessageBox.Show(
-                        "The following Banner TPLs are unused by the banner.brlyt:\n\n" +
-                        string.Join("\n", BannerUnused) +
-                        "\n\nDo you want them to be deleted before the WAD is being created? (Saves space!)",
-                        "Delete unused TPLs?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                    if (dlgresult == DialogResult.Yes)
-                    {
-                        foreach (string thisTpl in BannerUnused)
-                        {
-                            if (string.IsNullOrEmpty(BannerReplace))
-                                File.Delete(TempUnpackBannerTplPath + thisTpl);
-                            else
-                                File.Delete(TempBannerPath + "arc\\timg\\" + thisTpl);
-                        }
-                    }
-                    else if (dlgresult == DialogResult.Cancel) return false;
-                }
-                if (Wii.Brlyt.CheckForUnusedTpls(IconBrlytPath[0], IconTpls.ToArray(), out IconUnused) == true)
-                {
-                    DialogResult dlgresult = MessageBox.Show(
-                        "The following Icon TPLs are unused by the icon.brlyt:\n\n" +
-                        string.Join("\n", IconUnused) +
-                        "\n\nDo you want them to be deleted before the WAD is being created? (Saves memory!)",
-                        "Delete unused TPLs?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                    if (dlgresult == DialogResult.Yes)
-                    {
-                        foreach (string thisTpl in IconUnused)
-                        {
-                            if (string.IsNullOrEmpty(IconReplace))
-                                File.Delete(TempUnpackIconTplPath + thisTpl);
-                            else
-                                File.Delete(TempIconPath + "arc\\timg\\" + thisTpl);
-                        }
-                    }
-                    else if (dlgresult == DialogResult.Cancel) return false;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorBox(ex.Message);
-                return false;
-            }
-        }
-
         private bool CheckUnpackFolder()
         {
             try
@@ -1871,7 +1627,7 @@ namespace CustomizeMii
                     {
                         if (!File.Exists(Application.StartupPath + "\\CustomizeMiiInstaller.dll"))
                         {
-                            ErrorBox("The CustomizeMiiInstaller.dll wasn't found!");
+                            ErrorBox("CustomizeMiiInstaller.dll wasn't found!");
                         }
                         else
                         {
@@ -2276,11 +2032,11 @@ namespace CustomizeMii
             }
         }
 
-        private void llbUpdateAvailabe_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void llbUpdateAvailable_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
-                llbUpdateAvailabe.LinkVisited = true;
+                llbUpdateAvailable.LinkVisited = true;
                 Process.Start("http://code.google.com/p/customizemii/downloads/list");
             }
             catch (Exception ex) { ErrorBox(ex.Message); }
@@ -2296,7 +2052,7 @@ namespace CustomizeMii
                 {
                     string TplName = lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                     string CurBannerPath = GetCurBannerPath();
-                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurBannerPath + "blyt\\banner.brlyt");
+                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurBannerPath + "blyt\\banner.brlyt", (File.Exists(CurBannerPath + "anim\\banner.brlan")) ? CurBannerPath + "anim\\banner.brlan" : CurBannerPath + "anim\\banner_loop.brlan");
 
                     if (!Wii.Tools.StringExistsInStringArray(TplName, brlytTpls) || cbFailureChecks.Checked)
                     {
@@ -2335,7 +2091,7 @@ namespace CustomizeMii
                     string TplName = lbxIconTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                     string CurIconPath = GetCurIconPath();
 
-                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurIconPath + "blyt\\icon.brlyt");
+                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurIconPath + "blyt\\icon.brlyt", CurIconPath + "anim\\icon.brlan");
 
                     if (!Wii.Tools.StringExistsInStringArray(TplName, brlytTpls) || cbFailureChecks.Checked)
                     {
@@ -2380,7 +2136,7 @@ namespace CustomizeMii
             if (lbBrlytActions.Text == "Banner")
             {
                 string CurBannerPath = GetCurBannerPath();
-                string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurBannerPath + "blyt\\banner.brlyt");
+                string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurBannerPath + "blyt\\banner.brlyt", (File.Exists(CurBannerPath + "anim\\banner.brlan")) ? CurBannerPath + "anim\\banner.brlan" : CurBannerPath + "anim\\banner_loop.brlan");
 
                 MessageBox.Show("These are the TPLs required by your banner.brlyt:\n\n" +
                     string.Join("\n", brlytTpls), "TPLs specified in banner.brlyt", MessageBoxButtons.OK,
@@ -2389,7 +2145,7 @@ namespace CustomizeMii
             else
             {
                 string CurIconPath = GetCurIconPath();
-                string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurIconPath + "blyt\\icon.brlyt");
+                string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurIconPath + "blyt\\icon.brlyt", CurIconPath + "anim\\icon.brlan");
 
                 MessageBox.Show("These are the TPLs required by your icon.brlyt:\n\n" +
                     string.Join("\n", brlytTpls), "TPLs specified in icon.brlyt", MessageBoxButtons.OK,
@@ -2489,7 +2245,7 @@ namespace CustomizeMii
             }
             else
             {
-                if (MessageBox.Show("You don't have the ForwardMii.dll in your application folder.\nYou can download it on the project page, do you want the page to be opened?", "Plugin not availabe", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                if (MessageBox.Show("You don't have the ForwardMii.dll in your application folder.\nYou can download it on the project page, do you want the page to be opened?", "Plugin not available", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 {
                     Process.Start("http://code.google.com/p/customizemii/downloads/list");
                 }
@@ -2504,7 +2260,21 @@ namespace CustomizeMii
             if (cmSender == cmSimpleForwarder)
                 ForwarderDialogSimple();
             else
-                ForwarderDialogComplex();
+            {
+                try
+                {
+                    if (double.Parse(GetForwardMiiVersion()) < 1.1)
+                    {
+                        ErrorBox("Version 1.1 or higher of the ForwardMii.dll is required!");
+                        return;
+                    }
+                    ForwarderDialogComplex();
+                }
+                catch (Exception ex)
+                {
+                    ErrorBox(ex.Message);
+                }
+            }
         }
 
         private void btnOptionsExtract_Click(object sender, EventArgs e)
@@ -2913,12 +2683,24 @@ namespace CustomizeMii
                 tbGerman.Text = tempText.Remove(startIndex, 7).Insert(startIndex, "Kanal");
                 tbDutch.Text = tempText.Remove(startIndex, 7).Insert(startIndex, "Kanaal");
 
-                if (tempText[startIndex - 1] != ' ') tbFrench.Text = tempText.Remove(startIndex, 7).Insert(0, "Chaîne ");
-                else tbFrench.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Chaîne ");
-                if (tempText[startIndex - 1] != ' ') tbSpanish.Text = tempText.Remove(startIndex, 7).Insert(0, "Canal ");
-                else tbSpanish.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Canal ");
-                if (tempText[startIndex - 1] != ' ') tbItalian.Text = tempText.Remove(startIndex, 7).Insert(0, "Canale ");
-                else tbItalian.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Canale ");
+                try
+                {
+                    if (tempText[startIndex - 1] != ' ') tbFrench.Text = tempText.Remove(startIndex, 7).Insert(0, "Chaîne ");
+                    else tbFrench.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Chaîne ");
+                }
+                catch { tbFrench.Text = tempText.Remove(startIndex, 7).Insert(0, "Chaîne"); }
+                try
+                {
+                    if (tempText[startIndex - 1] != ' ') tbSpanish.Text = tempText.Remove(startIndex, 7).Insert(0, "Canal ");
+                    else tbSpanish.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Canal ");
+                }
+                catch { tbSpanish.Text = tempText.Remove(startIndex, 7).Insert(0, "Canal"); }
+                try
+                {
+                    if (tempText[startIndex - 1] != ' ') tbItalian.Text = tempText.Remove(startIndex, 7).Insert(0, "Canale ");
+                    else tbItalian.Text = tempText.Remove(startIndex - 1, 8).Insert(0, "Canale ");
+                }
+                catch { tbItalian.Text = tempText.Remove(startIndex, 7).Insert(0, "Canale"); }
 
                 tbAllLanguages.Text = string.Empty;
             }
@@ -2936,6 +2718,11 @@ namespace CustomizeMii
 
                 ErrorBox(ex.Message);
             }
+        }
+
+        private void tbAllLanguages_TextChanged(object sender, EventArgs e)
+        {
+            llbTranslateChannel.Enabled = tbAllLanguages.Text.ToLower().Contains("channel");
         }
     }
 }

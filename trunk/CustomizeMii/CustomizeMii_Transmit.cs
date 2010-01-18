@@ -29,11 +29,12 @@ namespace CustomizeMii
         public CustomizeMii_Transmit()
         {
             InitializeComponent();
-            this.CenterToParent();
         }
 
         private void CustomizeMii_Transmit_Load(object sender, System.EventArgs e)
         {
+            this.CenterToParent();
+
             try
             {
                 cmbProtocol.SelectedIndex = Properties.Settings.Default.Protocol;

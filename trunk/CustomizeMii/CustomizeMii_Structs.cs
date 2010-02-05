@@ -17,6 +17,12 @@
 
 namespace CustomizeMii
 {
+    public struct TplImage
+    {
+        public System.Drawing.Image tplImage;
+        public string tplFormat;
+    }
+
     public struct TransmitInfo
     {
         public bool usedCompression;
@@ -61,6 +67,7 @@ namespace CustomizeMii
         public string transmitIp;
         public int transmitIos;
         public bool saveAfterTransmit;
+        public bool success;
     }
 
     public struct Progress

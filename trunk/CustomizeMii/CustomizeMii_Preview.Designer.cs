@@ -47,6 +47,7 @@ namespace CustomizeMii
         {
             this.components = new System.ComponentModel.Container();
             this.Panel = new System.Windows.Forms.Panel();
+            this.btnReplace = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.cbIcon = new System.Windows.Forms.ComboBox();
             this.lbIcon = new System.Windows.Forms.Label();
@@ -58,11 +59,15 @@ namespace CustomizeMii
             this.lbSize = new System.Windows.Forms.Label();
             this.lbSizeText = new System.Windows.Forms.Label();
             this.pbPic = new System.Windows.Forms.PictureBox();
-            this.btnReplace = new System.Windows.Forms.Button();
             this.cmFormat = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmRGBA8 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmRGB565 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmRGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmIA8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmIA4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmI8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmI4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.lbNoPreview = new System.Windows.Forms.Label();
             this.Panel.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPic)).BeginInit();
@@ -82,6 +87,17 @@ namespace CustomizeMii
             this.Panel.Name = "Panel";
             this.Panel.Size = new System.Drawing.Size(817, 28);
             this.Panel.TabIndex = 0;
+            // 
+            // btnReplace
+            // 
+            this.btnReplace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnReplace.Location = new System.Drawing.Point(512, 4);
+            this.btnReplace.Name = "btnReplace";
+            this.btnReplace.Size = new System.Drawing.Size(137, 21);
+            this.btnReplace.TabIndex = 3;
+            this.btnReplace.Text = "Replace";
+            this.btnReplace.UseVisualStyleBackColor = true;
+            this.btnReplace.Click += new System.EventHandler(this.btnReplace_Click);
             // 
             // btnClose
             // 
@@ -200,25 +216,18 @@ namespace CustomizeMii
             this.pbPic.TabIndex = 3;
             this.pbPic.TabStop = false;
             // 
-            // btnReplace
-            // 
-            this.btnReplace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReplace.Location = new System.Drawing.Point(512, 4);
-            this.btnReplace.Name = "btnReplace";
-            this.btnReplace.Size = new System.Drawing.Size(137, 21);
-            this.btnReplace.TabIndex = 3;
-            this.btnReplace.Text = "Replace";
-            this.btnReplace.UseVisualStyleBackColor = true;
-            this.btnReplace.Click += new System.EventHandler(this.btnReplace_Click);
-            // 
             // cmFormat
             // 
             this.cmFormat.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cmRGBA8,
             this.cmRGB565,
-            this.cmRGB5A3});
+            this.cmRGB5A3,
+            this.cmIA8,
+            this.cmIA4,
+            this.cmI8,
+            this.cmI4});
             this.cmFormat.Name = "cmFormat";
-            this.cmFormat.Size = new System.Drawing.Size(234, 70);
+            this.cmFormat.Size = new System.Drawing.Size(234, 158);
             // 
             // cmRGBA8
             // 
@@ -244,12 +253,56 @@ namespace CustomizeMii
             this.cmRGB5A3.Text = "As RGB5A3 (Low Quality)";
             this.cmRGB5A3.Click += new System.EventHandler(this.cmFormat_Click);
             // 
+            // cmIA8
+            // 
+            this.cmIA8.Name = "cmIA8";
+            this.cmIA8.Size = new System.Drawing.Size(233, 22);
+            this.cmIA8.Tag = "ia8";
+            this.cmIA8.Text = "As IA8 (B/W with Alpha)";
+            this.cmIA8.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmIA4
+            // 
+            this.cmIA4.Name = "cmIA4";
+            this.cmIA4.Size = new System.Drawing.Size(233, 22);
+            this.cmIA4.Tag = "ia4";
+            this.cmIA4.Text = "As IA4 (B/W with Alpha)";
+            this.cmIA4.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmI8
+            // 
+            this.cmI8.Name = "cmI8";
+            this.cmI8.Size = new System.Drawing.Size(233, 22);
+            this.cmI8.Tag = "i8";
+            this.cmI8.Text = "As I8 (B/W)";
+            this.cmI8.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmI4
+            // 
+            this.cmI4.Name = "cmI4";
+            this.cmI4.Size = new System.Drawing.Size(233, 22);
+            this.cmI4.Tag = "i4";
+            this.cmI4.Text = "As I4 (B/W)";
+            this.cmI4.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // lbNoPreview
+            // 
+            this.lbNoPreview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbNoPreview.Location = new System.Drawing.Point(0, 22);
+            this.lbNoPreview.Name = "lbNoPreview";
+            this.lbNoPreview.Size = new System.Drawing.Size(817, 412);
+            this.lbNoPreview.TabIndex = 4;
+            this.lbNoPreview.Text = "No Preview";
+            this.lbNoPreview.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lbNoPreview.Visible = false;
+            // 
             // CustomizeMii_Preview
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
             this.ClientSize = new System.Drawing.Size(817, 462);
+            this.Controls.Add(this.lbNoPreview);
             this.Controls.Add(this.pbPic);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.Panel);
@@ -289,5 +342,10 @@ namespace CustomizeMii
         private System.Windows.Forms.ToolStripMenuItem cmRGBA8;
         private System.Windows.Forms.ToolStripMenuItem cmRGB565;
         private System.Windows.Forms.ToolStripMenuItem cmRGB5A3;
+        private System.Windows.Forms.ToolStripMenuItem cmIA8;
+        private System.Windows.Forms.ToolStripMenuItem cmIA4;
+        private System.Windows.Forms.ToolStripMenuItem cmI8;
+        private System.Windows.Forms.ToolStripMenuItem cmI4;
+        private System.Windows.Forms.Label lbNoPreview;
     }
 }

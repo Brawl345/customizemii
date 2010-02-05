@@ -40,13 +40,31 @@
 #include "fatmounter.h" 
 
 /*edit these*/
-#define USB_FIRST false
-#define ELF_FIRST false
+#define PATH1 "---path1---"
+#define PATH2 "---path2---"
+#define PATH3 "---path3---"
+#define PATH4 "---path4---"
 
-#define SD_DOL "---path1---"
-#define SD_ELF "---path2---"
-#define USB_DOL "---path3---"
-#define USB_ELF "---path4---"
+#define PACK2 false
+
+#define PATH5 "---path5---"
+#define PATH6 "---path6---"
+#define PATH7 "---path7---"
+#define PATH8 "---path8---"
+
+#define PACK3 false
+
+#define PATH9 "---path9---"
+#define PATH10 "---path10---"
+#define PATH11 "---path11---"
+#define PATH12 "---path12---"
+
+#define PACK4 false
+
+#define PATH13 "---path13---"
+#define PATH14 "---path14---"
+#define PATH15 "---path15---"
+#define PATH16 "---path16---"
 
 static PNGUPROP imgProp;
 static IMGCTX ctx;
@@ -99,7 +117,6 @@ int main(int argc, char **argv)
 	int exeSize              = 0;
 	u32 exeEntryPointAddress = 0;
 	entrypoint exeEntryPoint;
-	char cfgpath[256], first[256], second[256], third[256], fourth[256];
 	
 	/* int videomod */
 	InitVideo();
@@ -113,58 +130,103 @@ int main(int argc, char **argv)
 		Menu_Render();
 	}
 	
-	/*set order*/
-	if (USB_FIRST && ELF_FIRST)
-	{
-		sprintf(first, USB_ELF);
-		sprintf(second, USB_DOL);
-		sprintf(third, SD_ELF);
-		sprintf(fourth, SD_DOL);
-	}
-	else if (USB_FIRST)
-	{
-		sprintf(first, USB_DOL);
-		sprintf(second, USB_ELF);
-		sprintf(third, SD_DOL);
-		sprintf(fourth, SD_ELF);
-	}
-	else if (ELF_FIRST)
-	{
-		sprintf(first, SD_ELF);
-		sprintf(second, SD_DOL);
-		sprintf(third, USB_ELF);
-		sprintf(fourth, USB_DOL);
-	}
-	else
-	{
-		sprintf(first, SD_DOL);
-		sprintf(second, SD_ELF);
-		sprintf(third, USB_DOL);
-		sprintf(fourth, USB_ELF);
-	}
-	
 	/* check devices */
 	SDCard_Init();
 	USBDevice_Init();
 	
+	char cfgpath[256];
+	
 	/* Open dol File and check exist */
-	sprintf(cfgpath, first);
+	sprintf(cfgpath, PATH1);
 	exeFile = fopen (cfgpath ,"rb");
 	if (exeFile==NULL)
 	{
-		sprintf(cfgpath, second);
+		sprintf(cfgpath, PATH2);
 		exeFile = fopen (cfgpath ,"rb");
 	}
 	if (exeFile==NULL)
 	{
-		sprintf(cfgpath, third);
+		sprintf(cfgpath, PATH3);
 		exeFile = fopen (cfgpath ,"rb");
 	}
 	if (exeFile==NULL)
 	{
-		sprintf(cfgpath, fourth);
+		sprintf(cfgpath, PATH4);
 		exeFile = fopen (cfgpath ,"rb");
 	}
+	
+	if (PACK2)
+	{
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH5);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH6);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH7);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH8);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+	}
+	
+	if (PACK3)
+	{
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH9);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH10);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH11);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH12);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+	}
+	
+	if (PACK4)
+	{
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH13);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH14);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH15);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+		if (exeFile==NULL)
+		{
+			sprintf(cfgpath, PATH16);
+			exeFile = fopen (cfgpath ,"rb");
+		}
+	}
+	
 	// if nothing found exiting
 	if (exeFile==NULL) {
            printf("\n\n\t\tCan't find DOL File...\n");

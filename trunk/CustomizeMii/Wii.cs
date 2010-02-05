@@ -89,27 +89,11 @@ namespace Wii
         }
 
         /// <summary>
-        /// Converts UInt32 Array into Byte Array
-        /// </summary>
-        /// <param name="array"></param>
-        /// <returns></returns>
-        public static byte[] UInt32ArrayToByteArray(UInt32[] array)
-        {
-            List<byte> results = new List<byte>();
-            foreach (UInt32 value in array)
-            {
-                byte[] converted = BitConverter.GetBytes(value);
-                results.AddRange(converted);
-            }
-            return results.ToArray();
-        }
-
-        /// <summary>
         /// Converts UInt16 Array into Byte Array
         /// </summary>
         /// <param name="array"></param>
         /// <returns></returns>
-        public static byte[] UInt16ArrayToByteArray(UInt16[] array)
+        public static byte[] UIntArrayToByteArray(UInt16[] array)
         {
             List<byte> results = new List<byte>();
             foreach (UInt16 value in array)
@@ -2315,6 +2299,45 @@ namespace Wii
             Tools.InsertByteArray(tik, newKey, 447);
             return tik;
         }
+
+        /// <summary>
+        /// Returns the decrypted TitleKey
+        /// </summary>
+        /// <param name="wadtik"></param>
+        /// <returns></returns>
+        public static byte[] GetTitleKey(byte[] encryptedkey, byte[] titleid)
+        {
+            byte[] commonkey = new byte[16];
+
+            if (File.Exists(System.Windows.Forms.Application.StartupPath + "\\common-key.bin"))
+            { commonkey = Tools.LoadFileToByteArray(System.Windows.Forms.Application.StartupPath + "\\common-key.bin"); }
+            else if (File.Exists(System.Windows.Forms.Application.StartupPath + "\\key.bin"))
+            { commonkey = Tools.LoadFileToByteArray(System.Windows.Forms.Application.StartupPath + "\\key.bin"); }
+            else { throw new FileNotFoundException("The (common-)key.bin must be in the application directory!"); }
+
+            Array.Resize(ref titleid, 16);
+
+            RijndaelManaged decrypt = new RijndaelManaged();
+            decrypt.Mode = CipherMode.CBC;
+            decrypt.Padding = PaddingMode.None;
+            decrypt.KeySize = 128;
+            decrypt.BlockSize = 128;
+            decrypt.Key = commonkey;
+            decrypt.IV = titleid;
+
+            ICryptoTransform cryptor = decrypt.CreateDecryptor();
+
+            MemoryStream memory = new MemoryStream(encryptedkey);
+            CryptoStream crypto = new CryptoStream(memory, cryptor, CryptoStreamMode.Read);
+
+            byte[] decryptedkey = new byte[16];
+            crypto.Read(decryptedkey, 0, decryptedkey.Length);
+
+            crypto.Close();
+            memory.Close();
+
+            return decryptedkey;
+        }
     }
 
     public class WadUnpack
@@ -4242,7 +4265,7 @@ namespace Wii
 
     public class TPL
     {
-	    /// <summary>
+        /// <summary>
         /// Fixes rough edges (artifacts), if necessary
         /// </summary>
         /// <param name="tplFile"></param>
@@ -4265,7 +4288,7 @@ namespace Wii
                 }
             }
         }
-	
+
         /// <summary>
         /// Converts a Tpl to a Bitmap
         /// </summary>
@@ -4314,6 +4337,15 @@ namespace Wii
                 case 6:
                     byte[] temp6 = FromRGBA8(tpl);
                     return ConvertPixelToBitmap(temp6, width, height);
+                case 8:
+                    byte[] temp8 = FromCI4(tpl);
+                    return ConvertPixelToBitmap(temp8, width, height);
+                case 9:
+                    byte[] temp9 = FromCI8(tpl);
+                    return ConvertPixelToBitmap(temp9, width, height);
+                case 10:
+                    byte[] temp10 = FromCI14X2(tpl);
+                    return ConvertPixelToBitmap(temp10, width, height);
                 case 14:
                     byte[] temp14 = FromCMP(tpl);
                     return ConvertPixelToBitmap(temp14, width, height);
@@ -4342,6 +4374,126 @@ namespace Wii
         }
 
         /// <summary>
+        /// Gets the offset to the Texture Header
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static int GetTextureHeaderOffset(byte[] tpl)
+        {
+            byte[] tmp = new byte[] { tpl[15], tpl[14], tpl[13], tpl[12] };
+            return BitConverter.ToInt32(tmp, 0);
+        }
+
+        /// <summary>
+        /// Gets the offset to the Texture Palette Header
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static int GetTexturePaletteHeaderOffset(byte[] tpl)
+        {
+            byte[] tmp = new byte[] { tpl[19], tpl[18], tpl[17], tpl[16] };
+            return BitConverter.ToInt32(tmp, 0);
+        }
+
+        /// <summary>
+        /// Gets the offset to the Texture Palette
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static int GetTexturePaletteOffset(byte[] tpl)
+        {
+            int paletteheaderoffset = GetTexturePaletteHeaderOffset(tpl);
+
+            byte[] tmp = new byte[] { tpl[paletteheaderoffset + 11],
+                tpl[paletteheaderoffset + 10], tpl[paletteheaderoffset + 9], tpl[paletteheaderoffset + 8] };
+            return BitConverter.ToInt32(tmp, 0);
+        }
+
+        /// <summary>
+        /// Gets the Texture Palette Format
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static int GetTexturePaletteFormat(byte[] tpl)
+        {
+            int paletteheaderoffset = GetTexturePaletteHeaderOffset(tpl);
+
+            byte[] tmp = new byte[] { tpl[paletteheaderoffset + 7],
+                tpl[paletteheaderoffset + 6], tpl[paletteheaderoffset + 5], tpl[paletteheaderoffset + 4] };
+            return BitConverter.ToInt32(tmp, 0);
+        }
+
+        /// <summary>
+        /// Gets the item count of the Texture Palette
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static int GetTexturePaletteItemCount(byte[] tpl)
+        {
+            int paletteheaderoffset = GetTexturePaletteHeaderOffset(tpl);
+
+            byte[] tmp = new byte[] { tpl[paletteheaderoffset + 1], tpl[paletteheaderoffset] };
+            return BitConverter.ToInt16(tmp, 0);
+        }
+
+        /// <summary>
+        /// Gets the Texture Palette of the TPL
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static uint[] GetTexturePalette(byte[] tpl)
+        {
+            int paletteoffset = GetTexturePaletteOffset(tpl);
+            int paletteformat = GetTexturePaletteFormat(tpl);
+            int itemcount = GetTexturePaletteItemCount(tpl);
+            int r, g, b, a;
+
+            uint[] output = new uint[itemcount];
+            for (int i = 0; i < itemcount; i++)
+            {
+                if (i >= itemcount) continue;
+
+                UInt16 pixel = BitConverter.ToUInt16(new byte[] { tpl[i * 2 + 1], tpl[i * 2] }, 0);
+
+                if (paletteformat == 0) //IA8
+                {
+                    r = (pixel >> 8);
+                    b = r;
+                    g = r;
+                    a = ((pixel >> 0) & 0xff);
+                }
+                else if (paletteformat == 1) //RGB565
+                {
+                    b = (((pixel >> 11) & 0x1F) << 3) & 0xff;
+                    g = (((pixel >> 5) & 0x3F) << 2) & 0xff;
+                    r = (((pixel >> 0) & 0x1F) << 3) & 0xff;
+                    a = 255;
+                }
+                else //RGB5A3
+                {
+                    if ((pixel & (1 << 15)) != 0) //RGB555
+                    {
+                        a = 255;
+                        b = (((pixel >> 10) & 0x1F) * 255) / 31;
+                        g = (((pixel >> 5) & 0x1F) * 255) / 31;
+                        r = (((pixel >> 0) & 0x1F) * 255) / 31;
+                    }
+                    else //RGB4A3
+                    {
+                        a = (((pixel >> 12) & 0x07) * 255) / 7;
+                        b = (((pixel >> 8) & 0x0F) * 255) / 15;
+                        g = (((pixel >> 4) & 0x0F) * 255) / 15;
+                        r = (((pixel >> 0) & 0x0F) * 255) / 15;
+                    }
+                }
+
+                output[i] = (uint)((r << 0) | (g << 8) | (b << 16) | (a << 24));
+            }
+
+            return output;
+        }
+
+        /// <summary>
         /// Gets the Number of Textures in a Tpl
         /// </summary>
         /// <param name="tpl"></param>
@@ -4353,8 +4505,7 @@ namespace Wii
             tmp[2] = tpl[5];
             tmp[1] = tpl[6];
             tmp[0] = tpl[7];
-            UInt32 count = BitConverter.ToUInt32(tmp, 0);
-            return (int)count;
+            return BitConverter.ToInt32(tmp, 0);
         }
 
         /// <summary>
@@ -4364,7 +4515,7 @@ namespace Wii
         /// <returns></returns>
         public static int GetTextureFormat(string tpl)
         {
-            byte[] temp = Tools.LoadFileToByteArray(tpl, 0, 50);
+            byte[] temp = Tools.LoadFileToByteArray(tpl, 0, 512);
             return GetTextureFormat(temp);
         }
 
@@ -4375,11 +4526,13 @@ namespace Wii
         /// <returns></returns>
         public static int GetTextureFormat(byte[] tpl)
         {
+            int offset = GetTextureHeaderOffset(tpl);
+
             byte[] tmp = new byte[4];
-            tmp[3] = tpl[24];
-            tmp[2] = tpl[25];
-            tmp[1] = tpl[26];
-            tmp[0] = tpl[27];
+            tmp[3] = tpl[offset + 4];
+            tmp[2] = tpl[offset + 5];
+            tmp[1] = tpl[offset + 6];
+            tmp[0] = tpl[offset + 7];
             UInt32 format = BitConverter.ToUInt32(tmp, 0);
 
             if (format == 0 ||
@@ -4389,6 +4542,9 @@ namespace Wii
                 format == 4 ||
                 format == 5 ||
                 format == 6 ||
+                format == 8 ||
+                format == 9 ||
+                format == 10 ||
                 format == 14) return (int)format;
 
             else return -1; //Unsupported Format
@@ -4417,6 +4573,12 @@ namespace Wii
                     return "RGB5A3";
                 case 6:
                     return "RGBA8";
+                case 8:
+                    return "CI4";
+                case 9:
+                    return "CI8";
+                case 10:
+                    return "CI14X2";
                 case 14:
                     return "CMP";
                 default:
@@ -4451,11 +4613,12 @@ namespace Wii
         /// <returns></returns>
         public static int GetTextureWidth(byte[] tpl)
         {
+            int offset = GetTextureHeaderOffset(tpl);
+
             byte[] tmp = new byte[2];
-            tmp[1] = tpl[22];
-            tmp[0] = tpl[23];
-            UInt16 width = BitConverter.ToUInt16(tmp, 0);
-            return (int)width;
+            tmp[1] = tpl[offset + 2];
+            tmp[0] = tpl[offset + 3];
+            return BitConverter.ToInt16(tmp, 0);
         }
 
         /// <summary>
@@ -4465,11 +4628,12 @@ namespace Wii
         /// <returns></returns>
         public static int GetTextureHeight(byte[] tpl)
         {
+            int offset = GetTextureHeaderOffset(tpl);
+
             byte[] tmp = new byte[2];
-            tmp[1] = tpl[20];
-            tmp[0] = tpl[21];
-            UInt16 height = BitConverter.ToUInt16(tmp, 0);
-            return (int)height;
+            tmp[1] = tpl[offset];
+            tmp[0] = tpl[offset + 1];
+            return BitConverter.ToInt16(tmp, 0);
         }
 
         /// <summary>
@@ -4479,13 +4643,14 @@ namespace Wii
         /// <returns></returns>
         public static int GetTextureOffset(byte[] tpl)
         {
+            int offset = GetTextureHeaderOffset(tpl);
+
             byte[] tmp = new byte[4];
-            tmp[3] = tpl[28];
-            tmp[2] = tpl[29];
-            tmp[1] = tpl[30];
-            tmp[0] = tpl[31];
-            UInt32 offset = BitConverter.ToUInt32(tmp, 0);
-            return (int)offset;
+            tmp[3] = tpl[offset + 8];
+            tmp[2] = tpl[offset + 9];
+            tmp[1] = tpl[offset + 10];
+            tmp[0] = tpl[offset + 11];
+            return BitConverter.ToInt32(tmp, 0);
         }
 
         /// <summary>
@@ -4537,7 +4702,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4593,7 +4758,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4637,7 +4802,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4652,6 +4817,7 @@ namespace Wii
             int offset = GetTextureOffset(tpl);
             UInt32[] output = new UInt32[width * height];
             int inp = 0;
+
             for (int y = 0; y < height; y += 8)
             {
                 for (int x = 0; x < width; x += 8)
@@ -4660,7 +4826,7 @@ namespace Wii
                     {
                         for (int x1 = x; x1 < x + 8; x1 += 2)
                         {
-                            int pixel = tpl[offset + inp];
+                            int pixel = tpl[offset + inp++];
 
                             if (y1 >= height || x1 >= width)
                                 continue;
@@ -4668,21 +4834,15 @@ namespace Wii
                             int r = (pixel >> 4) * 255 / 15;
                             int g = (pixel >> 4) * 255 / 15;
                             int b = (pixel >> 4) * 255 / 15;
-                            int a = (pixel >> 4) * 255 / 15;
+                            int a = 255;
 
                             int rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
                             output[y1 * width + x1] = (UInt32)rgba;
 
-                            pixel = tpl[offset + inp];
-                            inp++;
-
-                            if (y1 >= height || x1 >= width)
-                                continue;
-
                             r = (pixel & 0x0F) * 255 / 15;
                             g = (pixel & 0x0F) * 255 / 15;
                             b = (pixel & 0x0F) * 255 / 15;
-                            a = (pixel & 0x0F) * 255 / 15;
+                            a = 255;
 
                             rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
                             output[y1 * width + x1 + 1] = (UInt32)rgba;
@@ -4691,7 +4851,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4706,6 +4866,7 @@ namespace Wii
             int offset = GetTextureOffset(tpl);
             UInt32[] output = new UInt32[width * height];
             int inp = 0;
+
             for (int y = 0; y < height; y += 4)
             {
                 for (int x = 0; x < width; x += 8)
@@ -4732,7 +4893,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4747,6 +4908,7 @@ namespace Wii
             int offset = GetTextureOffset(tpl);
             UInt32[] output = new UInt32[width * height];
             int inp = 0;
+
             for (int y = 0; y < height; y += 4)
             {
                 for (int x = 0; x < width; x += 8)
@@ -4773,7 +4935,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4788,6 +4950,7 @@ namespace Wii
             int offset = GetTextureOffset(tpl);
             UInt32[] output = new UInt32[width * height];
             int inp = 0;
+
             for (int y = 0; y < height; y += 4)
             {
                 for (int x = 0; x < width; x += 4)
@@ -4808,7 +4971,7 @@ namespace Wii
                             int r = (pixel >> 8);// &0xff;
                             int g = (pixel >> 8);// &0xff;
                             int b = (pixel >> 8);// &0xff;
-                            int a = (pixel >> 8) & 0xff;
+                            int a = (pixel >> 0) & 0xff;
 
                             int rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
                             output[y1 * width + x1] = (UInt32)rgba;
@@ -4817,7 +4980,7 @@ namespace Wii
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
@@ -4832,7 +4995,7 @@ namespace Wii
             int offset = GetTextureOffset(tpl);
             UInt32[] output = new UInt32[width * height];
             UInt16[] c = new UInt16[4];
-            int[] pix = new int[3];
+            int[] pix = new int[4];
             int inp = 0;
 
             for (int y = 0; y < height; y++)
@@ -4883,18 +5046,158 @@ namespace Wii
                     pix[0] = (raw >> 8) & 0xf8;
                     pix[1] = (raw >> 3) & 0xf8;
                     pix[2] = (raw << 3) & 0xf8;
+                    pix[3] = 0xff;
+                    if (((pixel >> (30 - (2 * ix))) & 0x03) == 3 && c[0] <= c[1]) pix[3] = 0x00;
 
-                    int intout = (pix[0] << 16) | (pix[1] << 8) | (pix[2] << 0) | (255 << 24);
+                    int intout = (pix[0] << 16) | (pix[1] << 8) | (pix[2] << 0) | (pix[3] << 24);
                     output[inp] = (UInt32)intout;
                     inp++;
                 }
             }
 
-            return Tools.UInt32ArrayToByteArray(output);
+            return Tools.UIntArrayToByteArray(output);
         }
 
         /// <summary>
-        /// Gets the pixel data of a Bitmap as an Byte Array
+        /// Converts CI4 Tpl Array to RGBA Byte Array
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static byte[] FromCI4(byte[] tpl)
+        {
+            uint[] palette = GetTexturePalette(tpl);
+
+            int width = GetTextureWidth(tpl);
+            int height = GetTextureHeight(tpl);
+            int offset = GetTextureOffset(tpl);
+            UInt32[] output = new UInt32[width * height + 1];
+            int i = 0;
+
+            for (int y = 0; y < height; y += 8)
+            {
+                for (int x = 0; x < width; x += 8)
+                {
+                    for (int y1 = y; y1 < y + 8; y1++)
+                    {
+                        for (int x1 = x; x1 < x + 8; x1 += 2)
+                        {
+                            if (y1 >= height || x1 >= width)
+                                continue;
+                            
+                            UInt16 pixel = tpl[offset + i++];
+
+                            uint r = ((palette[pixel >> 4] & 0xFF000000) >> 24);
+                            uint g = (uint)((palette[pixel >> 4] & 0x00FF0000) >> 16);
+                            uint b = (uint)((palette[pixel >> 4] & 0x0000FF00) >> 8);
+                            uint a = (uint)((palette[pixel >> 4] & 0x000000FF) >> 0);
+
+                            uint rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
+						    output[y1 * width + x1] = rgba;
+
+                            r = ((palette[pixel & 0x0F] & 0xFF000000) >> 24);
+                            g = (uint)((palette[pixel & 0x0F] & 0x00FF0000) >> 16);
+                            b = (uint)((palette[pixel & 0x0F] & 0x0000FF00) >> 8);
+                            a = (uint)((palette[pixel & 0x0F] & 0x000000FF) >> 0);
+
+                            rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
+
+                            output[y1 * width + x1 + 1] = rgba;
+                        }
+                    }
+                }
+            }
+
+            return Tools.UIntArrayToByteArray(output);
+        }
+
+        /// <summary>
+        /// Converts CI8 Tpl Array to RGBA Byte Array
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static byte[] FromCI8(byte[] tpl)
+        {
+            uint[] palette = GetTexturePalette(tpl);
+
+            int width = GetTextureWidth(tpl);
+            int height = GetTextureHeight(tpl);
+            int offset = GetTextureOffset(tpl);
+            UInt32[] output = new UInt32[width * height];
+            int i = 0;
+
+            for (int y = 0; y < height; y += 4)
+            {
+                for (int x = 0; x < width; x += 8)
+                {
+                    for (int y1 = y; y1 < y + 4; y1++)
+                    {
+                        for (int x1 = x; x1 < x + 8; x1++)
+                        {
+                            if (y1 >= height || x1 >= width)
+                                continue;
+
+                            UInt16 pixel = tpl[offset + i++];
+
+                            uint r = ((palette[pixel] & 0xFF000000) >> 24);
+                            uint g = (uint)((palette[pixel] & 0x00FF0000) >> 16);
+                            uint b = (uint)((palette[pixel] & 0x0000FF00) >> 8);
+                            uint a = (uint)((palette[pixel] & 0x000000FF) >> 0);
+
+                            uint rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
+                            output[y1 * width + x1] = rgba;
+                        }
+                    }
+                }
+            }
+
+            return Tools.UIntArrayToByteArray(output);
+        }
+
+        /// <summary>
+        /// Converts CI14X2 Tpl Array to RGBA Byte Array
+        /// </summary>
+        /// <param name="tpl"></param>
+        /// <returns></returns>
+        public static byte[] FromCI14X2(byte[] tpl)
+        {
+            uint[] palette = GetTexturePalette(tpl);
+
+            int width = GetTextureWidth(tpl);
+            int height = GetTextureHeight(tpl);
+            int offset = GetTextureOffset(tpl);
+            UInt32[] output = new UInt32[width * height];
+            int i = 0;
+
+            for (int y = 0; y < height; y += 4)
+            {
+                for (int x = 0; x < width; x += 4)
+                {
+                    for (int y1 = y; y1 < y + 4; y1++)
+                    {
+                        for (int x1 = x; x1 < x + 4; x1++)
+                        {
+                            if (y1 >= height || x1 >= width)
+                                continue;
+
+                            UInt16 pixel = tpl[offset + i++];
+
+                            uint r = ((palette[pixel & 0x3FFF] & 0xFF000000) >> 24);
+                            uint g = (uint)((palette[pixel & 0x3FFF] & 0x00FF0000) >> 16);
+                            uint b = (uint)((palette[pixel & 0x3FFF] & 0x0000FF00) >> 8);
+                            uint a = (uint)((palette[pixel & 0x3FFF] & 0x000000FF) >> 0);
+
+                            uint rgba = (r << 0) | (g << 8) | (b << 16) | (a << 24);
+                            output[y1 * width + x1] = rgba;
+                        }
+                    }
+                }
+            }
+
+            return Tools.UIntArrayToByteArray(output);
+        }
+
+        /// <summary>
+        /// Gets the pixel data of a Bitmap as a Byte Array
         /// </summary>
         /// <param name="img"></param>
         /// <returns></returns>
@@ -4929,7 +5232,7 @@ namespace Wii
         /// Converts an Image to a Tpl
         /// </summary>
         /// <param name="img"></param>
-        /// <param name="format">4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
+        /// <param name="format">0 = I4, 1 = I8, 2 = IA4, 3 = IA8, 4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
         /// <returns></returns>
         public static void ConvertToTPL(Bitmap img, string destination, int format)
         {
@@ -4945,7 +5248,7 @@ namespace Wii
         /// Converts an Image to a Tpl
         /// </summary>
         /// <param name="img"></param>
-        /// <param name="format">4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
+        /// <param name="format">0 = I4, 1 = I8, 2 = IA4, 3 = IA8, 4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
         /// <returns></returns>
         public static void ConvertToTPL(Image img, string destination, int format)
         {
@@ -4961,7 +5264,7 @@ namespace Wii
         /// Converts an Image to a Tpl
         /// </summary>
         /// <param name="img"></param>
-        /// <param name="format">4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
+        /// <param name="format">0 = I4, 1 = I8, 2 = IA4, 3 = IA8, 4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
         /// <returns></returns>
         public static byte[] ConvertToTPL(Image img, int format)
         {
@@ -4972,7 +5275,7 @@ namespace Wii
         /// Converts an Image to a Tpl
         /// </summary>
         /// <param name="img"></param>
-        /// <param name="format">4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
+        /// <param name="format">0 = I4, 1 = I8, 2 = IA4, 3 = IA8, 4 = RGB565, 5 = RGB5A3, 6 = RGBA8</param>
         /// <returns></returns>
         public static byte[] ConvertToTPL(Bitmap img, int format)
         {
@@ -4995,6 +5298,22 @@ namespace Wii
 
                 switch (format)
                 {
+                    case 0: //I4
+                        texformat = 0x0;
+                        rgbaData = ToI4(img);
+                        break;
+                    case 1: //I8
+                        texformat = 0x1;
+                        rgbaData = ToI8(img);
+                        break;
+                    case 2: //IA4
+                        texformat = 0x2;
+                        rgbaData = ToIA4(img);
+                        break;
+                    case 3: //IA8
+                        texformat = 0x3;
+                        rgbaData = ToIA8(img);
+                        break;
                     case 4: //RGB565
                         texformat = 0x4;
                         rgbaData = ToRGB565(img);
@@ -5003,10 +5322,12 @@ namespace Wii
                         texformat = 0x5;
                         rgbaData = ToRGB5A3(img);
                         break;
-                    default: //RGBA8 = 6
+                    case 6: //RGBA8
                         texformat = 0x6;
                         rgbaData = ToRGBA8(img);
                         break;
+                    default:
+                        throw new FormatException();
                 }
 
                 byte[] buffer = BitConverter.GetBytes(tplmagic); Array.Reverse(buffer);
@@ -5234,6 +5555,214 @@ namespace Wii
 
                             output[++z] = temp[0];
                             output[++z] = temp[1];
+                        }
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Converts an Image to I4 Tpl data
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        public static byte[] ToI4(Bitmap img)
+        {
+            uint[] pixeldata = BitmapToRGBA(img);
+            int w = img.Width;
+            int h = img.Height;
+            int inp = -1;
+            byte[] output = new byte[Tools.AddPadding(w, 8) * Tools.AddPadding(h, 8) / 2];
+
+            for (int y1 = 0; y1 < h; y1 += 8)
+            {
+                for (int x1 = 0; x1 < w; x1 += 8)
+                {
+                    for (int y = y1; y < y1 + 8; y++)
+                    {
+                        for (int x = x1; x < x1 + 8; x += 2)
+                        {
+                            byte newpixel;
+
+                            if (x >= w || y >= h)
+                            {
+                                newpixel = 0;
+                            }
+                            else
+                            {
+                                uint rgba = pixeldata[x + (y * w)];
+
+                                uint Red = (rgba >> 0) & 0xff;
+                                uint Green = (rgba >> 8) & 0xff;
+                                uint Blue = (rgba >> 16) & 0xff;
+
+                                uint Intensity1 = ((Red + Green + Blue) / 3) & 0xff;
+
+                                rgba = pixeldata[x + (y * w) + 1];
+
+                                Red = (rgba >> 0) & 0xff;
+                                Green = (rgba >> 8) & 0xff;
+                                Blue = (rgba >> 16) & 0xff;
+
+                                uint Intensity2 = ((Red + Green + Blue) / 3) & 0xff;
+
+                                newpixel = (byte)((((Intensity1 * 15) / 255) << 4) | (((Intensity2 * 15) / 255) & 0xf));
+                            }
+
+                            output[++inp] = newpixel;
+                        }
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Converts an Image to I8 Tpl data
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        public static byte[] ToI8(Bitmap img)
+        {
+            uint[] pixeldata = BitmapToRGBA(img);
+            int w = img.Width;
+            int h = img.Height;
+            int inp = -1;
+            byte[] output = new byte[Tools.AddPadding(w, 8) * Tools.AddPadding(h, 4)];
+
+            for (int y1 = 0; y1 < h; y1 += 4)
+            {
+                for (int x1 = 0; x1 < w; x1 += 8)
+                {
+                    for (int y = y1; y < y1 + 4; y++)
+                    {
+                        for (int x = x1; x < x1 + 8; x++)
+                        {
+                            byte newpixel;
+
+                            if (x >= w || y >= h)
+                            {
+                                newpixel = 0;
+                            }
+                            else
+                            {
+                                uint rgba = pixeldata[x + (y * w)];
+
+                                uint Red = (rgba >> 0) & 0xff;
+                                uint Green = (rgba >> 8) & 0xff;
+                                uint Blue = (rgba >> 16) & 0xff;
+
+                                newpixel = (byte)(((Red + Green + Blue) / 3) & 0xff);
+                            }
+
+                            output[++inp] = newpixel;
+                        }
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Converts an Image to IA4 Tpl data
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        public static byte[] ToIA4(Bitmap img)
+        {
+            uint[] pixeldata = BitmapToRGBA(img);
+            int w = img.Width;
+            int h = img.Height;
+            int inp = -1;
+            byte[] output = new byte[Tools.AddPadding(w, 8) * Tools.AddPadding(h, 4)];
+
+            for (int y1 = 0; y1 < h; y1 += 4)
+            {
+                for (int x1 = 0; x1 < w; x1 += 8)
+                {
+                    for (int y = y1; y < y1 + 4; y++)
+                    {
+                        for (int x = x1; x < x1 + 8; x++)
+                        {
+                            byte newpixel;
+
+                            if (x >= w || y >= h)
+                            {
+                                newpixel = 0;
+                            }
+                            else
+                            {
+                                uint rgba = pixeldata[x + (y * w)];
+
+                                uint Red = (rgba >> 0) & 0xff;
+                                uint Green = (rgba >> 8) & 0xff;
+                                uint Blue = (rgba >> 16) & 0xff;
+
+                                uint Intensity = ((Red + Green + Blue) / 3) & 0xff;
+                                uint Alpha = (rgba >> 24) & 0xff;
+
+                                newpixel = (byte)((((Intensity * 15) / 255) & 0xf) | (((Alpha * 15) / 255) << 4));
+                            }
+
+                            output[++inp] = newpixel;
+                        }
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Converts an Image to IA8 Tpl data
+        /// </summary>
+        /// <param name="img"></param>
+        /// <returns></returns>
+        public static byte[] ToIA8(Bitmap img)
+        {
+            uint[] pixeldata = BitmapToRGBA(img);
+            int w = img.Width;
+            int h = img.Height;
+            int inp = -1;
+            byte[] output = new byte[Tools.AddPadding(w, 4) * Tools.AddPadding(h, 4) * 2];
+
+            for (int y1 = 0; y1 < h; y1 += 4)
+            {
+                for (int x1 = 0; x1 < w; x1 += 4)
+                {
+                    for (int y = y1; y < y1 + 4; y++)
+                    {
+                        for (int x = x1; x < x1 + 4; x++)
+                        {
+                            UInt16 newpixel;
+
+                            if (x >= w || y >= h)
+                            {
+                                newpixel = 0;
+                            }
+                            else
+                            {
+                                uint rgba = pixeldata[x + (y * w)];
+
+                                uint Red = (rgba >> 0) & 0xff;
+                                uint Green = (rgba >> 8) & 0xff;
+                                uint Blue = (rgba >> 16) & 0xff;
+
+                                uint Intensity = ((Red + Green + Blue) / 3) & 0xff;
+                                uint Alpha = (rgba >> 24) & 0xff;
+
+                                newpixel = (ushort)((Intensity << 8) | Alpha);
+                            }
+
+                            byte[] temp = BitConverter.GetBytes(newpixel);
+                            Array.Reverse(temp);
+
+                            output[++inp] = temp[0];
+                            output[++inp] = temp[1];
                         }
                     }
                 }
@@ -5738,15 +6267,19 @@ namespace Wii
             }
 
             //Lets also get brlan tpls (frame animations)
-            string[] brlanTpls = GetBrlanTpls(brlan);
-            foreach (string thisTpl in brlanTpls)
+            try
             {
-                if (thisTpl.EndsWith(".tpl"))
+                string[] brlanTpls = GetBrlanTpls(brlan);
+                foreach (string thisTpl in brlanTpls)
                 {
-                    if (!Tpls.Contains(thisTpl))
-                        Tpls.Add(thisTpl);
+                    if (thisTpl.EndsWith(".tpl"))
+                    {
+                        if (!Tpls.Contains(thisTpl))
+                            Tpls.Add(thisTpl);
+                    }
                 }
             }
+            catch { } //If it throws any error, it's probably an empty brlan
 
             return Tpls.ToArray();
         }

@@ -9,6 +9,17 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 2.2
+	- Fixed some bugs with the preview window
+	- Fixed Complex Forwarder in combination with Waninkoko's NAND Loader
+	- Fixed saving of base WADs
+	- Fixed saving of WAD after sending it to the Wii
+	- Fixed CMP TPL code (thanks pbsds)
+	- Added conversion to IA8 (thanks pbsds), IA4, I8 and I4
+	- Fixed conversion from IA8 and I4
+	- Fixed some general TPL bugs (format detection, ...)
+	- Added additional paths to the Complex Forwarder (max. 16)
+
 Version 2.1
 	- Added CustomizeMii Installer (by WiiCrazy / I.R.on)
 	- Fixed rough edges (artifacts) on images (will be fixed automatically)

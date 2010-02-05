@@ -464,9 +464,12 @@ namespace CustomizeMii
             try
             {
                 BackgroundWorker bwLoadChannel = sender as BackgroundWorker;
+                EventHandler Initialize = new EventHandler(this.Initialize);
                 EventHandler SetSourceWad = new EventHandler(this.SetSourceWad);
                 byte[] WadFile = Wii.Tools.LoadFileToByteArray((string)e.Argument);
                 bool hashesMatch = true;
+
+                this.Invoke(Initialize);
 
                 if (Directory.Exists(TempUnpackPath)) Directory.Delete(TempUnpackPath, true);
 
@@ -475,6 +478,7 @@ namespace CustomizeMii
                 if (Wii.U8.CheckU8(TempUnpackPath + "00000000.app") == false)
                     throw new Exception("CustomizeMii only edits Channel WADs!");
 
+                SourceWad = (string)e.Argument;
                 this.Invoke(SetSourceWad);
 
                 bwLoadChannel.ReportProgress(25, "Loading 00000000.app...");
@@ -490,21 +494,24 @@ namespace CustomizeMii
                 string[] ChannelTitles = Wii.WadInfo.GetChannelTitles(WadFile);
                 string TitleID = Wii.WadInfo.GetTitleID(WadFile, 1);
 
+                bool allLangs = true;
                 SetText(tbTitleID, TitleID);
-                SetText(tbAllLanguages, ChannelTitles[1]);
 
-                if (ChannelTitles[0] != ChannelTitles[1])
-                    SetText(tbJapanese, ChannelTitles[0]);
-                if (ChannelTitles[2] != ChannelTitles[1])
-                    SetText(tbGerman, ChannelTitles[2]);
-                if (ChannelTitles[3] != ChannelTitles[1])
-                    SetText(tbFrench, ChannelTitles[3]);
-                if (ChannelTitles[4] != ChannelTitles[1])
-                    SetText(tbSpanish, ChannelTitles[4]);
-                if (ChannelTitles[5] != ChannelTitles[1])
-                    SetText(tbItalian, ChannelTitles[5]);
-                if (ChannelTitles[6] != ChannelTitles[1])
-                    SetText(tbDutch, ChannelTitles[6]);
+                if (ChannelTitles[0] != ChannelTitles[1]) SetText(tbJapanese, ChannelTitles[0]);
+                else allLangs = false;
+                if (ChannelTitles[2] != ChannelTitles[1]) SetText(tbGerman, ChannelTitles[2]);
+                else allLangs = false;
+                if (ChannelTitles[3] != ChannelTitles[1]) SetText(tbFrench, ChannelTitles[3]);
+                else allLangs = false;
+                if (ChannelTitles[4] != ChannelTitles[1]) SetText(tbSpanish, ChannelTitles[4]);
+                else allLangs = false;
+                if (ChannelTitles[5] != ChannelTitles[1]) SetText(tbItalian, ChannelTitles[5]);
+                else allLangs = false;
+                if (ChannelTitles[6] != ChannelTitles[1]) SetText(tbDutch, ChannelTitles[6]);
+                else allLangs = false;
+
+                if (allLangs) SetText(tbEnglish, ChannelTitles[1]);
+                else SetText(tbAllLanguages, ChannelTitles[1]);
 
                 string[] trailer = Directory.GetFiles(TempUnpackPath, "*.trailer");
                 if (trailer.Length > 0)
@@ -532,6 +539,8 @@ namespace CustomizeMii
                 EventHandler EnableCtrls = new EventHandler(this.EnableControls);
                 this.Invoke(EnableCtrls);
 
+                SetButton(btnBrowseSource, "Clear");
+
                 if (!hashesMatch)
                     System.Windows.Forms.MessageBox.Show("At least one content's hash doesn't match the hash in the TMD!\n" +
                         "Some files of the WAD might be corrupted, thus it might brick your Wii!", "Warning",
@@ -558,7 +567,6 @@ namespace CustomizeMii
 
             if (transmitInfo.timeElapsed > 0)
             {
-                this.Invoke(Initialize);
                 System.Windows.Forms.DialogResult dlg;
 
                 if (transmitInfo.usedCompression)
@@ -585,6 +593,8 @@ namespace CustomizeMii
                     if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         File.Copy(TempPath + "SendToWii.wad", sfd.FileName, true);
                 }
+
+                this.Invoke(Initialize);
             }
 
             try { File.Delete(TempPath + "SendToWii.wad"); }
@@ -750,13 +760,17 @@ namespace CustomizeMii
             if (!this.sendToWii)
             {
                 EventHandler EnableControls = new EventHandler(this.EnableControls);
-                EventHandler Initialize = new EventHandler(this.Initialize);
                 currentProgress.progressValue = 100;
                 currentProgress.progressState = " ";
 
                 this.Invoke(ProgressUpdate);
                 this.Invoke(EnableControls);
-                this.Invoke(Initialize);
+
+                if (wadCreationInfo.success)
+                {
+                    EventHandler Initialize = new EventHandler(this.Initialize);
+                    this.Invoke(Initialize);
+                }
             }
             else
             {
@@ -792,6 +806,9 @@ namespace CustomizeMii
 
                 this.sendToWii = wadInfo.sendToWii;
                 sendWadReady = 0;
+
+                wadCreationInfo = wadInfo;
+                wadCreationInfo.success = false;
 
                 bwCreateWad.ReportProgress(0, "Making TPLs transparent");
                 MakeBannerTplsTransparent();
@@ -925,7 +942,7 @@ namespace CustomizeMii
                         {
                             CreateForwarderSimple(TempUnpackPath + "\\00000001.app");
                         }
-                        else if (tbDol.Text.StartsWith("Complex Forwarder:"))
+                        else if (tbDol.Text.StartsWith("Complex Forwarder"))
                         {
                             bwCreateWad.ReportProgress(82, "Compiling Forwarder...");
                             CreateForwarderComplex(TempUnpackPath + "\\00000001.app");
@@ -989,6 +1006,7 @@ namespace CustomizeMii
                 else sendWadReady = 1;
 
                 wadCreationInfo = wadInfo;
+                wadCreationInfo.success = true;
             }
             catch (Exception ex)
             {

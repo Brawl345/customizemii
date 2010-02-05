@@ -26,17 +26,14 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Windows.Forms;
-
-#if !Mono
 using ForwardMii;
-#endif
 
 namespace CustomizeMii
 {
     public partial class CustomizeMii_Main : Form
     {
         #region Constants
-        const string version = "2.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "2.2"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         const int SoundMaxLength = 30; //In seconds
         const int SoundWarningLength = 20; //In seconds
         const int BnsWarningLength = 45; //In seconds
@@ -82,11 +79,6 @@ namespace CustomizeMii
         private List<string> BannerTransparents = new List<string>();
         private List<string> IconTransparents = new List<string>();
         private string Mp3Path;
-        private Forwarder.Simple SimpleForwarder = new Forwarder.Simple();
-        private Forwarder.Complex ComplexForwarder = new Forwarder.Complex();
-        private delegate void BoxInvoker(string message);
-        private delegate void SetTextInvoker(string text, TextBox tb);
-        private delegate void SetLabelInvoker(string text, Label lb);
         private double separatorBtn;
         private Timer tmrCredits = new Timer();
         private ToolTip tTip = new ToolTip();
@@ -163,7 +155,8 @@ namespace CustomizeMii
             else this.lbCreditInstaller.Text = this.lbCreditInstaller.Text.Replace(" X", string.Empty);
             if (Directory.Exists(TempPath)) Directory.Delete(TempPath, true);
             ProgressUpdate = new EventHandler(this.UpdateProgress);
-            SetButtonText();
+            btnBrowseSource.Text = "Browse...";
+            DrawCreateButton();
             cmbNandLoader.SelectedIndex = 0;
             cmbFormatBanner.SelectedIndex = 0;
             cmbFormatIcon.SelectedIndex = 0;
@@ -179,29 +172,10 @@ namespace CustomizeMii
             tmrCredits.Interval = CreditsScrollSpeed;
             tmrCredits.Tick += new EventHandler(tmrCredits_Tick);
 
-#if !Mono
-            if (File.Exists(Application.StartupPath + "\\ForwardMii.dll") && lbForwardMiiVersion.Tag != (object)"Update")
-            {
-                SetForwardMiiLabel();
-            }
-#endif
-
 #if !Debug
             DisableControls(null, null);
 #endif
         }
-
-#if !Mono
-        private void SetForwardMiiLabel()
-        {
-            try
-            {
-                lbForwardMiiVersion.Text = lbForwardMiiVersion.Text.Replace("X", GetForwardMiiVersion());
-                lbForwardMiiVersion.Visible = true;
-            }
-            catch { }
-        }
-#endif
 
         private void CommonKeyCheck()
         {
@@ -375,7 +349,7 @@ namespace CustomizeMii
             }
         }
 
-        private void SetButtonText()
+        private void DrawCreateButton()
         {
             btnCreateWad.Text = string.Empty;
 
@@ -562,8 +536,6 @@ namespace CustomizeMii
                     {
                         llbUpdateAvailable.Text = llbUpdateAvailable.Text.Replace("X", NewVersion);
                         llbUpdateAvailable.Visible = true;
-                        lbForwardMiiVersion.Tag = "Update";
-                        lbForwardMiiVersion.Visible = false;
 
                         if (MessageBox.Show("Version " + NewVersion +
                             " is available.\nDo you want the download page to be opened?",
@@ -637,7 +609,8 @@ namespace CustomizeMii
 
         private void btnBrowseSource_Click(object sender, EventArgs e)
         {
-            LoadChannel();
+            if (btnBrowseSource.Text.ToLower() == "clear") { Initialize(null, null); }
+            else LoadChannel();
         }
 
         private void btnLoadBaseWad_Click(object sender, EventArgs e)
@@ -759,34 +732,22 @@ namespace CustomizeMii
                 {
                     if (pbProgress.Value == 100)
                     {
-                        string Url = SourceWadUrls[lbxBaseWads.SelectedIndex];
+                        string Url = "http://customizemii.googlecode.com/svn/branches/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
                         SaveFileDialog sfd = new SaveFileDialog();
                         sfd.Filter = "Wii Channels|*.wad";
                         sfd.FileName = Url.Remove(0, Url.LastIndexOf('/') + 1);
 
                         if (sfd.ShowDialog() == DialogResult.OK)
                         {
-                            if (tbSourceWad.Text == SourceWadUrls[lbxBaseWads.SelectedIndex] && File.Exists(TempWadPath))
+                            if (tbSourceWad.Text == Url && File.Exists(TempWadPath))
                             {
                                 File.Copy(TempWadPath, sfd.FileName, true);
                                 InfoBox(string.Format("Saved channel as {0}", Path.GetFileName(sfd.FileName)));
                             }
                             else
                             {
-                                try
-                                {
-                                    WebClient SaveClient = new WebClient();
-                                    SaveClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(SaveClient_DownloadProgressChanged);
-                                    SaveClient.DownloadFileCompleted += new AsyncCompletedEventHandler(SaveClient_DownloadFileCompleted);
-
-                                    lbStatusText.Text = "Downloading Base WAD...";
-                                    pbProgress.Value = 0;
-                                    SaveClient.DownloadFileAsync(new Uri(Url), sfd.FileName);
-                                }
-                                catch (Exception ex)
-                                {
-                                    ErrorBox(ex.Message);
-                                }
+                                System.Threading.Thread saveThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(SaveBaseWad));
+                                saveThread.Start((object) new string[] { Url, sfd.FileName });
                             }
                         }
                     }
@@ -799,15 +760,38 @@ namespace CustomizeMii
             }
         }
 
+        void SaveBaseWad(object urlAndSavePath)
+        {
+            try
+            {
+                WebClient SaveClient = new WebClient();
+                SaveClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(SaveClient_DownloadProgressChanged);
+                SaveClient.DownloadFileCompleted += new AsyncCompletedEventHandler(SaveClient_DownloadFileCompleted);
+
+                currentProgress.progressValue = 0;
+                currentProgress.progressState = "Downloading Base WAD...";
+                this.Invoke(ProgressUpdate);
+
+                SaveClient.DownloadFileAsync(new Uri(((string[])urlAndSavePath)[0]), ((string[])urlAndSavePath)[1]);
+            }
+            catch (Exception ex)
+            {
+                ErrorBox(ex.Message);
+            }
+        }
+
         void SaveClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            pbProgress.Value = e.ProgressPercentage;
+            currentProgress.progressValue = e.ProgressPercentage;
+            currentProgress.progressState = "Downloading Base WAD...";
+            this.Invoke(ProgressUpdate);
         }
 
         void SaveClient_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
-            lbStatusText.Text = string.Empty;
-            pbProgress.Value = 100;
+            currentProgress.progressValue = 100;
+            currentProgress.progressState = " ";
+            this.Invoke(ProgressUpdate);
         }
 
         private void cmbReplace_SelectedIndexChanged(object sender, EventArgs e)
@@ -937,8 +921,17 @@ namespace CustomizeMii
                         case 6:
                             cmbFormatBanner.SelectedIndex = 0;
                             break;
-                        case 14:
+                        case 8:
                             cmbFormatBanner.SelectedIndex = 7;
+                            break;
+                        case 9:
+                            cmbFormatBanner.SelectedIndex = 8;
+                            break;
+                        case 10:
+                            cmbFormatBanner.SelectedIndex = 9;
+                            break;
+                        case 14:
+                            cmbFormatBanner.SelectedIndex = 10;
                             break;
                         default:
                             cmbFormatBanner.SelectedIndex = -1;
@@ -989,8 +982,17 @@ namespace CustomizeMii
                         case 6:
                             cmbFormatIcon.SelectedIndex = 0;
                             break;
+                        case 8:
+                            cmbFormatBanner.SelectedIndex = 7;
+                            break;
+                        case 9:
+                            cmbFormatBanner.SelectedIndex = 8;
+                            break;
+                        case 10:
+                            cmbFormatBanner.SelectedIndex = 9;
+                            break;
                         case 14:
-                            cmbFormatIcon.SelectedIndex = 7;
+                            cmbFormatBanner.SelectedIndex = 10;
                             break;
                         default:
                             cmbFormatIcon.SelectedIndex = -1;
@@ -1012,7 +1014,7 @@ namespace CustomizeMii
             {
                 int Format = cmbFormatBanner.SelectedIndex;
 
-                if (Format == 0 || Format == 1 || Format == 2)
+                if (Format < 7)
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
                     ofd.Filter = "PNG|*.png|JPG|*.jpg|GIF|*.gif|BMP|*.bmp|TPL|*.tpl|All|*.png;*.jpg;*.gif;*.bmp;*.tpl";
@@ -1041,6 +1043,18 @@ namespace CustomizeMii
 
                             switch (Format)
                             {
+                                case 6: //I4
+                                    TplFormat = 0;
+                                    break;
+                                case 5: //I8
+                                    TplFormat = 1;
+                                    break;
+                                case 4: //IA4
+                                    TplFormat = 2;
+                                    break;
+                                case 3: //IA8
+                                    TplFormat = 3;
+                                    break;
                                 case 1:
                                     TplFormat = 4;
                                     break;
@@ -1062,7 +1076,7 @@ namespace CustomizeMii
                 }
                 else
                 {
-                    ErrorBox("This format is not supported, you must choose either RGBA8, RGB565 or RGB5A3!");
+                    ErrorBox("This format is not supported, you must choose a different one!");
                 }
             }
         }
@@ -1071,6 +1085,10 @@ namespace CustomizeMii
         {
             if (lbxBannerTpls.SelectedIndex != -1)
             {
+                string Tpl = BannerTplPath + lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
+                int format = Wii.TPL.GetTextureFormat(Tpl);
+                if (format == 8 || format == 9 || format == 10) { ErrorBox("This format is not supported!"); return; }
+
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.Filter = "PNG|*.png|JPG|*.jpg|GIF|*.gif|BMP|*.bmp|TPL|*.tpl|All|*.png;*.jpg;*.gif;*.bmp;*.tpl";
                 sfd.FilterIndex = 6;
@@ -1082,7 +1100,6 @@ namespace CustomizeMii
                     {
                         if (!sfd.FileName.ToLower().EndsWith(".tpl"))
                         {
-                            string Tpl = BannerTplPath + lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                             Image Img = Wii.TPL.ConvertFromTPL(Tpl);
 
                             switch (sfd.FileName.Remove(0, sfd.FileName.LastIndexOf('.')))
@@ -1103,7 +1120,6 @@ namespace CustomizeMii
                         }
                         else
                         {
-                            string Tpl = BannerTplPath + lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                             File.Copy(Tpl, sfd.FileName, true);
                         }
                     }
@@ -1121,24 +1137,10 @@ namespace CustomizeMii
             {
                 try
                 {
-                    //string Tpl = BannerTplPath + lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
-                    //Image Img = Wii.TPL.ConvertFromTPL(Tpl);
-
-                    //CustomizeMii_Preview pvw = new CustomizeMii_Preview();
-
-                    //if (Img.Width > 200) pvw.Width = Img.Width + 50;
-                    //else pvw.Width = 250;
-                    //if (Img.Height > 200) pvw.Height = Img.Height + 50;
-                    //else pvw.Height = 250;
-
-                    //pvw.pbImage.Image = Img;
-                    //pvw.Text = string.Format("CustomizeMii - Preview ({0} x {1})", Img.Width, Img.Height);
-
-                    //pvw.ShowDialog();
-
                     CustomizeMii_Preview pvw = new CustomizeMii_Preview();
                     pvw.startTPL = lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                     pvw.ShowDialog();
+                    pvw = null;
                 }
                 catch (Exception ex)
                 {
@@ -1155,7 +1157,7 @@ namespace CustomizeMii
             {
                 int Format = cmbFormatIcon.SelectedIndex;
 
-                if (Format == 0 || Format == 1 || Format == 2)
+                if (Format < 7)
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
                     ofd.Filter = "PNG|*.png|JPG|*.jpg|GIF|*.gif|BMP|*.bmp|TPL|*.tpl|All|*.png;*.jpg;*.gif;*.bmp;*.tpl";
@@ -1184,6 +1186,18 @@ namespace CustomizeMii
 
                             switch (Format)
                             {
+                                case 6: //I4
+                                    TplFormat = 0;
+                                    break;
+                                case 5: //I8
+                                    TplFormat = 1;
+                                    break;
+                                case 4: //IA4
+                                    TplFormat = 2;
+                                    break;
+                                case 3: //IA8
+                                    TplFormat = 3;
+                                    break;
                                 case 1:
                                     TplFormat = 4;
                                     break;
@@ -1205,7 +1219,7 @@ namespace CustomizeMii
                 }
                 else
                 {
-                    ErrorBox("This format is not supported, you must choose either RGBA8, RGB565 or RGB5A3!");
+                    ErrorBox("This format is not supported, you must choose a different one!");
                 }
             }
         }
@@ -1214,6 +1228,10 @@ namespace CustomizeMii
         {
             if (lbxIconTpls.SelectedIndex != -1)
             {
+                string Tpl = BannerTplPath + lbxBannerTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
+                int format = Wii.TPL.GetTextureFormat(Tpl);
+                if (format == 8 || format == 9 || format == 10) { ErrorBox("This format is not supported!"); return; }
+
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.Filter = "PNG|*.png|JPG|*.jpg|GIF|*.gif|BMP|*.bmp|TPL|*.tpl|All|*.png;*.jpg;*.gif;*.bmp;*.tpl";
                 sfd.FilterIndex = 6;
@@ -1225,7 +1243,6 @@ namespace CustomizeMii
                     {
                         if (!sfd.FileName.ToLower().EndsWith(".tpl"))
                         {
-                            string Tpl = IconTplPath + lbxIconTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                             Image Img = Wii.TPL.ConvertFromTPL(Tpl);
 
                             switch (sfd.FileName.Remove(0, sfd.FileName.LastIndexOf('.')))
@@ -1246,7 +1263,6 @@ namespace CustomizeMii
                         }
                         else
                         {
-                            string Tpl = IconTplPath + lbxIconTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                             File.Copy(Tpl, sfd.FileName, true);
                         }
                     }
@@ -1264,25 +1280,11 @@ namespace CustomizeMii
             {
                 try
                 {
-                    //string Tpl = IconTplPath + lbxIconTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
-                    //Image Img = Wii.TPL.ConvertFromTPL(Tpl);
-
-                    //CustomizeMii_Preview pvw = new CustomizeMii_Preview();
-
-                    //if (Img.Width > 200) pvw.Width = Img.Width + 50;
-                    //else pvw.Width = 250;
-                    //if (Img.Height > 200) pvw.Height = Img.Height + 50;
-                    //else pvw.Height = 250;
-
-                    //pvw.pbImage.Image = Img;
-                    //pvw.Text = string.Format("CustomizeMii - Preview ({0} x {1})", Img.Width, Img.Height);
-                    
-                    //pvw.ShowDialog();
-
                     CustomizeMii_Preview pvw = new CustomizeMii_Preview();
                     pvw.startIcon = true;
                     pvw.startTPL = lbxIconTpls.SelectedItem.ToString().Replace(" (Transparent)", string.Empty);
                     pvw.ShowDialog();
+                    pvw = null;
                 }
                 catch (Exception ex)
                 {
@@ -2263,7 +2265,10 @@ namespace CustomizeMii
             {
                 try
                 {
-                    if (double.Parse(GetForwardMiiVersion()) < 1.1)
+                    string CurrentVersion = GetForwardMiiVersion();
+                    int cVersion = Convert.ToInt32(CurrentVersion.Replace(".", string.Empty).Length == 2 ? (CurrentVersion.Replace(".", string.Empty) + "0") : CurrentVersion.Replace(".", string.Empty));
+
+                    if (cVersion < 110)
                     {
                         ErrorBox("Version 1.1 or higher of the ForwardMii.dll is required!");
                         return;

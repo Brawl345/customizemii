@@ -27,6 +27,13 @@ namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
+        private Forwarder.Simple SimpleForwarder = new Forwarder.Simple();
+        private Forwarder.Complex ComplexForwarder = new Forwarder.Complex();
+        private delegate void BoxInvoker(string message);
+        private delegate void SetTextInvoker(string text, TextBox tb);
+        private delegate void SetLabelInvoker(string text, Label lb);
+        private delegate void SetButtonInvoker(string text, Button btn);
+
         private bool FailureCheck()
         {
             try
@@ -279,10 +286,15 @@ namespace CustomizeMii
         private void ForwarderDialogComplex()
         {
             CustomizeMii_ComplexForwarder cf = new CustomizeMii_ComplexForwarder();
-            cf.tb1.Text = ComplexForwarder.Path1;
-            cf.tb2.Text = ComplexForwarder.Path2;
-            cf.tb3.Text = ComplexForwarder.Path3;
-            cf.tb4.Text = ComplexForwarder.Path4;
+
+            TextBox[] tbs = new TextBox[] { cf.tb1, cf.tb2, cf.tb3, cf.tb4, cf.tb5, cf.tb6, cf.tb7, cf.tb8,
+                                            cf.tb9, cf.tb10, cf.tb11, cf.tb12, cf.tb13, cf.tb14, cf.tb15, cf.tb16};
+            for (int i = 0; i < tbs.Length; i++)
+                tbs[i].Text = ComplexForwarder.GetPath(i);
+
+            cf.cbPack1.Checked = ComplexForwarder.Packs[0];
+            cf.cbPack2.Checked = ComplexForwarder.Packs[1];
+            cf.cbPack3.Checked = ComplexForwarder.Packs[2];
 
             if (!string.IsNullOrEmpty(ComplexForwarder.Image43))
             {
@@ -303,10 +315,12 @@ namespace CustomizeMii
 
             if (cf.ShowDialog() == DialogResult.OK)
             {
-                ComplexForwarder.Path1 = cf.tb1.Text;
-                ComplexForwarder.Path2 = cf.tb2.Text;
-                ComplexForwarder.Path3 = cf.tb3.Text;
-                ComplexForwarder.Path4 = cf.tb4.Text;
+                for (int i = 0; i < tbs.Length; i++)
+                    ComplexForwarder.SetPath(i, tbs[i].Text.Replace('\\', '/'));
+
+                ComplexForwarder.Packs[0] = cf.cbPack1.Checked;
+                ComplexForwarder.Packs[1] = cf.cbPack2.Checked;
+                ComplexForwarder.Packs[2] = cf.cbPack3.Checked;
 
                 ComplexForwarder.Image43 = cf.tbImage43.Text;
                 ComplexForwarder.Image169 = cf.tbImage169.Text;
@@ -410,6 +424,17 @@ namespace CustomizeMii
         private void SetLabel(string text, Label lb)
         {
             lb.Text = text;
+        }
+
+        private void SetButton(Button btn, string text)
+        {
+            SetButtonInvoker invoker = new SetButtonInvoker(this.SetButton);
+            this.Invoke(invoker, text, btn);
+        }
+
+        private void SetButton(string text, Button btn)
+        {
+            btn.Text = text;
         }
 
         private void AddBannerTpls(object sender, EventArgs e)
@@ -683,6 +708,18 @@ namespace CustomizeMii
                     int switchVal = lbx == lbxBannerTpls ? cmbFormatBanner.SelectedIndex : cmbFormatIcon.SelectedIndex;
                     switch (switchVal)
                     {
+                        case 6: //I4
+                            TplFormat = 0;
+                            break;
+                        case 5: //I8
+                            TplFormat = 1;
+                            break;
+                        case 4: //IA4
+                            TplFormat = 2;
+                            break;
+                        case 3: //IA8
+                            TplFormat = 3;
+                            break;
                         case 0:
                             TplFormat = 6;
                             break;
@@ -694,7 +731,7 @@ namespace CustomizeMii
                             break;
                         default:
                             if (!inputFile.ToLower().EndsWith(".tpl"))
-                                throw new Exception("This format is not supported, you must choose either RGBA8, RGB565 or RGB5A3!");
+                                throw new Exception("This format is not supported, you must choose a different one!");
                             break;
                     }
 
@@ -740,7 +777,6 @@ namespace CustomizeMii
 
                     if (ofd.ShowDialog() == DialogResult.OK)
                     {
-                        SourceWad = ofd.FileName;
                         BackgroundWorker bwLoadChannel = new BackgroundWorker();
                         bwLoadChannel.DoWork += new DoWorkEventHandler(bwLoadChannel_DoWork);
                         bwLoadChannel.ProgressChanged += new ProgressChangedEventHandler(bwLoadChannel_ProgressChanged);
@@ -751,7 +787,6 @@ namespace CustomizeMii
                 }
                 else
                 {
-                    SourceWad = inputFile;
                     BackgroundWorker bwLoadChannel = new BackgroundWorker();
                     bwLoadChannel.DoWork += new DoWorkEventHandler(bwLoadChannel_DoWork);
                     bwLoadChannel.ProgressChanged += new ProgressChangedEventHandler(bwLoadChannel_ProgressChanged);

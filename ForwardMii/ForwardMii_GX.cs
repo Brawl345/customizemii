@@ -29,50 +29,49 @@ namespace ForwardMii
     public class GXForwarder
     {
         private readonly string TempDir = Path.GetTempPath() + "ForwardMii_Temp\\" + Guid.NewGuid() + "\\";
-        private string path1;
-        private string path2;
-        private string path3;
-        private string path4;
+        private bool[] packs = new bool[] { false, false, false };
+        private string[] paths = new string[16]; //Maximum 16 Paths
         private string image43;
         private string image169;
-        public string Path1 { get { return path1; } set { path1 = value; } }
-        public string Path2 { get { return path2; } set { path2 = value; } }
-        public string Path3 { get { return path3; } set { path3 = value; } }
-        public string Path4 { get { return path4; } set { path4 = value; } }
         public string Image43 { get { return image43; } set { image43 = value; } }
         public string Image169 { get { return image169; } set { image169 = value; } }
+        public string[] Paths { get { return paths; } set { paths = value; } }
+        public bool[] Packs { get { return packs; } set { packs = value; } }
 
         public GXForwarder()
         {
 
         }
 
-        public GXForwarder(params string[] paths)
+        public GXForwarder(params string[] forwardPaths)
         {
             if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            path1 = paths[0];
-            path2 = paths[1];
-            path3 = paths[2];
-            path4 = paths[3];
+            for (int i = 0; i < forwardPaths.Length; i++)
+                paths[i] = forwardPaths[i];
         }
 
-        public GXForwarder(string Image43, string Image169, params string[] paths)
+        public GXForwarder(string Image43, string Image169, params string[] forwardPaths)
         {
             if (ForwardMii_Plugin.CheckDevKit() == false) throw new Exception("DevkitPro or one of it's components wasn't found!");
-            path1 = paths[0];
-            path2 = paths[1];
-            path3 = paths[2];
-            path4 = paths[3];
             image43 = Image43;
             image169 = Image169;
+            for (int i = 0; i < forwardPaths.Length; i++)
+                paths[i] = forwardPaths[i];
+        }
+
+        public void SetPath(int pathNum, string forwardPath)
+        {
+            paths[pathNum] = forwardPath;
+        }
+
+        public string GetPath(int pathNum)
+        {
+            return paths[pathNum];
         }
 
         public void Clear()
         {
-            path1 = string.Empty;
-            path2 = string.Empty;
-            path3 = string.Empty;
-            path4 = string.Empty;
+            for (int i = 0; i < paths.Length; i++) paths[i] = string.Empty;
             image43 = string.Empty;
             image169 = string.Empty;
         }
@@ -116,7 +115,12 @@ namespace ForwardMii
                 CopyResources();
                 EditMainCpp();
                 CopyImages();
-                if (Compile() == false) throw new Exception("An error occured during compiling!");
+                if (Compile() == false)
+                {
+                    try { Directory.Delete(TempDir, true); }
+                    catch { }
+                    throw new Exception("An error occured during compiling!\nYou may try the libogc from the CustomizeMii download page...");
+                }
                 byte[] fileTemp = File.ReadAllBytes(TempDir + "boot.dol");
 
                 try { Directory.Delete(TempDir, true); }
@@ -224,6 +228,13 @@ namespace ForwardMii
 
         private void EditMainCpp()
         {
+            if (!string.IsNullOrEmpty(paths[4]) && !string.IsNullOrEmpty(paths[5]) &&
+                !string.IsNullOrEmpty(paths[6]) && !string.IsNullOrEmpty(paths[7])) packs[0] = true;
+            if (!string.IsNullOrEmpty(paths[8]) && !string.IsNullOrEmpty(paths[9]) &&
+                !string.IsNullOrEmpty(paths[10]) && !string.IsNullOrEmpty(paths[11])) packs[1] = true;
+            if (!string.IsNullOrEmpty(paths[12]) && !string.IsNullOrEmpty(paths[13]) &&
+                !string.IsNullOrEmpty(paths[14]) && !string.IsNullOrEmpty(paths[15])) packs[2] = true;
+
             Stream maincpp = GetReourceStream("main.cpp");
             StreamReader reader = new StreamReader(maincpp);
             List<string> tempLines = new List<string>();
@@ -239,13 +250,58 @@ namespace ForwardMii
             for (int i = 0; i < lines.Length; i++)
             {
                 if (lines[i].Contains("---path1---"))
-                    lines[i] = lines[i].Replace("---path1---", path1);
+                    lines[i] = lines[i].Replace("---path1---", paths[0]);
                 else if (lines[i].Contains("---path2---"))
-                    lines[i] = lines[i].Replace("---path2---", path2);
+                    lines[i] = lines[i].Replace("---path2---", paths[1]);
                 else if (lines[i].Contains("---path3---"))
-                    lines[i] = lines[i].Replace("---path3---", path3);
+                    lines[i] = lines[i].Replace("---path3---", paths[2]);
                 else if (lines[i].Contains("---path4---"))
-                    lines[i] = lines[i].Replace("---path4---", path4);
+                    lines[i] = lines[i].Replace("---path4---", paths[3]);
+
+                if (packs[0])
+                {
+                    if (lines[i].Contains("PACK2"))
+                        lines[i] = lines[i].Replace("false", "true");
+
+                    if (lines[i].Contains("---path5---"))
+                        lines[i] = lines[i].Replace("---path5---", paths[4]);
+                    else if (lines[i].Contains("---path6---"))
+                        lines[i] = lines[i].Replace("---path6---", paths[5]);
+                    else if (lines[i].Contains("---path7---"))
+                        lines[i] = lines[i].Replace("---path7---", paths[6]);
+                    else if (lines[i].Contains("---path8---"))
+                        lines[i] = lines[i].Replace("---path8---", paths[7]);
+                }
+
+                if (packs[1])
+                {
+                    if (lines[i].Contains("PACK3"))
+                        lines[i] = lines[i].Replace("false", "true");
+
+                    if (lines[i].Contains("---path9---"))
+                        lines[i] = lines[i].Replace("---path9---", paths[8]);
+                    else if (lines[i].Contains("---path10---"))
+                        lines[i] = lines[i].Replace("---path10---", paths[9]);
+                    else if (lines[i].Contains("---path11---"))
+                        lines[i] = lines[i].Replace("---path11---", paths[10]);
+                    else if (lines[i].Contains("---path12---"))
+                        lines[i] = lines[i].Replace("---path12---", paths[11]);
+                }
+
+                if (packs[2])
+                {
+                    if (lines[i].Contains("PACK4"))
+                        lines[i] = lines[i].Replace("false", "true");
+
+                    if (lines[i].Contains("---path13---"))
+                        lines[i] = lines[i].Replace("---path13---", paths[12]);
+                    else if (lines[i].Contains("---path14---"))
+                        lines[i] = lines[i].Replace("---path14---", paths[13]);
+                    else if (lines[i].Contains("---path15---"))
+                        lines[i] = lines[i].Replace("---path15---", paths[14]);
+                    else if (lines[i].Contains("---path16---"))
+                        lines[i] = lines[i].Replace("---path16---", paths[15]);
+                }
             }
 
             using (FileStream fs = new FileStream(TempDir + "source\\main.cpp", FileMode.Create))
@@ -284,13 +340,6 @@ namespace ForwardMii
                 byte[] temp = new byte[theStream.Length];
                 theStream.Read(temp, 0, temp.Length);
                 fs.Write(temp, 0, temp.Length);
-
-                //int count = 0;
-                //int length = 4096;
-                //byte[] buffer = new byte[length];
-
-                //while ((count = theStream.Read(buffer, 0, length)) != 0)
-                //    fs.Write(buffer, 0, length);
             }
 
         }

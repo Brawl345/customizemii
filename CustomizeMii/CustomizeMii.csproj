@@ -67,7 +67,11 @@
   <ItemGroup>
     <Reference Include="CustomizeMiiInstaller, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\CustomizeMiiInstaller\bin\Debug\CustomizeMiiInstaller.dll</HintPath>
+      <HintPath>..\CustomizeMiiInstaller\bin\Release\CustomizeMiiInstaller.dll</HintPath>
+    </Reference>
+    <Reference Include="ForwardMii, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ForwardMii\bin\x86\Release\ForwardMii.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -205,12 +209,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ForwardMii\ForwardMii.csproj">
-      <Project>{20CB2CA7-6767-4758-97FA-97395F47CD6B}</Project>
-      <Name>ForwardMii</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

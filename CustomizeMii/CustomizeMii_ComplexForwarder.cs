@@ -58,15 +58,47 @@ namespace CustomizeMii
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            TextBox[] tbs = new TextBox[] { tb1, tb2, tb3, tb4 };
-            foreach (TextBox tbThis in tbs)
+            TextBox[] tbPack1 = new TextBox[] { tb1, tb2, tb3, tb4 };
+            TextBox[] tbPack2 = new TextBox[] { tb5, tb6, tb7, tb8 };
+            TextBox[] tbPack3 = new TextBox[] { tb9, tb10, tb11, tb12 };
+            TextBox[] tbPack4 = new TextBox[] { tb13, tb14, tb15, tb16 };
+
+            foreach (TextBox tbThis in tbPack1)
             {
                 if ((!tbThis.Text.StartsWith("USB:/") && !tbThis.Text.StartsWith("SD:/")) ||
                     (!tbThis.Text.EndsWith(".dol") && !tbThis.Text.EndsWith(".elf")))
-                { tbThis.Focus(); tbThis.SelectAll(); return; }
+                { tabPaths.SelectedTab = tabRequired; tbThis.Focus(); tbThis.SelectAll(); return; }
             }
 
-            tb1.Focus();
+            if (cbPack1.Checked)
+            {
+                foreach (TextBox tbThis in tbPack2)
+                {
+                    if ((!tbThis.Text.StartsWith("USB:/") && !tbThis.Text.StartsWith("SD:/")) ||
+                        (!tbThis.Text.EndsWith(".dol") && !tbThis.Text.EndsWith(".elf")))
+                    { tabPaths.SelectedTab = tabOptional1; tbThis.Focus(); tbThis.SelectAll(); return; }
+                }
+            }
+
+            if (cbPack2.Checked)
+            {
+                foreach (TextBox tbThis in tbPack3)
+                {
+                    if ((!tbThis.Text.StartsWith("USB:/") && !tbThis.Text.StartsWith("SD:/")) ||
+                        (!tbThis.Text.EndsWith(".dol") && !tbThis.Text.EndsWith(".elf")))
+                    { tabPaths.SelectedTab = tabOptional2; tbThis.Focus(); tbThis.SelectAll(); return; }
+                }
+            }
+
+            if (cbPack3.Checked)
+            {
+                foreach (TextBox tbThis in tbPack4)
+                {
+                    if ((!tbThis.Text.StartsWith("USB:/") && !tbThis.Text.StartsWith("SD:/")) ||
+                        (!tbThis.Text.EndsWith(".dol") && !tbThis.Text.EndsWith(".elf")))
+                    { tabPaths.SelectedTab = tabOptional3; tbThis.Focus(); tbThis.SelectAll(); return; }
+                }
+            }
 
             if (!File.Exists(tbImage43.Text)) tbImage43.Text = string.Empty;
             if (!File.Exists(tbImage169.Text)) tbImage169.Text = string.Empty;
@@ -85,6 +117,39 @@ namespace CustomizeMii
             {
                 if (sender == btnBrowseImage43) tbImage43.Text = ofd.FileName;
                 else tbImage169.Text = ofd.FileName;
+            }
+        }
+
+        private void cbPack1_CheckedChanged(object sender, EventArgs e)
+        {
+            TextBox[] tbPack2 = new TextBox[] { tb5, tb6, tb7, tb8 };
+
+            foreach (TextBox thisTb in tbPack2)
+            {
+                thisTb.Enabled = cbPack1.Checked;
+                if (!cbPack1.Checked) thisTb.Text = string.Empty;
+            }
+        }
+
+        private void cbPack2_CheckedChanged(object sender, EventArgs e)
+        {
+            TextBox[] tbPack3 = new TextBox[] { tb9, tb10, tb11, tb12 };
+
+            foreach (TextBox thisTb in tbPack3)
+            {
+                thisTb.Enabled = cbPack2.Checked;
+                if (!cbPack2.Checked) thisTb.Text = string.Empty;
+            }
+        }
+
+        private void cbPack3_CheckedChanged(object sender, EventArgs e)
+        {
+            TextBox[] tbPack4 = new TextBox[] { tb13, tb14, tb15, tb16 };
+
+            foreach (TextBox thisTb in tbPack4)
+            {
+                thisTb.Enabled = cbPack3.Checked;
+                if (!cbPack3.Checked) thisTb.Text = string.Empty;
             }
         }
     }

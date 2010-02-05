@@ -17,20 +17,40 @@
  
 using System;
 using System.Windows.Forms;
+using System.IO;
+using System.Threading;
 
 namespace CustomizeMii
 {
     static class Program
     {
+        static Mutex mtx;
+
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
         static void Main()
         {
+            CleanupRemains();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new CustomizeMii_Main());
+        }
+
+        static void CleanupRemains()
+        {
+            bool firstInstance = false;
+            mtx = new System.Threading.Mutex(false, "CustomizeMii", out firstInstance);
+
+            if (firstInstance)
+            {
+                if (Directory.Exists(Path.GetTempPath() + "CustomizeMii_Temp"))
+                    Directory.Delete(Path.GetTempPath() + "CustomizeMii_Temp", true);
+                if (Directory.Exists(Path.GetTempPath() + "ForwardMii_Temp"))
+                    Directory.Delete(Path.GetTempPath() + "ForwardMii_Temp", true);
+            }
         }
     }
 }

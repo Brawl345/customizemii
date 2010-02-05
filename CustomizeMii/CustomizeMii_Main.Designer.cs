@@ -142,7 +142,6 @@ namespace CustomizeMii
             this.rtbInstructions = new System.Windows.Forms.RichTextBox();
             this.tabCredits = new System.Windows.Forms.TabPage();
             this.lbCreditInstaller = new System.Windows.Forms.Label();
-            this.lbForwardMiiVersion = new System.Windows.Forms.Label();
             this.panCredits = new System.Windows.Forms.Panel();
             this.lbCreditThanks = new System.Windows.Forms.Label();
             this.llbUpdateAvailable = new System.Windows.Forms.LinkLabel();
@@ -788,6 +787,9 @@ namespace CustomizeMii
             "IA4",
             "I8",
             "I4",
+            "CI4",
+            "CI8",
+            "CI14X2",
             "CMP"});
             this.cmbFormatBanner.Location = new System.Drawing.Point(360, 182);
             this.cmbFormatBanner.Name = "cmbFormatBanner";
@@ -908,6 +910,9 @@ namespace CustomizeMii
             "IA4",
             "I8",
             "I4",
+            "CI4",
+            "CI8",
+            "CI14X2",
             "CMP"});
             this.cmbFormatIcon.Location = new System.Drawing.Point(360, 182);
             this.cmbFormatIcon.Name = "cmbFormatIcon";
@@ -1234,7 +1239,6 @@ namespace CustomizeMii
             // tabCredits
             // 
             this.tabCredits.Controls.Add(this.lbCreditInstaller);
-            this.tabCredits.Controls.Add(this.lbForwardMiiVersion);
             this.tabCredits.Controls.Add(this.panCredits);
             this.tabCredits.Controls.Add(this.llbUpdateAvailable);
             this.tabCredits.Controls.Add(this.llbSite);
@@ -1256,16 +1260,6 @@ namespace CustomizeMii
             this.lbCreditInstaller.TabIndex = 7;
             this.lbCreditInstaller.Text = "CustomizeMii Installer X by WiiCrazy / I.R.on";
             this.lbCreditInstaller.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // lbForwardMiiVersion
-            // 
-            this.lbForwardMiiVersion.Location = new System.Drawing.Point(0, 68);
-            this.lbForwardMiiVersion.Name = "lbForwardMiiVersion";
-            this.lbForwardMiiVersion.Size = new System.Drawing.Size(443, 13);
-            this.lbForwardMiiVersion.TabIndex = 6;
-            this.lbForwardMiiVersion.Text = "You\'re using Version X of the ForwardMii Plugin";
-            this.lbForwardMiiVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbForwardMiiVersion.Visible = false;
             // 
             // panCredits
             // 
@@ -1708,7 +1702,6 @@ namespace CustomizeMii
         private System.Windows.Forms.ToolStripMenuItem cmLoadDol;
         private System.Windows.Forms.ToolStripMenuItem cmDolFromSource;
         private System.Windows.Forms.Panel panCredits;
-        private System.Windows.Forms.Label lbForwardMiiVersion;
         private System.Windows.Forms.Label lbCreated;
         private System.Windows.Forms.Label lbCreatedValue;
         private System.Windows.Forms.Label lbCreditInstaller;

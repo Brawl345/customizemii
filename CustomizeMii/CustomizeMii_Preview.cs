@@ -26,7 +26,7 @@ namespace CustomizeMii
     {
         public string startTPL;
         public bool startIcon = false;
-        private Image[,] images;
+        private TplImage[,] images;
 
         public CustomizeMii_Preview()
         {
@@ -41,6 +41,7 @@ namespace CustomizeMii
 
         private void Preview_FormClosing(object sender, FormClosingEventArgs e)
         {
+            images = null;
             cbBanner.Items.Clear();
             cbIcon.Items.Clear();
         }
@@ -89,9 +90,9 @@ namespace CustomizeMii
             }
 
             if (bannerpics.Length > iconpics.Length)
-                images = new Image[2, bannerpics.Length];
+                images = new TplImage[2, bannerpics.Length];
             else
-                images = new Image[2, iconpics.Length];
+                images = new TplImage[2, iconpics.Length];
 
             try
             {
@@ -111,21 +112,7 @@ namespace CustomizeMii
         {
             if (cbBanner.SelectedIndex != -1)
             {
-                //byte[] tpl;
-                
-                //if (string.IsNullOrEmpty(CustomizeMii_Main.BannerReplace))
-                //    tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.TempUnpackBannerTplPath + cbBanner.SelectedItem.ToString() + ".tpl");
-                //else tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.BannerTplPath + cbBanner.SelectedItem.ToString() + ".tpl");
-                
-                //lbSize.Text = Wii.TPL.GetTextureWidth(tpl).ToString() + " x " + Wii.TPL.GetTextureHeight(tpl).ToString();
-                //lbFormat.Text = Wii.TPL.GetTextureFormatName(tpl);
-
-                //Image tmpImg = Wii.TPL.ConvertFromTPL(tpl);
-                //pbPic.Image = tmpImg;
-
-                //cbIcon.SelectedIndex = -1;
-
-                if (images[0, cbBanner.SelectedIndex] == null) 
+                if (images[0, cbBanner.SelectedIndex].tplImage == null) 
                 {
                     byte[] tpl;
 
@@ -134,12 +121,35 @@ namespace CustomizeMii
                     else tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.BannerTplPath + cbBanner.SelectedItem.ToString() + ".tpl");
 
                     lbSize.Text = Wii.TPL.GetTextureWidth(tpl).ToString() + " x " + Wii.TPL.GetTextureHeight(tpl).ToString();
-                    lbFormat.Text = Wii.TPL.GetTextureFormatName(tpl);
+                    images[0, cbBanner.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(tpl);
+                    lbFormat.Text = images[0, cbBanner.SelectedIndex].tplFormat;
 
-                    images[0, cbBanner.SelectedIndex] = Wii.TPL.ConvertFromTPL(tpl);
+                    if (images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci4" ||
+                        images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci8" ||
+                        images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci14x2")
+                    {
+                        int tempW = Wii.TPL.GetTextureWidth(tpl);
+                        int tempH = Wii.TPL.GetTextureHeight(tpl);
+
+                        images[0, cbBanner.SelectedIndex].tplImage = new Bitmap(tempW, tempH);
+                    }
+                    else
+                    {
+                        images[0, cbBanner.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(tpl);
+                    }
+
+                    tpl = null;
                 }
 
-                pbPic.Image = images[0, cbBanner.SelectedIndex];
+                pbPic.Image = images[0, cbBanner.SelectedIndex].tplImage;
+                lbFormat.Text = images[0, cbBanner.SelectedIndex].tplFormat;
+                lbSize.Text = string.Format("{0} x {1}", images[0, cbBanner.SelectedIndex].tplImage.Width, images[0, cbBanner.SelectedIndex].tplImage.Height);
+
+                if (images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci4" ||
+                    images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci8" ||
+                    images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci14x2")
+                    lbNoPreview.Visible = true;
+                else lbNoPreview.Visible = false;
             }
         }
 
@@ -147,21 +157,7 @@ namespace CustomizeMii
         {
             if (cbIcon.SelectedIndex != -1)
             {
-                //byte[] tpl;
-
-                //if (string.IsNullOrEmpty(CustomizeMii_Main.IconReplace))
-                //    tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.TempUnpackIconTplPath + cbIcon.SelectedItem.ToString() + ".tpl");
-                //else tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.IconTplPath + cbIcon.SelectedItem.ToString() + ".tpl");
-
-                //lbSize.Text = Wii.TPL.GetTextureWidth(tpl).ToString() + " x " + Wii.TPL.GetTextureHeight(tpl).ToString();
-                //lbFormat.Text = Wii.TPL.GetTextureFormatName(tpl);
-
-                //Image tmpImg = Wii.TPL.ConvertFromTPL(tpl);
-                //pbPic.Image = tmpImg;
-
-                //cbBanner.SelectedIndex = -1;
-
-                if (images[1, cbIcon.SelectedIndex] == null)
+                if (images[1, cbIcon.SelectedIndex].tplImage == null)
                 {
                     byte[] tpl;
 
@@ -170,12 +166,35 @@ namespace CustomizeMii
                     else tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.IconTplPath + cbIcon.SelectedItem.ToString() + ".tpl");
 
                     lbSize.Text = Wii.TPL.GetTextureWidth(tpl).ToString() + " x " + Wii.TPL.GetTextureHeight(tpl).ToString();
-                    lbFormat.Text = Wii.TPL.GetTextureFormatName(tpl);
+                    images[1, cbIcon.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(tpl);
+                    lbFormat.Text = images[1, cbIcon.SelectedIndex].tplFormat;
 
-                    images[1, cbIcon.SelectedIndex] = Wii.TPL.ConvertFromTPL(tpl);
+                    if (images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci4" ||
+                        images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci8" ||
+                        images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci14x2")
+                    {
+                        int tempW = Wii.TPL.GetTextureWidth(tpl);
+                        int tempH = Wii.TPL.GetTextureHeight(tpl);
+
+                        images[1, cbIcon.SelectedIndex].tplImage = new Bitmap(tempW, tempH);
+                    }
+                    else
+                    {
+                        images[1, cbIcon.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(tpl);
+                    }
+
+                    tpl = null;
                 }
 
-                pbPic.Image = images[1, cbIcon.SelectedIndex];
+                pbPic.Image = images[1, cbIcon.SelectedIndex].tplImage;
+                lbFormat.Text = images[1, cbIcon.SelectedIndex].tplFormat;
+                lbSize.Text = string.Format("{0} x {1}", images[1, cbIcon.SelectedIndex].tplImage.Width, images[1, cbIcon.SelectedIndex].tplImage.Height);
+
+                if (images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci4" ||
+                    images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci8" ||
+                    images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci14x2")
+                    lbNoPreview.Visible = true;
+                else lbNoPreview.Visible = false;
             }
         }
 
@@ -237,6 +256,22 @@ namespace CustomizeMii
                     ToolStripMenuItem cmSender = sender as ToolStripMenuItem;
                     switch (cmSender.Tag.ToString().ToLower())
                     {
+                        case "i4":
+                            TplFormat = 0;
+                            lbFormat.Text = "I4";
+                            break;
+                        case "i8":
+                            TplFormat = 1;
+                            lbFormat.Text = "I8";
+                            break;
+                        case "ia4":
+                            TplFormat = 2;
+                            lbFormat.Text = "IA4";
+                            break;
+                        case "ia8":
+                            TplFormat = 3;
+                            lbFormat.Text = "IA8";
+                            break;
                         case "rgb565":
                             TplFormat = 4;
                             lbFormat.Text = "RGB565";
@@ -252,7 +287,25 @@ namespace CustomizeMii
                     }
 
                     Wii.TPL.ConvertToTPL(Img, Tpl, TplFormat);
-                    pbPic.Image = Wii.TPL.ConvertFromTPL(Tpl);
+
+                    if (cbBanner.SelectedIndex != -1)
+                    {
+                        images[0, cbBanner.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(Tpl);
+                        images[0, cbBanner.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(File.ReadAllBytes(Tpl));
+
+                        pbPic.Image = images[0, cbBanner.SelectedIndex].tplImage;
+                        lbFormat.Text = images[0, cbBanner.SelectedIndex].tplFormat;
+                        lbSize.Text = string.Format("{0} x {1}", images[0, cbBanner.SelectedIndex].tplImage.Width, images[0, cbBanner.SelectedIndex].tplImage.Height);
+                    }
+                    else
+                    {
+                        images[1, cbIcon.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(Tpl);
+                        images[1, cbIcon.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(File.ReadAllBytes(Tpl));
+
+                        pbPic.Image = images[1, cbIcon.SelectedIndex].tplImage;
+                        lbFormat.Text = images[1, cbIcon.SelectedIndex].tplFormat;
+                        lbSize.Text = string.Format("{0} x {1}", images[1, cbIcon.SelectedIndex].tplImage.Width, images[1, cbIcon.SelectedIndex].tplImage.Height);
+                    }
 
                     if (cbBanner.SelectedIndex != -1) cbBanner.Select();
                     else if (cbIcon.SelectedIndex != -1) cbIcon.Select();

@@ -60,6 +60,12 @@ namespace CustomizeMii
             Waninkoko = 1
         }
 
+        public string titleId;
+        public string[] titles;
+        public string allLangTitle;
+        public int requiredIos;
+        public string sound;
+        public string dol;
         public string outFile;
         public NandLoader nandLoader;
         public bool sendToWii;

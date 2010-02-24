@@ -12,6 +12,13 @@ Thanks to icefire / Xuzz for the basic idea of this Application!<br>
 -----------------------------------------------------------------------------------------
 ==Changelog:==
 
+===Version 2.3===
+	* Fixed bug when extracting icon images
+	* Added ability to change the startup IOS (IOS used to launch the title)
+	* Added support for Korean channel title (reading and writing)
+	* Added TPL width and height to Banner and Icon list
+	* Added ability to replace multiple TPLs at once (images must have the same filename!)
+
 ===Version 2.2===
 	* Fixed some bugs with the preview window
 	* Fixed Complex Forwarder in combination with Waninkoko's NAND Loader

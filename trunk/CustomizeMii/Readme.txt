@@ -9,6 +9,13 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 2.3
+	- Fixed bug when extracting icon images
+	- Added ability to change the startup IOS (IOS used to launch the title)
+	- Added support for Korean channel title (reading and writing)
+	- Added TPL width and height to Banner and Icon list
+	- Added ability to replace multiple TPLs at once (images must have the same filename!)
+
 Version 2.2
 	- Fixed some bugs with the preview window
 	- Fixed Complex Forwarder in combination with Waninkoko's NAND Loader
@@ -89,11 +96,12 @@ Thanks:
 Xuzz for his idea and hard work
 WiiCrazy / I.R.on for CustomizeMii Installer
 Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py
+megazig for his BNS conversion code
 SquidMan for Zetsubou
 Andre Perrot for gbalzss
 comex and Waninkoko for both their NAND Loader
-djdynamite123 for the forwarder base files (ForwardMii-Plugin)
-The USB Loader GX Team for their forwarder source (ForwardMii-Plugin)
+djdynamite123 for the forwarder base files
+The USB Loader GX Team for their forwarder source
 -----------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------

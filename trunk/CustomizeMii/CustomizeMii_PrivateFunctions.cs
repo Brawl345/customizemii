@@ -34,6 +34,328 @@ namespace CustomizeMii
         private delegate void SetLabelInvoker(string text, Label lb);
         private delegate void SetButtonInvoker(string text, Button btn);
 
+        private bool CheckUnpackFolder()
+        {
+            try
+            {
+                //Check Unpack Root
+                string[] RootFiles = Directory.GetFiles(TempUnpackPath);
+                string[] RootDirs = Directory.GetDirectories(TempUnpackPath);
+
+                foreach (string thisFile in RootFiles)
+                {
+                    if (!thisFile.ToLower().EndsWith(".app") &&
+                        !thisFile.ToLower().EndsWith(".cert") &&
+                        !thisFile.ToLower().EndsWith(".tik") &&
+                        !thisFile.ToLower().EndsWith(".tmd"))
+                        File.Delete(thisFile);
+                }
+
+                if (RootDirs.Length > 1)
+                {
+                    foreach (string thisDir in RootDirs)
+                    {
+                        if (!thisDir.EndsWith("00000000.app_OUT"))
+                            Directory.Delete(thisDir, true);
+                    }
+                }
+
+                //Check 00000000.app_OUT
+                string[] MetaFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT");
+                string[] MetaDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT");
+
+                foreach (string thisFile in MetaFiles)
+                    File.Delete(thisFile);
+                foreach (string thisDir in MetaDirs)
+                    if (!thisDir.ToLower().EndsWith("meta"))
+                        Directory.Delete(thisDir, true);
+
+                string[] AppFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta");
+                string[] AppDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta");
+
+                foreach (string thisFile in AppFiles)
+                {
+                    if (!thisFile.ToLower().EndsWith("banner.bin") &&
+                        !thisFile.ToLower().EndsWith("icon.bin") &&
+                        !thisFile.ToLower().EndsWith("sound.bin"))
+                        File.Delete(thisFile);
+                }
+
+                if (AppDirs.Length > 2)
+                {
+                    foreach (string thisDir in AppDirs)
+                    {
+                        if (!thisDir.EndsWith("banner.bin_OUT") &&
+                            !thisDir.EndsWith("icon.bin_OUT"))
+                            Directory.Delete(thisDir, true);
+                    }
+                }
+
+                //Check banner.bin_OUT / Banner Replace Path
+                if (string.IsNullOrEmpty(BannerReplace))
+                {
+                    string[] ArcFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT");
+                    string[] ArcDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT");
+
+                    foreach (string thisFile in ArcFiles)
+                        File.Delete(thisFile);
+                    foreach (string thisDir in ArcDirs)
+                        if (!thisDir.ToLower().EndsWith("arc"))
+                            Directory.Delete(thisDir, true);
+
+                    string[] BannerFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc");
+                    string[] BannerDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc");
+
+                    foreach (string thisFile in BannerFiles)
+                        File.Delete(thisFile);
+
+                    if (BannerDirs.Length > 3)
+                    {
+                        foreach (string thisDir in BannerDirs)
+                        {
+                            if (!thisDir.ToLower().EndsWith("anim") &&
+                                !thisDir.ToLower().EndsWith("blyt") &&
+                                !thisDir.ToLower().EndsWith("timg"))
+                                Directory.Delete(thisDir, true);
+                        }
+                    }
+
+                    string[] AnimFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\anim");
+                    string[] AnimDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\anim");
+
+                    foreach (string thisFile in AnimFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlan"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in AnimDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] BlytFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\blyt");
+                    string[] BlytDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\blyt");
+
+                    foreach (string thisFile in BlytFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlyt"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in BlytDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] TimgFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\timg");
+                    string[] TimgDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\timg");
+
+                    foreach (string thisFile in TimgFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".tpl"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in TimgDirs)
+                        Directory.Delete(thisDir, true);
+                }
+                else
+                {
+                    string[] ArcFiles = Directory.GetFiles(TempBannerPath);
+                    string[] ArcDirs = Directory.GetDirectories(TempBannerPath);
+
+                    foreach (string thisFile in ArcFiles)
+                        File.Delete(thisFile);
+                    foreach (string thisDir in ArcDirs)
+                        if (!thisDir.ToLower().EndsWith("arc"))
+                            Directory.Delete(thisDir, true);
+
+                    string[] BannerFiles = Directory.GetFiles(TempBannerPath + "arc");
+                    string[] BannerDirs = Directory.GetDirectories(TempBannerPath + "arc");
+
+                    foreach (string thisFile in BannerFiles)
+                        File.Delete(thisFile);
+
+                    if (BannerDirs.Length > 3)
+                    {
+                        foreach (string thisDir in BannerDirs)
+                        {
+                            if (!thisDir.ToLower().EndsWith("anim") &&
+                                !thisDir.ToLower().EndsWith("blyt") &&
+                                !thisDir.ToLower().EndsWith("timg"))
+                                Directory.Delete(thisDir, true);
+                        }
+                    }
+
+                    string[] AnimFiles = Directory.GetFiles(TempBannerPath + "arc\\anim");
+                    string[] AnimDirs = Directory.GetDirectories(TempBannerPath + "arc\\anim");
+
+                    foreach (string thisFile in AnimFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlan"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in AnimDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] BlytFiles = Directory.GetFiles(TempBannerPath + "arc\\blyt");
+                    string[] BlytDirs = Directory.GetDirectories(TempBannerPath + "arc\\blyt");
+
+                    foreach (string thisFile in BlytFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlyt"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in BlytDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] TimgFiles = Directory.GetFiles(TempBannerPath + "arc\\timg");
+                    string[] TimgDirs = Directory.GetDirectories(TempBannerPath + "arc\\timg");
+
+                    foreach (string thisFile in TimgFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".tpl"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in TimgDirs)
+                        Directory.Delete(thisDir, true);
+                }
+
+                //Check icon.bin_OUT / Icon Replace Path
+                if (string.IsNullOrEmpty(IconReplace))
+                {
+                    string[] ArcFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT");
+                    string[] ArcDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT");
+
+                    foreach (string thisFile in ArcFiles)
+                        File.Delete(thisFile);
+                    foreach (string thisDir in ArcDirs)
+                        if (!thisDir.ToLower().EndsWith("arc"))
+                            Directory.Delete(thisDir, true);
+
+                    string[] IconFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc");
+                    string[] IconDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc");
+
+                    foreach (string thisFile in IconFiles)
+                        File.Delete(thisFile);
+
+                    if (IconDirs.Length > 3)
+                    {
+                        foreach (string thisDir in IconDirs)
+                        {
+                            if (!thisDir.ToLower().EndsWith("anim") &&
+                                !thisDir.ToLower().EndsWith("blyt") &&
+                                !thisDir.ToLower().EndsWith("timg"))
+                                Directory.Delete(thisDir, true);
+                        }
+                    }
+
+                    string[] AnimFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\anim");
+                    string[] AnimDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\anim");
+
+                    foreach (string thisFile in AnimFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlan"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in AnimDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] BlytFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\blyt");
+                    string[] BlytDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\blyt");
+
+                    foreach (string thisFile in BlytFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlyt"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in BlytDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] TimgFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\timg");
+                    string[] TimgDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\timg");
+
+                    foreach (string thisFile in TimgFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".tpl"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in TimgDirs)
+                        Directory.Delete(thisDir, true);
+                }
+                else
+                {
+                    string[] ArcFiles = Directory.GetFiles(TempIconPath);
+                    string[] ArcDirs = Directory.GetDirectories(TempIconPath);
+
+                    foreach (string thisFile in ArcFiles)
+                        File.Delete(thisFile);
+                    foreach (string thisDir in ArcDirs)
+                        if (!thisDir.ToLower().EndsWith("arc"))
+                            Directory.Delete(thisDir, true);
+
+                    string[] IconFiles = Directory.GetFiles(TempIconPath + "arc");
+                    string[] IconDirs = Directory.GetDirectories(TempIconPath + "arc");
+
+                    foreach (string thisFile in IconFiles)
+                        File.Delete(thisFile);
+
+                    if (IconDirs.Length > 3)
+                    {
+                        foreach (string thisDir in IconDirs)
+                        {
+                            if (!thisDir.ToLower().EndsWith("anim") &&
+                                !thisDir.ToLower().EndsWith("blyt") &&
+                                !thisDir.ToLower().EndsWith("timg"))
+                                Directory.Delete(thisDir, true);
+                        }
+                    }
+
+                    string[] AnimFiles = Directory.GetFiles(TempIconPath + "arc\\anim");
+                    string[] AnimDirs = Directory.GetDirectories(TempIconPath + "arc\\anim");
+
+                    foreach (string thisFile in AnimFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlan"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in AnimDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] BlytFiles = Directory.GetFiles(TempIconPath + "arc\\blyt");
+                    string[] BlytDirs = Directory.GetDirectories(TempIconPath + "arc\\blyt");
+
+                    foreach (string thisFile in BlytFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".brlyt"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in BlytDirs)
+                        Directory.Delete(thisDir, true);
+
+                    string[] TimgFiles = Directory.GetFiles(TempIconPath + "arc\\timg");
+                    string[] TimgDirs = Directory.GetDirectories(TempIconPath + "arc\\timg");
+
+                    foreach (string thisFile in TimgFiles)
+                    {
+                        if (!thisFile.ToLower().EndsWith(".tpl"))
+                            File.Delete(thisFile);
+                    }
+
+                    foreach (string thisDir in TimgDirs)
+                        Directory.Delete(thisDir, true);
+                }
+
+                return true;
+            }
+            catch { return false; }
+        }
+
         private bool FailureCheck()
         {
             try
@@ -86,6 +408,17 @@ namespace CustomizeMii
                     ErrorBox("Please enter a valid Title ID!"); return false;
                 }
 
+                //Check Required IOS Box
+                int tmp;
+                if (!int.TryParse(tbStartupIos.Text, out tmp))
+                {
+                    ErrorBox("Please enter a valid Required IOS! (0 - 255)"); return false;
+                }
+                else if (tmp < 0 || tmp > 255)
+                {
+                    ErrorBox("Please enter a valid Required IOS! (0 - 255)"); return false;
+                }
+
                 //Check brlan files
                 string[] ValidBrlans = new string[] { "banner.brlan", "icon.brlan", "banner_loop.brlan", "icon_loop.brlan", "banner_start.brlan", "icon_start.brlan" };
                 foreach (string thisBrlan in lbxBrlanBanner.Items)
@@ -108,8 +441,8 @@ namespace CustomizeMii
                 //Check TPLs
                 List<string> BannerTpls = new List<string>();
                 List<string> IconTpls = new List<string>();
-                foreach (string thisTpl in lbxBannerTpls.Items) BannerTpls.Add(thisTpl.Replace(" (Transparent)", string.Empty));
-                foreach (string thisTpl in lbxIconTpls.Items) IconTpls.Add(thisTpl.Replace(" (Transparent)", string.Empty));
+                foreach (string thisTpl in lbxBannerTpls.Items) BannerTpls.Add(thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1));
+                foreach (string thisTpl in lbxIconTpls.Items) IconTpls.Add(thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1));
 
                 string[] BannerBrlytPath;
                 string[] BannerBrlanPath;
@@ -477,9 +810,11 @@ namespace CustomizeMii
                 for (int i = 0; i < tpls.Length; i++)
                 {
                     if (BannerTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
-                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) + " (Transparent)");
+                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
+                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))) + " (Transparent)");
                     else
-                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1));
+                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
+                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))));
                 }
             }
         }
@@ -494,9 +829,11 @@ namespace CustomizeMii
                 for (int i = 0; i < tpls.Length; i++)
                 {
                     if (IconTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
-                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) + " (Transparent)");
+                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
+                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))) + " (Transparent)");
                     else
-                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1));
+                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
+                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))));
                 }
             }
         }
@@ -641,7 +978,7 @@ namespace CustomizeMii
             {
                 if (thisTpl.EndsWith("(Transparent)"))
                 {
-                    string Tpl = GetCurBannerPath() + "timg\\" + thisTpl.Replace(" (Transparent)", string.Empty);
+                    string Tpl = GetCurBannerPath() + "timg\\" + thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1);
                     byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
                     int Width = Wii.TPL.GetTextureWidth(TplArray);
                     int Height = Wii.TPL.GetTextureHeight(TplArray);
@@ -658,7 +995,7 @@ namespace CustomizeMii
             {
                 if (thisTpl.EndsWith("(Transparent)"))
                 {
-                    string Tpl = GetCurIconPath() + "timg\\" + thisTpl.Replace(" (Transparent)", string.Empty);
+                    string Tpl = GetCurIconPath() + "timg\\" + thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1);
                     byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
                     int Width = Wii.TPL.GetTextureWidth(TplArray);
                     int Height = Wii.TPL.GetTextureHeight(TplArray);
@@ -751,7 +1088,7 @@ namespace CustomizeMii
                         using (Image img = Image.FromFile(inputFile))
                         {
                             Wii.TPL.ConvertToTPL(img, CurPath + "timg\\" + TplName, TplFormat);
-                            lbx.Items.Add(TplName);
+                            lbx.Items.Add(TplName + string.Format(" ({0} x {1})", img.Width, img.Height));
                         }
                     }
                 }
@@ -950,6 +1287,60 @@ namespace CustomizeMii
                         }
                     }
                 }
+            }
+        }
+
+        private void MultiReplace(bool banner)
+        {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            fbd.Description = "Please select the folder where the images are in.\nThe images must have the same filename as the TPLs!";
+
+            if (fbd.ShowDialog() == DialogResult.OK)
+            {
+                string imageDir = fbd.SelectedPath;
+                string tplDir = ((banner) ? GetCurBannerPath() : GetCurIconPath()) + "timg\\";
+                string[] tpls = Directory.GetFiles(tplDir, "*.tpl");
+
+                List<string> replacedTpls = new List<string>();
+                foreach (string thisTpl in tpls)
+                {
+                    string image = string.Empty;
+
+                    if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".png"))
+                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".png";
+                    else if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".jpg"))
+                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".jpg";
+                    else if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".gif"))
+                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".gif";
+                    else if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".bmp"))
+                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".bmp";
+                    else continue;
+
+                    try
+                    {
+                        Image img = Image.FromFile(image);
+                        byte[] temp = File.ReadAllBytes(thisTpl);
+                        int width = Wii.TPL.GetTextureWidth(temp);
+                        int height = Wii.TPL.GetTextureHeight(temp);
+                        int format = Wii.TPL.GetTextureFormat(temp);
+
+                        if (img.Width != width || img.Height != height) 
+                            img = ResizeImage(img, width, height);
+
+                        File.Delete(thisTpl);
+                        Wii.TPL.ConvertToTPL(img, thisTpl, format);
+
+                        replacedTpls.Add(Path.GetFileName(thisTpl));
+                    }
+                    catch { }
+                }
+
+                if (replacedTpls.Count > 0)
+                {
+                    string replaced = string.Join("\n", replacedTpls.ToArray());
+                    InfoBox(string.Format("The following TPLs were successfully replaced:\n\n{0}", replaced));
+                }
+                else ErrorBox("No TPLs were replaced, did you name the images right?");
             }
         }
     }

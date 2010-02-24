@@ -583,6 +583,14 @@ namespace Wii
                     string tikid = Convert.ToChar(wadtiktmd[tikpos + 0x1e0]).ToString() + Convert.ToChar(wadtiktmd[tikpos + 0x1e1]).ToString() + Convert.ToChar(wadtiktmd[tikpos + 0x1e2]).ToString() + Convert.ToChar(wadtiktmd[tikpos + 0x1e3]).ToString();
                     return tikid;
                 }
+                else if (channeltype.Contains("MIOS"))
+                {
+                    return "MIOS";
+                }
+                else if (channeltype.Contains("BC"))
+                {
+                    return "BC";
+                }
                 else if (channeltype.Contains("IOS"))
                 {
                     int tikid = Tools.HexStringToInt(wadtiktmd[tikpos + 0x1e0].ToString("x2") + wadtiktmd[tikpos + 0x1e1].ToString("x2") + wadtiktmd[tikpos + 0x1e2].ToString("x2") + wadtiktmd[tikpos + 0x1e3].ToString("x2"));
@@ -665,7 +673,7 @@ namespace Wii
                 {
                     if (!channeltype.Contains("Hidden"))
                     {
-                        string[] titles = new string[7];
+                        string[] titles = new string[8];
 
                         string[,] conts = GetContentInfo(wadfile);
                         byte[] titlekey = GetTitleKey(wadfile);
@@ -713,6 +721,15 @@ namespace Wii
                                 count++;
                             }
 
+                            for (int i = jappos + (9 * 84); i < (jappos + (9 * 84)) + 40; i += 2)
+                            {
+                                if (contenthandle[i] != 0x00)
+                                {
+                                    char temp = BitConverter.ToChar(new byte[] { contenthandle[i], contenthandle[i - 1] }, 0);
+                                    titles[count] += temp;
+                                }
+                            }
+
                             return titles;
                         }
                         else
@@ -727,17 +744,17 @@ namespace Wii
                                 }
                             }
 
-                            for (int i = 1; i < 7; i++)
+                            for (int i = 1; i < 8; i++)
                                 titles[i] = titles[0];
 
                             return titles;
                         }
                     }
-                    else return new string[7];
+                    else return new string[8];
                 }
-                else return new string[7];
+                else return new string[8];
             }
-            else return new string[7];
+            else return new string[8];
         }
 
         /// <summary>
@@ -760,7 +777,7 @@ namespace Wii
         /// <returns></returns>
         public static string[] GetChannelTitlesFromApp(byte[] app)
         {
-            string[] titles = new string[7];
+            string[] titles = new string[8];
 
             int imetpos = 0;
             int length = 400;
@@ -796,6 +813,15 @@ namespace Wii
                     }
 
                     count++;
+                }
+
+                for (int i = jappos + (9 * 84); i < (jappos + (9 * 84)) + 40; i += 2)
+                {
+                    if (app[i] != 0x00)
+                    {
+                        char temp = BitConverter.ToChar(new byte[] { app[i], app[i - 1] }, 0);
+                        titles[count] += temp;
+                    }
                 }
             }
 
@@ -1418,12 +1444,13 @@ namespace Wii
         /// <returns></returns>
         public static byte[] ChangeChannelTitle(byte[] wadfile, string title)
         {
-            return ChangeChannelTitle(wadfile, title, title, title, title, title, title, title);
+            return ChangeChannelTitle(wadfile, title, title, title, title, title, title, title, title);
         }
 
         /// <summary>
-        /// Changes the Channel Title of the wad file
-        /// Each language has a specific title
+        /// Changes the Channel Title of the wad file.
+        /// Each language has a specific title.
+        /// 0 = Japanese, 1 = English, 2 = German, 3 = French, 4 = Spanish, 5 = Italian, 6 = Dutch, 7 = Korean
         /// </summary>
         /// <param name="wadfile"></param>
         /// <param name="jap"></param>
@@ -1433,10 +1460,10 @@ namespace Wii
         /// <param name="spa"></param>
         /// <param name="ita"></param>
         /// <param name="dut"></param>
-        public static void ChangeChannelTitle(string wadfile, string jap, string eng, string ger, string fra, string spa, string ita, string dut)
+        public static void ChangeChannelTitle(string wadfile, params string[] titles)
         {
             byte[] wadarray = Tools.LoadFileToByteArray(wadfile);
-            wadarray = ChangeChannelTitle(wadarray, jap, eng, ger, fra, spa, ita, dut);
+            wadarray = ChangeChannelTitle(wadarray, titles[0], titles[1], titles[2], titles[3], titles[4], titles[5], titles[6], (titles.Length > 7) ? titles[8] : "");
 
             using (FileStream fs = new FileStream(wadfile, FileMode.Open, FileAccess.Write))
             {
@@ -1446,29 +1473,27 @@ namespace Wii
         }
 
         /// <summary>
-        /// Changes the Channel Title of the wad file
-        /// Each language has a specific title
+        /// Changes the Channel Title of the wad file.
+        /// Each language has a specific title.
+        /// 0 = Japanese, 1 = English, 2 = German, 3 = French, 4 = Spanish, 5 = Italian, 6 = Dutch, 7 = Korean
         /// </summary>
         /// <param name="wadfile"></param>
-        /// <param name="jap">Japanese Title</param>
-        /// <param name="eng">English Title</param>
-        /// <param name="ger">German Title</param>
-        /// <param name="fra">French Title</param>
-        /// <param name="spa">Spanish Title</param>
-        /// <param name="ita">Italian Title</param>
-        /// <param name="dut">Dutch Title</param>
         /// <returns></returns>
-        public static byte[] ChangeChannelTitle(byte[] wadfile, string jap, string eng, string ger, string fra, string spa, string ita, string dut)
+        public static byte[] ChangeChannelTitle(byte[] wadfile, params string[] titles)
         {
+            if (titles.Length < 7) throw new Exception("A title must be given for each language!");
+
             Tools.ChangeProgress(0);
 
-            char[] japchars = jap.ToCharArray();
-            char[] engchars = eng.ToCharArray();
-            char[] gerchars = ger.ToCharArray();
-            char[] frachars = fra.ToCharArray();
-            char[] spachars = spa.ToCharArray();
-            char[] itachars = ita.ToCharArray();
-            char[] dutchars = dut.ToCharArray();
+            char[] japchars = titles[0].ToCharArray();
+            char[] engchars = titles[1].ToCharArray();
+            char[] gerchars = titles[2].ToCharArray();
+            char[] frachars = titles[3].ToCharArray();
+            char[] spachars = titles[4].ToCharArray();
+            char[] itachars = titles[5].ToCharArray();
+            char[] dutchars = titles[6].ToCharArray();
+            char[] korchars = new char[] { };
+            if (titles.Length > 7) korchars = titles[7].ToCharArray();
 
             byte[] titlekey = WadInfo.GetTitleKey(wadfile);
             string[,] conts = WadInfo.GetContentInfo(wadfile);
@@ -1557,6 +1582,12 @@ namespace Wii
                     contenthandle[x + 29 + 84 * 6 - 1] = BitConverter.GetBytes(dutchars[count])[1];
                 }
                 else { contenthandle[x + 29 + 84 * 6] = 0x00; contenthandle[x + 29 + 84 * 6 - 1] = 0x00; }
+                if (korchars.Length > count)
+                {
+                    contenthandle[x + 29 + 84 * 9] = BitConverter.GetBytes(korchars[count])[0];
+                    contenthandle[x + 29 + 84 * 9 - 1] = BitConverter.GetBytes(korchars[count])[1];
+                }
+                else { contenthandle[x + 29 + 84 * 9] = 0x00; contenthandle[x + 29 + 84 * 9 - 1] = 0x00; }
 
                 count++;
             }
@@ -1576,61 +1607,13 @@ namespace Wii
                 wadfile[contentpos + y] = contenthandle[y];
             }
 
+			Tools.ChangeProgress(80);
             //SHA1 in TMD
             byte[] tmd = Tools.GetPartOfByteArray(wadfile, tmdpos, tmdsize);
             for (int i = 0; i < 20; i++)
                 tmd[0x1f4 + (36 * nullapp) + i] = newsha[i];
             TruchaSign(tmd, 1);
             wadfile = Tools.InsertByteArray(wadfile, tmd, tmdpos);
-
-            int footer = WadInfo.GetFooterSize(wadfile);
-
-            Tools.ChangeProgress(80);
-
-            if (footer > 0)
-            {
-                int footerpos = wadfile.Length - footer;
-                int imetposfoot = 0;
-
-                for (int z = 0; z < 200; z++)
-                {
-                    if (Convert.ToChar(wadfile[footerpos + z]) == 'I')
-                        if (Convert.ToChar(wadfile[footerpos + z + 1]) == 'M')
-                            if (Convert.ToChar(wadfile[footerpos + z + 2]) == 'E')
-                                if (Convert.ToChar(wadfile[footerpos + z + 3]) == 'T')
-                                {
-                                    imetposfoot = footerpos + z;
-                                    break;
-                                }
-                }
-
-                Tools.ChangeProgress(90);
-
-                int count2 = 0;
-
-                for (int x = imetposfoot; x < imetposfoot + 40; x += 2)
-                {
-                    if (japchars.Length > count2) { wadfile[x + 29] = Convert.ToByte(japchars[count2]); }
-                    else { wadfile[x + 29] = 0x00; }
-                    if (engchars.Length > count2) { wadfile[x + 29 + 84] = Convert.ToByte(engchars[count2]); }
-                    else { wadfile[x + 29 + 84] = 0x00; }
-                    if (gerchars.Length > count2) { wadfile[x + 29 + 84 * 2] = Convert.ToByte(gerchars[count2]); }
-                    else { wadfile[x + 29 + 84 * 2] = 0x00; }
-                    if (frachars.Length > count2) { wadfile[x + 29 + 84 * 3] = Convert.ToByte(frachars[count2]); }
-                    else { wadfile[x + 29 + 84 * 3] = 0x00; }
-                    if (spachars.Length > count2) { wadfile[x + 29 + 84 * 4] = Convert.ToByte(spachars[count2]); }
-                    else { wadfile[x + 29 + 84 * 4] = 0x00; }
-                    if (itachars.Length > count2) { wadfile[x + 29 + 84 * 5] = Convert.ToByte(itachars[count2]); }
-                    else { wadfile[x + 29 + 84 * 5] = 0x00; }
-                    if (dutchars.Length > count2) { wadfile[x + 29 + 84 * 6] = Convert.ToByte(dutchars[count2]); }
-                    else { wadfile[x + 29 + 84 * 6] = 0x00; }
-
-                    count2++;
-                }
-
-                for (int i = 0; i < 16; i++)
-                    wadfile[imetposfoot + 1456 + i] = newmd5[i];
-            }
 
             Tools.ChangeProgress(100);
             return wadfile;
@@ -1797,8 +1780,8 @@ namespace Wii
         public static byte[] TruchaSign(byte[] wadtiktmd, int type)
         {
             SHA1Managed sha = new SHA1Managed();
-            int[] position = new int[2] { 0x1f1, 0x1d4 }; //0x104 0x1c1
-            int[] tosign = new int[2] { 0x140, 0x140 }; //0x104 0x140
+            int[] position = new int[2] { 0x1f2, 0x1d4 };
+            int[] tosign = new int[2] { 0x140, 0x140 };
             int tiktmdpos = 0;
             int tiktmdsize = wadtiktmd.Length;
 
@@ -2338,6 +2321,34 @@ namespace Wii
 
             return decryptedkey;
         }
+
+        /// <summary>
+        /// Changes the IOS flag (IOS used to launch the title)
+        /// </summary>
+        /// <param name="wadtmd"></param>
+        /// <returns></returns>
+        public static void ChangeIosFlag(string wadtmd, int newIos)
+        {
+            if (newIos < 0 || newIos > 255) throw new Exception("IOS must be between 0 and 255!");
+
+            Tools.SaveFileFromByteArray(ChangeIosFlag(Tools.LoadFileToByteArray(wadtmd), newIos), wadtmd);
+        }
+
+        /// <summary>
+        /// Changes the IOS flag (IOS used to launch the title)
+        /// </summary>
+        /// <param name="wadtmd"></param>
+        /// <returns></returns>
+        public static byte[] ChangeIosFlag(byte[] wadtmd, int newIos)
+        {
+            if (newIos < 0 || newIos > 255) throw new Exception("IOS must be between 0 and 255!");
+
+            int tmdpos = 0;
+            if (WadInfo.IsThisWad(wadtmd)) tmdpos = WadInfo.GetTmdPos(wadtmd);
+
+            wadtmd[tmdpos + 395] = (byte)newIos;
+            return wadtmd;
+        }
     }
 
     public class WadUnpack
@@ -2864,7 +2875,7 @@ namespace Wii
 
             //Write Footer Timestamp
             byte[] footer = Tools.GetTimestamp();
-            Array.Resize(ref footer, Tools.AddPadding(footer.Length, 16));
+            Array.Resize(ref footer, Tools.AddPadding(footer.Length));
 
             int footerLength = footer.Length;
             wadstream.Seek(Tools.AddPadding(contpos), SeekOrigin.Begin);
@@ -3244,6 +3255,7 @@ namespace Wii
             byte[] spatitle = new byte[84];
             byte[] itatitle = new byte[84];
             byte[] duttitle = new byte[84];
+            byte[] kortitle = new byte[84];
 
             for (int i = 0; i < 20; i++)
             {
@@ -3282,6 +3294,14 @@ namespace Wii
                     duttitle[i * 2] = BitConverter.GetBytes(channeltitles[6][i])[1];
                     duttitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[6][i])[0];
                 }
+                if (channeltitles.Length > 7)
+                {
+                    if (channeltitles[7].Length > i)
+                    {
+                        kortitle[i * 2] = BitConverter.GetBytes(channeltitles[7][i])[1];
+                        kortitle[i * 2 + 1] = BitConverter.GetBytes(channeltitles[7][i])[0];
+                    }
+                }
             }
 
             byte[] crypto = new byte[16];
@@ -3302,7 +3322,10 @@ namespace Wii
             ms.Write(itatitle, 0, itatitle.Length);
             ms.Write(duttitle, 0, duttitle.Length);
 
-            ms.Seek(0x348, SeekOrigin.Current);
+            ms.Seek(0x390, SeekOrigin.Begin);
+            ms.Write(kortitle, 0, kortitle.Length);
+
+            ms.Seek(0x630, SeekOrigin.Begin);
             ms.Write(crypto, 0, crypto.Length);
 
             byte[] tohash = ms.ToArray();

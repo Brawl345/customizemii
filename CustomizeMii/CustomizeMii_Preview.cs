@@ -150,6 +150,8 @@ namespace CustomizeMii
                     images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci14x2")
                     lbNoPreview.Visible = true;
                 else lbNoPreview.Visible = false;
+
+                cbIcon.SelectedIndex = -1;
             }
         }
 
@@ -195,6 +197,8 @@ namespace CustomizeMii
                     images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci14x2")
                     lbNoPreview.Visible = true;
                 else lbNoPreview.Visible = false;
+
+                cbBanner.SelectedIndex = -1;
             }
         }
 

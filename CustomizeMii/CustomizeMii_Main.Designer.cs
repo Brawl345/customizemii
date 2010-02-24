@@ -64,6 +64,7 @@ namespace CustomizeMii
             this.lbSource = new System.Windows.Forms.Label();
             this.tabTitle = new System.Windows.Forms.TabPage();
             this.llbTranslateChannel = new System.Windows.Forms.LinkLabel();
+            this.tbKorean = new System.Windows.Forms.TextBox();
             this.tbItalian = new System.Windows.Forms.TextBox();
             this.tbFrench = new System.Windows.Forms.TextBox();
             this.tbJapanese = new System.Windows.Forms.TextBox();
@@ -72,6 +73,7 @@ namespace CustomizeMii
             this.tbGerman = new System.Windows.Forms.TextBox();
             this.tbEnglish = new System.Windows.Forms.TextBox();
             this.lbDutch = new System.Windows.Forms.Label();
+            this.lbKorean = new System.Windows.Forms.Label();
             this.lbItalian = new System.Windows.Forms.Label();
             this.lbSpanish = new System.Windows.Forms.Label();
             this.lbFrench = new System.Windows.Forms.Label();
@@ -92,12 +94,15 @@ namespace CustomizeMii
             this.cmbNandLoader = new System.Windows.Forms.ComboBox();
             this.btnBrowseDol = new System.Windows.Forms.Button();
             this.tbDol = new System.Windows.Forms.TextBox();
+            this.tbStartupIos = new System.Windows.Forms.TextBox();
             this.tbTitleID = new System.Windows.Forms.TextBox();
             this.lbNewSound = new System.Windows.Forms.Label();
             this.lbNandLoader = new System.Windows.Forms.Label();
             this.lbNewDol = new System.Windows.Forms.Label();
+            this.lbStartupIos = new System.Windows.Forms.Label();
             this.lbTitleID = new System.Windows.Forms.Label();
             this.tabBanner = new System.Windows.Forms.TabPage();
+            this.llbBannerMultiReplace = new System.Windows.Forms.LinkLabel();
             this.cbBannerMakeTransparent = new System.Windows.Forms.CheckBox();
             this.cmbFormatBanner = new System.Windows.Forms.ComboBox();
             this.lbFormatBanner = new System.Windows.Forms.Label();
@@ -108,6 +113,7 @@ namespace CustomizeMii
             this.btnReplaceBanner = new System.Windows.Forms.Button();
             this.lbxBannerTpls = new System.Windows.Forms.ListBox();
             this.tabIcon = new System.Windows.Forms.TabPage();
+            this.llbIconMultiReplace = new System.Windows.Forms.LinkLabel();
             this.cbIconMakeTransparent = new System.Windows.Forms.CheckBox();
             this.cmbFormatIcon = new System.Windows.Forms.ComboBox();
             this.lbFormatIcon = new System.Windows.Forms.Label();
@@ -383,6 +389,7 @@ namespace CustomizeMii
             // tabTitle
             // 
             this.tabTitle.Controls.Add(this.llbTranslateChannel);
+            this.tabTitle.Controls.Add(this.tbKorean);
             this.tabTitle.Controls.Add(this.tbItalian);
             this.tabTitle.Controls.Add(this.tbFrench);
             this.tabTitle.Controls.Add(this.tbJapanese);
@@ -391,6 +398,7 @@ namespace CustomizeMii
             this.tabTitle.Controls.Add(this.tbGerman);
             this.tabTitle.Controls.Add(this.tbEnglish);
             this.tabTitle.Controls.Add(this.lbDutch);
+            this.tabTitle.Controls.Add(this.lbKorean);
             this.tabTitle.Controls.Add(this.lbItalian);
             this.tabTitle.Controls.Add(this.lbSpanish);
             this.tabTitle.Controls.Add(this.lbFrench);
@@ -419,6 +427,14 @@ namespace CustomizeMii
             this.llbTranslateChannel.TabStop = true;
             this.llbTranslateChannel.Text = "Translate \"Channel\"";
             this.llbTranslateChannel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbTranslateChannel_LinkClicked);
+            // 
+            // tbKorean
+            // 
+            this.tbKorean.Location = new System.Drawing.Point(301, 171);
+            this.tbKorean.MaxLength = 20;
+            this.tbKorean.Name = "tbKorean";
+            this.tbKorean.Size = new System.Drawing.Size(124, 20);
+            this.tbKorean.TabIndex = 16;
             // 
             // tbItalian
             // 
@@ -484,6 +500,15 @@ namespace CustomizeMii
             this.lbDutch.Size = new System.Drawing.Size(39, 13);
             this.lbDutch.TabIndex = 9;
             this.lbDutch.Text = "Dutch:";
+            // 
+            // lbKorean
+            // 
+            this.lbKorean.AutoSize = true;
+            this.lbKorean.Location = new System.Drawing.Point(221, 174);
+            this.lbKorean.Name = "lbKorean";
+            this.lbKorean.Size = new System.Drawing.Size(44, 13);
+            this.lbKorean.TabIndex = 8;
+            this.lbKorean.Text = "Korean:";
             // 
             // lbItalian
             // 
@@ -578,10 +603,12 @@ namespace CustomizeMii
             this.tabOptions.Controls.Add(this.cmbNandLoader);
             this.tabOptions.Controls.Add(this.btnBrowseDol);
             this.tabOptions.Controls.Add(this.tbDol);
+            this.tabOptions.Controls.Add(this.tbStartupIos);
             this.tabOptions.Controls.Add(this.tbTitleID);
             this.tabOptions.Controls.Add(this.lbNewSound);
             this.tabOptions.Controls.Add(this.lbNandLoader);
             this.tabOptions.Controls.Add(this.lbNewDol);
+            this.tabOptions.Controls.Add(this.lbStartupIos);
             this.tabOptions.Controls.Add(this.lbTitleID);
             this.tabOptions.Location = new System.Drawing.Point(4, 22);
             this.tabOptions.Name = "tabOptions";
@@ -700,6 +727,16 @@ namespace CustomizeMii
             this.tbDol.DragDrop += new System.Windows.Forms.DragEventHandler(this.tbDol_DragDrop);
             this.tbDol.DragEnter += new System.Windows.Forms.DragEventHandler(this.tbDol_DragEnter);
             // 
+            // tbStartupIos
+            // 
+            this.tbStartupIos.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.tbStartupIos.Location = new System.Drawing.Point(299, 49);
+            this.tbStartupIos.MaxLength = 4;
+            this.tbStartupIos.Name = "tbStartupIos";
+            this.tbStartupIos.Size = new System.Drawing.Size(55, 20);
+            this.tbStartupIos.TabIndex = 4;
+            this.tbStartupIos.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbStartupIos_KeyPress);
+            // 
             // tbTitleID
             // 
             this.tbTitleID.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
@@ -736,6 +773,15 @@ namespace CustomizeMii
             this.lbNewDol.TabIndex = 1;
             this.lbNewDol.Text = "New DOL:";
             // 
+            // lbStartupIos
+            // 
+            this.lbStartupIos.AutoSize = true;
+            this.lbStartupIos.Location = new System.Drawing.Point(192, 52);
+            this.lbStartupIos.Name = "lbStartupIos";
+            this.lbStartupIos.Size = new System.Drawing.Size(65, 13);
+            this.lbStartupIos.TabIndex = 0;
+            this.lbStartupIos.Text = "Startup IOS:";
+            // 
             // lbTitleID
             // 
             this.lbTitleID.AutoSize = true;
@@ -747,6 +793,7 @@ namespace CustomizeMii
             // 
             // tabBanner
             // 
+            this.tabBanner.Controls.Add(this.llbBannerMultiReplace);
             this.tabBanner.Controls.Add(this.cbBannerMakeTransparent);
             this.tabBanner.Controls.Add(this.cmbFormatBanner);
             this.tabBanner.Controls.Add(this.lbFormatBanner);
@@ -763,6 +810,17 @@ namespace CustomizeMii
             this.tabBanner.TabIndex = 3;
             this.tabBanner.Text = "Banner";
             this.tabBanner.UseVisualStyleBackColor = true;
+            // 
+            // llbBannerMultiReplace
+            // 
+            this.llbBannerMultiReplace.AutoSize = true;
+            this.llbBannerMultiReplace.Location = new System.Drawing.Point(282, 190);
+            this.llbBannerMultiReplace.Name = "llbBannerMultiReplace";
+            this.llbBannerMultiReplace.Size = new System.Drawing.Size(72, 13);
+            this.llbBannerMultiReplace.TabIndex = 7;
+            this.llbBannerMultiReplace.TabStop = true;
+            this.llbBannerMultiReplace.Text = "Multi Replace";
+            this.llbBannerMultiReplace.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbMultiReplace_LinkClicked);
             // 
             // cbBannerMakeTransparent
             // 
@@ -870,6 +928,7 @@ namespace CustomizeMii
             // 
             // tabIcon
             // 
+            this.tabIcon.Controls.Add(this.llbIconMultiReplace);
             this.tabIcon.Controls.Add(this.cbIconMakeTransparent);
             this.tabIcon.Controls.Add(this.cmbFormatIcon);
             this.tabIcon.Controls.Add(this.lbFormatIcon);
@@ -886,6 +945,17 @@ namespace CustomizeMii
             this.tabIcon.TabIndex = 4;
             this.tabIcon.Text = "Icon";
             this.tabIcon.UseVisualStyleBackColor = true;
+            // 
+            // llbIconMultiReplace
+            // 
+            this.llbIconMultiReplace.AutoSize = true;
+            this.llbIconMultiReplace.Location = new System.Drawing.Point(282, 190);
+            this.llbIconMultiReplace.Name = "llbIconMultiReplace";
+            this.llbIconMultiReplace.Size = new System.Drawing.Size(72, 13);
+            this.llbIconMultiReplace.TabIndex = 13;
+            this.llbIconMultiReplace.TabStop = true;
+            this.llbIconMultiReplace.Text = "Multi Replace";
+            this.llbIconMultiReplace.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbMultiReplace_LinkClicked);
             // 
             // cbIconMakeTransparent
             // 
@@ -1710,6 +1780,12 @@ namespace CustomizeMii
         private System.Windows.Forms.ToolStripMenuItem cmExtractBrlan;
         private System.Windows.Forms.ToolStripMenuItem cmExtractBothBrl;
         private System.Windows.Forms.LinkLabel llbTranslateChannel;
+        private System.Windows.Forms.TextBox tbStartupIos;
+        private System.Windows.Forms.Label lbStartupIos;
+        private System.Windows.Forms.TextBox tbKorean;
+        private System.Windows.Forms.Label lbKorean;
+        private System.Windows.Forms.LinkLabel llbBannerMultiReplace;
+        private System.Windows.Forms.LinkLabel llbIconMultiReplace;
     }
 }
 

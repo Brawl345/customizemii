@@ -197,7 +197,7 @@ namespace CustomizeMii
             this.rbFromAudioFile.Name = "rbFromAudioFile";
             this.rbFromAudioFile.Size = new System.Drawing.Size(281, 17);
             this.rbFromAudioFile.TabIndex = 0;
-            this.rbFromAudioFile.Text = "From Audio File (works only with pre-looped wave files)";
+            this.rbFromAudioFile.Text = "From Audio File (only works with pre-looped wave files)";
             this.rbFromAudioFile.UseVisualStyleBackColor = true;
             this.rbFromAudioFile.CheckedChanged += new System.EventHandler(this.rbSelectionChanged);
             // 
@@ -396,6 +396,7 @@ namespace CustomizeMii
             this.AcceptButton = this.btnConvert;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(674, 230);
             this.Controls.Add(this.gbPrelisten);

@@ -493,9 +493,11 @@ namespace CustomizeMii
                 bwLoadChannel.ReportProgress(90, "Gathering Information...");
                 string[] ChannelTitles = Wii.WadInfo.GetChannelTitles(WadFile);
                 string TitleID = Wii.WadInfo.GetTitleID(WadFile, 1);
+                string IosFlag = Wii.WadInfo.GetIosFlag(WadFile).Replace("IOS", string.Empty);
 
                 bool allLangs = true;
                 SetText(tbTitleID, TitleID);
+                SetText(tbStartupIos, IosFlag);
 
                 if (ChannelTitles[0] != ChannelTitles[1]) SetText(tbJapanese, ChannelTitles[0]);
                 else allLangs = false;
@@ -509,6 +511,7 @@ namespace CustomizeMii
                 else allLangs = false;
                 if (ChannelTitles[6] != ChannelTitles[1]) SetText(tbDutch, ChannelTitles[6]);
                 else allLangs = false;
+                if (ChannelTitles[7] != ChannelTitles[1]) SetText(tbKorean, ChannelTitles[7]);
 
                 if (allLangs) SetText(tbEnglish, ChannelTitles[1]);
                 else SetText(tbAllLanguages, ChannelTitles[1]);
@@ -843,7 +846,7 @@ namespace CustomizeMii
                 Wii.Tools.SaveFileFromByteArray(bannerbin, TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin");
                 Directory.Delete(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT", true);
 
-                if (!string.IsNullOrEmpty(SoundReplace) || !string.IsNullOrEmpty(tbSound.Text))
+                if (!string.IsNullOrEmpty(SoundReplace) || !string.IsNullOrEmpty(wadInfo.sound))
                 {
                     bwCreateWad.ReportProgress(50, "Packing sound.bin...");
 
@@ -852,20 +855,20 @@ namespace CustomizeMii
                         File.Delete(TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin");
                         File.Copy(TempSoundPath, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin");
                     }
-                    else if (!string.IsNullOrEmpty(tbSound.Text))
+                    else if (!string.IsNullOrEmpty(wadInfo.sound))
                     {
                         if (tbSound.Text.EndsWith(".bns"))
                         {
-                            Wii.Sound.BnsToSoundBin(tbSound.Text, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
+                            Wii.Sound.BnsToSoundBin(wadInfo.sound, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
                         }
-                        else if (tbSound.Text.StartsWith("BNS:"))
+                        else if (wadInfo.sound.StartsWith("BNS:"))
                         {
                             Wii.Sound.BnsToSoundBin(TempBnsPath, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
                         }
                         else
                         {
-                            string SoundFile = tbSound.Text;
-                            if (tbSound.Text.EndsWith(".mp3")) SoundFile = TempWavePath;
+                            string SoundFile = wadInfo.sound;
+                            if (wadInfo.sound.EndsWith(".mp3")) SoundFile = TempWavePath;
 
                             Wii.Sound.WaveToSoundBin(SoundFile, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
                         }
@@ -874,13 +877,13 @@ namespace CustomizeMii
 
                 bwCreateWad.ReportProgress(60, "Packing 00000000.app...");
                 int[] Sizes = new int[3];
-                string[] Titles = new string[] { tbJapanese.Text, tbEnglish.Text, tbGerman.Text, tbFrench.Text, tbSpanish.Text, tbItalian.Text, tbDutch.Text };
+                
 
-                for (int i = 0; i < Titles.Length; i++)
-                    if (string.IsNullOrEmpty(Titles[i])) Titles[i] = tbAllLanguages.Text;
+                for (int i = 0; i < wadInfo.titles.Length; i++)
+                    if (string.IsNullOrEmpty(wadInfo.titles[i])) wadInfo.titles[i] = wadInfo.allLangTitle;
 
-                byte[] nullapp = Wii.U8.PackU8(TempUnpackPath + "00000000.app_OUT", out Sizes[0], out Sizes[1], out Sizes[2]);
-                nullapp = Wii.U8.AddHeaderIMET(nullapp, Titles, Sizes);
+                byte[] nullapp = Wii.U8.PackU8(TempUnpackPath + "00000000.app_OUT", out Sizes[0], out Sizes[1], out Sizes[2]);               
+                nullapp = Wii.U8.AddHeaderIMET(nullapp, wadInfo.titles, Sizes);
                 Wii.Tools.SaveFileFromByteArray(nullapp, TempUnpackPath + "00000000.app");
                 Directory.Delete(TempUnpackPath + "00000000.app_OUT", true);
 
@@ -888,7 +891,7 @@ namespace CustomizeMii
                 string[] tmdfile = Directory.GetFiles(TempUnpackPath, "*.tmd");
                 byte[] tmd = Wii.Tools.LoadFileToByteArray(tmdfile[0]);
 
-                if (!string.IsNullOrEmpty(tbDol.Text))
+                if (!string.IsNullOrEmpty(wadInfo.dol))
                 {
                     bwCreateWad.ReportProgress(80, "Inserting new DOL...");
                     string[] AppFiles = Directory.GetFiles(TempUnpackPath, "*.app");
@@ -907,22 +910,22 @@ namespace CustomizeMii
                             }
                         }
 
-                        if (tbDol.Text.StartsWith("Simple Forwarder:"))
+                        if (wadInfo.dol.StartsWith("Simple Forwarder:"))
                         {
                             CreateForwarderSimple(TempUnpackPath + "\\00000002.app");
                         }
-                        else if (tbDol.Text.StartsWith("Complex Forwarder"))
+                        else if (wadInfo.dol.StartsWith("Complex Forwarder"))
                         {
                             bwCreateWad.ReportProgress(82, "Compiling Forwarder...");
                             CreateForwarderComplex(TempUnpackPath + "\\00000002.app");
                         }
-                        else if (tbDol.Text == "Internal" || tbDol.Text.EndsWith(".wad"))
+                        else if (wadInfo.dol == "Internal" || wadInfo.dol.EndsWith(".wad"))
                         {
                             File.Copy(TempDolPath, TempUnpackPath + "\\00000002.app");
                         }
                         else
                         {
-                            File.Copy(tbDol.Text, TempUnpackPath + "\\00000002.app");
+                            File.Copy(wadInfo.dol, TempUnpackPath + "\\00000002.app");
                         }
 
                         tmd = Wii.WadEdit.ChangeTmdBootIndex(tmd, 1);
@@ -938,16 +941,16 @@ namespace CustomizeMii
                             }
                         }
 
-                        if (tbDol.Text.StartsWith("Simple Forwarder:"))
+                        if (wadInfo.dol.StartsWith("Simple Forwarder:"))
                         {
                             CreateForwarderSimple(TempUnpackPath + "\\00000001.app");
                         }
-                        else if (tbDol.Text.StartsWith("Complex Forwarder"))
+                        else if (wadInfo.dol.StartsWith("Complex Forwarder"))
                         {
                             bwCreateWad.ReportProgress(82, "Compiling Forwarder...");
                             CreateForwarderComplex(TempUnpackPath + "\\00000001.app");
                         }
-                        else if (tbDol.Text == "Internal")
+                        else if (wadInfo.dol == "Internal")
                         {
                             File.Copy(TempDolPath, TempUnpackPath + "\\00000001.app");
                         }
@@ -980,10 +983,14 @@ namespace CustomizeMii
                 }
 
                 bwCreateWad.ReportProgress(85, "Updating TMD...");
+                Wii.WadEdit.ChangeIosFlag(tmdfile[0], wadInfo.requiredIos);
                 Wii.WadEdit.UpdateTmdContents(tmdfile[0]);
 
-                Wii.WadEdit.ChangeTitleID(tikfile[0], 0, tbTitleID.Text.ToUpper());
-                Wii.WadEdit.ChangeTitleID(tmdfile[0], 1, tbTitleID.Text.ToUpper());
+                if (!string.IsNullOrEmpty(wadInfo.titleId))
+                {
+                    Wii.WadEdit.ChangeTitleID(tikfile[0], 0, wadInfo.titleId);
+                    Wii.WadEdit.ChangeTitleID(tmdfile[0], 1, wadInfo.titleId);
+                }
 
                 bwCreateWad.ReportProgress(90, "Trucha Signing...");
                 Wii.WadEdit.TruchaSign(tmdfile[0], 1);

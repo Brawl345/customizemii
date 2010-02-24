@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//These classes are based on bns.py of the Wii.py Framework with improvements by me (Leathl)
+//These classes are based on bns.py (by megazig) of the Wii.py Framework with improvements by me (Leathl)
 //Thanks to Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man, the authors of Wii.py!
 
 using System;

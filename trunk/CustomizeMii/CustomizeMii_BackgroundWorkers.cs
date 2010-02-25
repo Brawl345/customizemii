@@ -800,8 +800,8 @@ namespace CustomizeMii
 
         void bwCreateWad_DoWork(object sender, DoWorkEventArgs e)
         {
-            try
-            {
+            //try
+            //{
                 BackgroundWorker bwCreateWad = sender as BackgroundWorker;
                 WadCreationInfo wadInfo = (WadCreationInfo)e.Argument;
                 EventHandler DisableControls = new EventHandler(this.DisableControls);
@@ -1014,15 +1014,15 @@ namespace CustomizeMii
 
                 wadCreationInfo = wadInfo;
                 wadCreationInfo.success = true;
-            }
-            catch (Exception ex)
-            {
-                sendWadReady = -1;
-                CreationTimer.Stop();
-                EventHandler EnableControls = new EventHandler(this.EnableControls);
-                this.Invoke(EnableControls);
-                ErrorBox(ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    sendWadReady = -1;
+            //    CreationTimer.Stop();
+            //    EventHandler EnableControls = new EventHandler(this.EnableControls);
+            //    this.Invoke(EnableControls);
+            //    ErrorBox(ex.Message);
+            //}
         }
     }
 }

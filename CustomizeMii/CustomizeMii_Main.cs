@@ -33,7 +33,7 @@ namespace CustomizeMii
     public partial class CustomizeMii_Main : Form
     {
         #region Constants
-        const string version = "2.3"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "2.31"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         const int SoundMaxLength = 30; //In seconds
         const int SoundWarningLength = 20; //In seconds
         const int BnsWarningLength = 45; //In seconds
@@ -1288,11 +1288,16 @@ namespace CustomizeMii
                                     {
                                         WadCreationInfo wadInfo = new WadCreationInfo();
                                         wadInfo.outFile = TempPath + "SendToWii.wad";
+                                        wadInfo.titles = new string[] { tbJapanese.Text, tbEnglish.Text, tbGerman.Text, tbFrench.Text, tbSpanish.Text, tbItalian.Text, tbDutch.Text, tbKorean.Text };
+                                        wadInfo.allLangTitle = tbAllLanguages.Text;
                                         wadInfo.nandLoader = (WadCreationInfo.NandLoader)cmbNandLoader.SelectedIndex;
                                         wadInfo.sendToWii = true;
                                         wadInfo.transmitProtocol = (TransmitProtocol)cmt.Protocol;
                                         wadInfo.transmitIp = cmt.IPAddress;
                                         wadInfo.transmitIos = int.Parse(cmt.IOS);
+                                        wadInfo.titleId = tbTitleID.Text;
+                                        wadInfo.sound = tbSound.Text;
+                                        wadInfo.dol = tbDol.Text;
 
                                         BackgroundWorker bwCreateWad = new BackgroundWorker();
                                         bwCreateWad.DoWork += new DoWorkEventHandler(bwCreateWad_DoWork);

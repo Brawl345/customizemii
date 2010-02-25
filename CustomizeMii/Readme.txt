@@ -9,6 +9,9 @@ Thanks to icefire / Xuzz for the basic idea of this Application!
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 2.31
+	- Fixed sending to Wii
+
 Version 2.3
 	- Fixed bug when extracting icon images
 	- Added ability to change the startup IOS (IOS used to launch the title)

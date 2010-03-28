@@ -20,21 +20,16 @@ namespace CustomizeMii
     public struct TplImage
     {
         public System.Drawing.Image tplImage;
+        public System.Drawing.Image checkerBoard;
         public string tplFormat;
+        public string fileName;
     }
 
     public struct TransmitInfo
     {
-        public bool usedCompression;
         public double compressionRatio;
         public double transmittedLength;
         public int timeElapsed;
-    }
-
-    public enum TransmitProtocol : int
-    {
-        JODI = 0,
-        HAXX = 1
     }
 
     public struct BnsConversionInfo
@@ -46,10 +41,10 @@ namespace CustomizeMii
             Manual
         }
 
-        public LoopType Loop;
-        public int LoopStartSample;
-        public string AudioFile;
-        public bool StereoToMono;
+        public LoopType loopType;
+        public int loopStartSample;
+        public string audioFile;
+        public bool stereoToMono;
     }
 
     public struct WadCreationInfo
@@ -57,23 +52,26 @@ namespace CustomizeMii
         public enum NandLoader : int
         {
             comex = 0,
-            Waninkoko = 1
+            Waninkoko = 1,
         }
 
         public string titleId;
         public string[] titles;
         public string allLangTitle;
-        public int requiredIos;
+        public int startupIos;
         public string sound;
         public string dol;
         public string outFile;
         public NandLoader nandLoader;
         public bool sendToWii;
-        public TransmitProtocol transmitProtocol;
+        public libWiiSharp.Protocol transmitProtocol;
         public string transmitIp;
         public int transmitIos;
         public bool saveAfterTransmit;
         public bool success;
+        public bool sendWadReady;
+        public byte[] wadFile;
+        public bool lz77;
     }
 
     public struct Progress

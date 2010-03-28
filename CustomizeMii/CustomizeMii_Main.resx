@@ -127,8 +127,12 @@ SquidMan for Zetsubou
 Andre Perrot for gbalzss
 comex and Waninkoko for both their NAND Loader
 djdynamite123 for his forwarder base files
-The USB Loader GX Team for their forwarder source</value>
+The USB Loader GX Team for their forwarder source
+wilsoff for helping me debugging 3.0</value>
   </data>
+  <metadata name="cmTpls.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>566, 7</value>
+  </metadata>
   <metadata name="ssMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>16, 7</value>
   </metadata>

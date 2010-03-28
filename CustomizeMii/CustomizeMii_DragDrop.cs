@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using libWiiSharp;
 
 namespace CustomizeMii
 {
@@ -42,7 +43,7 @@ namespace CustomizeMii
 
             if (data.Length == 1 && data[0].ToLower().EndsWith(".wad"))
             {
-                LoadChannel(data[0]);
+                loadChannel(data[0]);
             }
         }
 
@@ -78,7 +79,7 @@ namespace CustomizeMii
                 data[0].ToLower().EndsWith("icon.bin") ||
                 data[0].ToLower().EndsWith("banner.bin")))
             {
-                ReplacePart(data[0]);
+                replacePart(data[0]);
             }
         }
 
@@ -101,44 +102,35 @@ namespace CustomizeMii
             {
                 try
                 {
-                    byte[] wad = Wii.Tools.LoadFileToByteArray(data[0]);
+                    WAD tmpWad = WAD.Load(data[0]);
 
-                    int numContents = Wii.WadInfo.GetContentNum(wad);
-
-                    if (numContents == 3)
+                    if (tmpWad.NumOfContents == 3)
                     {
-                        int bootIndex = Wii.WadInfo.GetBootIndex(wad);
-                        string appFile = string.Empty;
+                        int appIndex = 0;
+                        if (tmpWad.BootIndex == 1) appIndex = 2;
+                        else if (tmpWad.BootIndex == 2) appIndex = 1;
 
-                        if (bootIndex == 1)
-                        { appFile = "00000002.app"; }
-                        else if (bootIndex == 2)
-                        { appFile = "00000001.app"; }
-
-                        if (!string.IsNullOrEmpty(appFile))
+                        if (appIndex > 0)
                         {
-                            if (Directory.Exists(TempTempPath + "TempWad")) Directory.Delete(TempTempPath + "TempWad", true);
-                            Wii.WadUnpack.UnpackWad(data[0], TempTempPath + "TempWad");
-
-                            File.Copy(TempTempPath + "TempWad\\" + appFile, TempDolPath, true);
-                            SetText(tbDol, data[0]);
+                            newDol = tmpWad.Contents[appIndex];
+                            setControlText(tbDol, data[0]);
                             btnBrowseDol.Text = "Clear";
                         }
-                        else
-                            ErrorBox("The DOL file couldn't be found!");
+                        else errorBox("The DOL file couldn't be found!");
                     }
-                    else
-                        ErrorBox("The DOL file couldn't be found!");
+                    else errorBox("The DOL file couldn't be found!");
                 }
                 catch (Exception ex)
                 {
-                    SetText(tbDol, string.Empty);
-                    ErrorBox(ex.Message);
+                    setControlText(tbDol, string.Empty);
+                    btnBrowseDol.Text = "Browse...";
+                    errorBox(ex.Message);
                 }
             }
             else if (data[0].ToLower().EndsWith(".dol"))
             {
-                SetText(tbDol, data[0]);
+                newDol = File.ReadAllBytes(data[0]);
+                setControlText(tbDol, data[0]);
                 btnBrowseDol.Text = "Clear";
             }
         }
@@ -149,7 +141,7 @@ namespace CustomizeMii
             {
                 string[] data = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                if (File.Exists(Application.StartupPath + "\\lame.exe"))
+                if (File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "lame.exe"))
                 {
                     if (data.Length == 1 && (data[0].ToLower().EndsWith(".wav") ||
                         data[0].ToLower().EndsWith(".bns") ||
@@ -171,20 +163,17 @@ namespace CustomizeMii
 
             if (data[0].ToLower().EndsWith(".mp3"))
             {
-                ConvertMp3ToWave(data[0]);
+                convertMp3ToWave(data[0]);
             }
             else
             {
-                SetText(tbSound, data[0]);
-
+                replacedSound = data[0];
+                setControlText(tbSound, data[0]);
                 btnBrowseSound.Text = "Clear";
 
-                if (!string.IsNullOrEmpty(SoundReplace))
-                {
-                    SoundReplace = string.Empty;
-                    if (cmbReplace.SelectedIndex == 2) SetText(tbReplace, SoundReplace);
-                    if (File.Exists(TempSoundPath)) File.Delete(TempSoundPath);
-                }
+                newSoundBin = Headers.IMD5.AddHeader(File.ReadAllBytes(data[0]));
+
+                if (cmbReplace.SelectedIndex == 2) setControlText(tbReplace, string.Empty);
             }
         }
 
@@ -216,14 +205,14 @@ namespace CustomizeMii
             {
                 try
                 {
-                    AddTpl(lbxBannerTpls, thisFile);
+                    addTpl(lbxBannerTpls, thisFile);
                 }
                 catch { errors.Add(thisFile); }
             }
 
             if (errors.Count > 0)
             {
-                ErrorBox(string.Format("These files were not added, because either they already exist or an error occured during conversion:\n\n{0}", string.Join("\n", (errors.ToArray()))));
+                errorBox(string.Format("These files were not added, because either they already exist or an error occured during conversion:\n\n{0}", string.Join("\n", (errors.ToArray()))));
             }
         }
 
@@ -255,14 +244,14 @@ namespace CustomizeMii
             {
                 try
                 {
-                    AddTpl(lbxIconTpls, thisFile);
+                    addTpl(lbxIconTpls, thisFile);
                 }
                 catch { errors.Add(thisFile); }
             }
 
             if (errors.Count > 0)
             {
-                ErrorBox(string.Format("These files were not added, because either they already exist or an error occured during conversion:\n\n{0}", string.Join("\n", (errors.ToArray()))));
+                errorBox(string.Format("These files were not added, because either they already exist or an error occured during conversion:\n\n{0}", string.Join("\n", (errors.ToArray()))));
             }
         }
     }

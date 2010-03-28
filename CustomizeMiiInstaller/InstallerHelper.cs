@@ -36,16 +36,20 @@ namespace CustomizeMiiInstaller
     {
         public static MemoryStream CreateInstaller(string wadFile, byte iosToUse)
         {
+            return CreateInstaller(File.ReadAllBytes(wadFile), iosToUse);
+        }
+
+        public static MemoryStream CreateInstaller(byte[] wadFileBytes, byte iosToUse)
+        {
             const int injectionPosition = 0x5A74C;
             const int maxAllowedSizeForWads = 4 * 1024 * 1024 - 32; //(Max 4MB-32bytes )
 
             //0. Read length of the wad to ensure it has an allowed size
-            byte[] wadFileBytes = File.ReadAllBytes(wadFile);
             uint wadLength = (uint)wadFileBytes.Length;
 
             if (wadLength > maxAllowedSizeForWads)
             {
-                throw new ArgumentException(String.Format("The file {0} is sized above the max allowed limit of {1} for network installation.", wadFile, maxAllowedSizeForWads));
+                throw new ArgumentException(String.Format("The file is sized above the max allowed limit of {1} for network installation.", maxAllowedSizeForWads));
             }
 
             //1. Open the stub installer from resources

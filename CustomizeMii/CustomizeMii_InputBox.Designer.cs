@@ -50,6 +50,7 @@ namespace CustomizeMii
             this.btnOK = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
             this.cbElf = new System.Windows.Forms.CheckBox();
+            this.tbInput2 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // tbInput
@@ -106,6 +107,14 @@ namespace CustomizeMii
             this.cbElf.UseVisualStyleBackColor = true;
             this.cbElf.Visible = false;
             // 
+            // tbInput2
+            // 
+            this.tbInput2.Location = new System.Drawing.Point(121, 34);
+            this.tbInput2.Name = "tbInput2";
+            this.tbInput2.Size = new System.Drawing.Size(108, 20);
+            this.tbInput2.TabIndex = 1;
+            this.tbInput2.Visible = false;
+            // 
             // CustomizeMii_InputBox
             // 
             this.AcceptButton = this.btnOK;
@@ -114,6 +123,7 @@ namespace CustomizeMii
             this.BackColor = System.Drawing.SystemColors.Control;
             this.CancelButton = this.btnExit;
             this.ClientSize = new System.Drawing.Size(238, 92);
+            this.Controls.Add(this.tbInput2);
             this.Controls.Add(this.cbElf);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnOK);
@@ -136,5 +146,6 @@ namespace CustomizeMii
         public System.Windows.Forms.TextBox tbInput;
         public System.Windows.Forms.Button btnExit;
         public System.Windows.Forms.CheckBox cbElf;
+        public System.Windows.Forms.TextBox tbInput2;
     }
 }

@@ -152,5 +152,29 @@ namespace CustomizeMii
                 if (!cbPack3.Checked) thisTb.Text = string.Empty;
             }
         }
+
+        private void tb_TextChanged(object sender, EventArgs e)
+        {
+            TextBox tbSender = sender as TextBox;
+
+            int curPos = tbSender.SelectionStart;
+
+            if (tbSender.Text.Contains("\\"))
+                tbSender.Text = tbSender.Text.Replace("\\", "/");
+
+            if (tbSender.Text.Contains("sd:"))
+                tbSender.Text = tbSender.Text.Replace("sd:", "SD:");
+
+            if (tbSender.Text.Contains("usb:"))
+                tbSender.Text = tbSender.Text.Replace("usb:", "USB:");
+
+            if (tbSender.Text.Contains(".DOL"))
+                tbSender.Text = tbSender.Text.Replace(".DOL", ".dol");
+
+            if (tbSender.Text.Contains(".ELF"))
+                tbSender.Text = tbSender.Text.Replace(".ELF", ".elf");
+
+            tbSender.SelectionStart = curPos;
+        }
     }
 }

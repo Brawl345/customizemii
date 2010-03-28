@@ -28,7 +28,7 @@ namespace ForwardMii
 {
     public class GXForwarder
     {
-        private readonly string TempDir = Path.GetTempPath() + "ForwardMii_Temp\\" + Guid.NewGuid() + "\\";
+        private readonly string TempDir = Path.GetTempPath() + "ForwardMii_Temp" + Path.DirectorySeparatorChar + Guid.NewGuid() + Path.DirectorySeparatorChar;
         private bool[] packs = new bool[] { false, false, false };
         private string[] paths = new string[16]; //Maximum 16 Paths
         private string image43;
@@ -180,18 +180,18 @@ namespace ForwardMii
                     Image img = Image.FromFile(image43);
                     if (img.Width != 640 || img.Height != 480)
                         img = ResizeImage(img, 640, 480);
-                    img.Save(TempDir + "\\source\\images\\background.png", System.Drawing.Imaging.ImageFormat.Png);
+                    img.Save(TempDir + Path.DirectorySeparatorChar + "source" + Path.DirectorySeparatorChar + "images" + Path.DirectorySeparatorChar + "background.png", System.Drawing.Imaging.ImageFormat.Png);
                 }
                 catch
                 {
                     Bitmap img = new Bitmap(640, 480);
-                    img.Save(TempDir + "\\source\\images\\background.png", System.Drawing.Imaging.ImageFormat.Png);
+                    img.Save(TempDir + Path.DirectorySeparatorChar + "source" + Path.DirectorySeparatorChar + "images" + Path.DirectorySeparatorChar + "background.png", System.Drawing.Imaging.ImageFormat.Png);
                 }
             }
             else
             {
                 Bitmap img = new Bitmap(640, 480);
-                img.Save(TempDir + "\\source\\images\\background.png", System.Drawing.Imaging.ImageFormat.Png);
+                img.Save(TempDir + Path.DirectorySeparatorChar + "source" + Path.DirectorySeparatorChar + "images" + Path.DirectorySeparatorChar + "background.png", System.Drawing.Imaging.ImageFormat.Png);
             }
 
             if (!string.IsNullOrEmpty(image169) && File.Exists(image169))
@@ -201,18 +201,18 @@ namespace ForwardMii
                     Image img = Image.FromFile(image169);
                     if (img.Width != 640 || img.Height != 480)
                         img = ResizeImage(img, 640, 480);
-                    img.Save(TempDir + "\\source\\images\\background169.png", System.Drawing.Imaging.ImageFormat.Png);
+                    img.Save(TempDir + Path.DirectorySeparatorChar + "source" + Path.DirectorySeparatorChar + "images" + Path.DirectorySeparatorChar + "background169.png", System.Drawing.Imaging.ImageFormat.Png);
                 }
                 catch
                 {
                     Bitmap img = new Bitmap(640, 480);
-                    img.Save(TempDir + "\\source\\images\\background169.png", System.Drawing.Imaging.ImageFormat.Png);
+                    img.Save(TempDir + Path.DirectorySeparatorChar + "source" + Path.DirectorySeparatorChar + "images" + Path.DirectorySeparatorChar + "background169.png", System.Drawing.Imaging.ImageFormat.Png);
                 }
             }
             else
             {
                 Bitmap img = new Bitmap(640, 480);
-                img.Save(TempDir + "\\source\\images\\background169.png", System.Drawing.Imaging.ImageFormat.Png);
+                img.Save(TempDir + Path.DirectorySeparatorChar + "source" + Path.DirectorySeparatorChar + "images" + Path.DirectorySeparatorChar + "background169.png", System.Drawing.Imaging.ImageFormat.Png);
             }
         }
 
@@ -304,7 +304,7 @@ namespace ForwardMii
                 }
             }
 
-            using (FileStream fs = new FileStream(TempDir + "source\\main.cpp", FileMode.Create))
+            using (FileStream fs = new FileStream(TempDir + "source" + Path.DirectorySeparatorChar + "main.cpp", FileMode.Create))
             {
                 using (StreamWriter writer = new StreamWriter(fs))
                 {
@@ -319,14 +319,14 @@ namespace ForwardMii
         private void CopyResources()
         {
             if (Directory.Exists(TempDir)) Directory.Delete(TempDir, true);
-            Directory.CreateDirectory(TempDir + "source\\images");
+            Directory.CreateDirectory(TempDir + "source" + Path.DirectorySeparatorChar + "images");
             string[] Resources = new string[] { "dolloader.c", "dolloader.h", "elf_abi.h", "elfloader.c",
                 "elfloader.h", "fatmounter.c", "fatmounter.h", "filelist.h", "video.cpp", "video.h" };
 
             foreach (string thisResource in Resources)
             {
                 Stream tempStream = GetReourceStream(thisResource);
-                StreamToFile(tempStream, TempDir + "source\\" + thisResource);
+                StreamToFile(tempStream, TempDir + "source" + Path.DirectorySeparatorChar + thisResource);
             }
 
             Stream makefile = GetReourceStream("Makefile");

@@ -93,6 +93,7 @@ namespace CustomizeMii
             this.tb1.Size = new System.Drawing.Size(311, 20);
             this.tb1.TabIndex = 1;
             this.tb1.Text = "SD:/apps/example/boot.dol";
+            this.tb1.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // cbImage43
             // 
@@ -124,6 +125,7 @@ namespace CustomizeMii
             this.tbImage43.Enabled = false;
             this.tbImage43.Location = new System.Drawing.Point(94, 280);
             this.tbImage43.Name = "tbImage43";
+            this.tbImage43.ReadOnly = true;
             this.tbImage43.Size = new System.Drawing.Size(171, 20);
             this.tbImage43.TabIndex = 4;
             // 
@@ -133,6 +135,7 @@ namespace CustomizeMii
             this.tbImage169.Enabled = false;
             this.tbImage169.Location = new System.Drawing.Point(94, 309);
             this.tbImage169.Name = "tbImage169";
+            this.tbImage169.ReadOnly = true;
             this.tbImage169.Size = new System.Drawing.Size(171, 20);
             this.tbImage169.TabIndex = 5;
             // 
@@ -212,6 +215,7 @@ namespace CustomizeMii
             this.tb2.Size = new System.Drawing.Size(311, 20);
             this.tb2.TabIndex = 1;
             this.tb2.Text = "SD:/apps/example/boot.elf";
+            this.tb2.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb3
             // 
@@ -220,6 +224,7 @@ namespace CustomizeMii
             this.tb3.Size = new System.Drawing.Size(311, 20);
             this.tb3.TabIndex = 1;
             this.tb3.Text = "USB:/apps/example/boot.dol";
+            this.tb3.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb4
             // 
@@ -228,6 +233,7 @@ namespace CustomizeMii
             this.tb4.Size = new System.Drawing.Size(311, 20);
             this.tb4.TabIndex = 1;
             this.tb4.Text = "USB:/apps/example/boot.elf";
+            this.tb4.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tabPaths
             // 
@@ -288,6 +294,7 @@ namespace CustomizeMii
             this.tb5.Name = "tb5";
             this.tb5.Size = new System.Drawing.Size(311, 20);
             this.tb5.TabIndex = 4;
+            this.tb5.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb6
             // 
@@ -296,6 +303,7 @@ namespace CustomizeMii
             this.tb6.Name = "tb6";
             this.tb6.Size = new System.Drawing.Size(311, 20);
             this.tb6.TabIndex = 5;
+            this.tb6.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb7
             // 
@@ -304,6 +312,7 @@ namespace CustomizeMii
             this.tb7.Name = "tb7";
             this.tb7.Size = new System.Drawing.Size(311, 20);
             this.tb7.TabIndex = 2;
+            this.tb7.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb8
             // 
@@ -312,6 +321,7 @@ namespace CustomizeMii
             this.tb8.Name = "tb8";
             this.tb8.Size = new System.Drawing.Size(311, 20);
             this.tb8.TabIndex = 3;
+            this.tb8.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tabOptional2
             // 
@@ -346,6 +356,7 @@ namespace CustomizeMii
             this.tb9.Name = "tb9";
             this.tb9.Size = new System.Drawing.Size(311, 20);
             this.tb9.TabIndex = 9;
+            this.tb9.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb10
             // 
@@ -354,6 +365,7 @@ namespace CustomizeMii
             this.tb10.Name = "tb10";
             this.tb10.Size = new System.Drawing.Size(311, 20);
             this.tb10.TabIndex = 10;
+            this.tb10.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb11
             // 
@@ -362,6 +374,7 @@ namespace CustomizeMii
             this.tb11.Name = "tb11";
             this.tb11.Size = new System.Drawing.Size(311, 20);
             this.tb11.TabIndex = 7;
+            this.tb11.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb12
             // 
@@ -370,6 +383,7 @@ namespace CustomizeMii
             this.tb12.Name = "tb12";
             this.tb12.Size = new System.Drawing.Size(311, 20);
             this.tb12.TabIndex = 8;
+            this.tb12.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tabOptional3
             // 
@@ -404,6 +418,7 @@ namespace CustomizeMii
             this.tb13.Name = "tb13";
             this.tb13.Size = new System.Drawing.Size(311, 20);
             this.tb13.TabIndex = 9;
+            this.tb13.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb14
             // 
@@ -412,6 +427,7 @@ namespace CustomizeMii
             this.tb14.Name = "tb14";
             this.tb14.Size = new System.Drawing.Size(311, 20);
             this.tb14.TabIndex = 10;
+            this.tb14.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb15
             // 
@@ -420,6 +436,7 @@ namespace CustomizeMii
             this.tb15.Name = "tb15";
             this.tb15.Size = new System.Drawing.Size(311, 20);
             this.tb15.TabIndex = 7;
+            this.tb15.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // tb16
             // 
@@ -428,6 +445,7 @@ namespace CustomizeMii
             this.tb16.Name = "tb16";
             this.tb16.Size = new System.Drawing.Size(311, 20);
             this.tb16.TabIndex = 8;
+            this.tb16.TextChanged += new System.EventHandler(this.tb_TextChanged);
             // 
             // CustomizeMii_ComplexForwarder
             // 

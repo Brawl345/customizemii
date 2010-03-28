@@ -127,6 +127,10 @@ InitVideo ()
 	VIDEO_Init();
 	vmode = VIDEO_GetPreferredMode(NULL); // get default video mode
 
+	//Widescreen loading image fix...
+	vmode->viWidth = 678;
+	vmode->viXOrigin = (VI_MAX_WIDTH_NTSC - 678) / 2;
+	
 	VIDEO_Configure (vmode);
 
 	// Allocate the video buffers

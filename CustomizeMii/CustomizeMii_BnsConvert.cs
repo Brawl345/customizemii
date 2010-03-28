@@ -19,8 +19,8 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using System.ComponentModel;
-using WaveFile;
 using System.Media;
+using libWiiSharp;
 
 namespace CustomizeMii
 {
@@ -40,6 +40,7 @@ namespace CustomizeMii
         private int sampleCount;
         private SoundPlayer sPlayer;
         private bool mp3LengthKnown = false;
+        private byte[] sourceSound = new byte[0];
 
         public string AudioFile { get { return tbAudioFile.Text; } }
         public bool LoopNone { get { return rbNone.Checked; } }
@@ -47,6 +48,7 @@ namespace CustomizeMii
         public bool LoopManually { get { return rbEnterManually.Checked; } }
         public int LoopStartSample { get { return loopStartSample; } }
         public int ChannelCount { get { return channelCount; } }
+        public byte[] SourceSound { get { return sourceSound; } set { sourceSound = value; } }
 
         public CustomizeMii_BnsConvert(bool lameExists)
         {
@@ -60,17 +62,15 @@ namespace CustomizeMii
             this.Size = new System.Drawing.Size(btnCancel.Location.X + btnCancel.Size.Width + 15, this.Size.Height);
 
             this.CenterToParent();
+
             bwGatherInfo = new BackgroundWorker();
             bwGatherInfo.WorkerSupportsCancellation = true;
-
             bwGatherInfo.DoWork += new DoWorkEventHandler(bwGatherInfo_DoWork);
 
-            byte[] soundBin = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", 32, 16);
-
-            if (soundBin[0] == 'R' && soundBin[1] == 'I' && soundBin[2] == 'F' && soundBin[3] == 'F')
+            if (sourceSound[0] == 'R' && sourceSound[1] == 'I' && sourceSound[2] == 'F' && sourceSound[3] == 'F')
             { cbSourceSound.Enabled = true; }
-            else if (soundBin[0] == 'L' && soundBin[1] == 'Z' && soundBin[2] == '7' && soundBin[3] == '7')
-                if (soundBin[9] == 'R' && soundBin[10] == 'I' && soundBin[11] == 'F' && soundBin[12] == 'F')
+            else if (sourceSound[0] == 'L' && sourceSound[1] == 'Z' && sourceSound[2] == '7' && sourceSound[3] == '7')
+                if (sourceSound[9] == 'R' && sourceSound[10] == 'I' && sourceSound[11] == 'F' && sourceSound[12] == 'F')
                 { cbSourceSound.Enabled = true; }
         }
 
@@ -133,16 +133,8 @@ namespace CustomizeMii
             {
                 tbAudioFile.Text = "Internal Sound";
 
-                FileStream fs = new FileStream(CustomizeMii_Main.TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", FileMode.Open);
-                byte[] audio = new byte[fs.Length - 32];
-                int offset = 0;
-
-                fs.Seek(32, SeekOrigin.Begin);
-                fs.Read(audio, 0, audio.Length);
-                fs.Close();
-
-                if ((offset = Wii.Lz77.GetLz77Offset(audio)) != -1)
-                    audio = Wii.Lz77.Decompress(audio, offset);
+                if (Lz77.IsLz77Compressed(sourceSound))
+                { Lz77 l = new Lz77(); sourceSound = l.Decompress(sourceSound); }
 
                 foreach (Label thisLabel in gbWaveInfo.Controls)
                     if (thisLabel.Name.ToLower().Contains("value"))
@@ -151,7 +143,7 @@ namespace CustomizeMii
                         thisLabel.Text = "Gathering";
                     }
 
-                bwGatherInfo.RunWorkerAsync(audio);
+                bwGatherInfo.RunWorkerAsync(sourceSound);
 
                 //this.Size = new System.Drawing.Size(510, 220);
                 this.Size = new System.Drawing.Size(gbWaveInfo.Location.X + gbWaveInfo.Size.Width + 15, this.Size.Height);
@@ -258,15 +250,6 @@ namespace CustomizeMii
 
                 if (!cancelled)
                     this.Invoke(UpdateValues);
-
-                if (e.Argument is byte[])
-                {
-                    byte[] audio = e.Argument as byte[];
-                    using (FileStream fs = new FileStream(CustomizeMii_Main.TempWavePath, FileMode.Create))
-                    {
-                        fs.Write(audio, 0, audio.Length);
-                    }
-                }
             }
             catch
             {
@@ -407,14 +390,7 @@ namespace CustomizeMii
                     Wave wave;
                     if (cbSourceSound.Checked)
                     {
-                        using (FileStream fs = new FileStream(CustomizeMii_Main.TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", FileMode.Open))
-                        {
-                            byte[] audio = new byte[fs.Length - 32];
-                            fs.Seek(32, SeekOrigin.Begin);
-                            fs.Read(audio, 0, audio.Length);
-
-                            wave = new Wave(audio);
-                        }
+                        wave = new Wave(sourceSound);
                     }
                     else wave = new Wave(tbAudioFile.Text);
 

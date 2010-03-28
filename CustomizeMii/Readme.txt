@@ -2,12 +2,23 @@ CustomizeMii is a custom channel creator for the Wii.
 The .NET Framework 2.0 is required to run this application!
 
 For any further information, see: http://customizemii.googlecode.com
-Please use the Issue Tracker there to report any occuring bugs.
+Please use the issue tracker there to report any occuring bugs.
 
-Thanks to icefire / Xuzz for the basic idea of this Application!
+Thanks to icefire / Xuzz for the basic idea of this application!
 
 -----------------------------------------------------------------------------------------
 Changelog:
+
+Version 3.0
+	- Switched backend to libWiiSharp (http://libwiisharp.googlecode.com)
+	- Speed improvements through using RAM instead of temp files on HDD
+	- No separate Mono version anymore, the normal version works with Mono (even compiling forwarders!)
+	- Fixed complex forwarder loading screen to be fullscreen (thanks wilsoff / tantric!)
+	- Fixed bug where startup IOS was set to 0 when sending channel to Wii
+	- Doesn't require common-key.bin anymore
+	- Added checkerboard for transparent areas in images (preview window)
+	- Added ability to change a TPLs format (preview window)
+	- Added ability to rename and resize TPLs (right click on listbox)
 
 Version 2.31
 	- Fixed sending to Wii
@@ -105,6 +116,7 @@ Andre Perrot for gbalzss
 comex and Waninkoko for both their NAND Loader
 djdynamite123 for the forwarder base files
 The USB Loader GX Team for their forwarder source
+wilsoff for helping me debugging 3.0
 -----------------------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------------------

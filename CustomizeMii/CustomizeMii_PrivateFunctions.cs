@@ -22,366 +22,23 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using libWiiSharp;
 
 namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
-        private Forwarder.Simple SimpleForwarder = new Forwarder.Simple();
-        private Forwarder.Complex ComplexForwarder = new Forwarder.Complex();
-        private delegate void BoxInvoker(string message);
-        private delegate void SetTextInvoker(string text, TextBox tb);
-        private delegate void SetLabelInvoker(string text, Label lb);
-        private delegate void SetButtonInvoker(string text, Button btn);
+        private Forwarder.Simple simpleForwarder = new Forwarder.Simple();
+        private Forwarder.Complex complexForwarder = new Forwarder.Complex();
+        private delegate void messageInvoker(string message);
+        private delegate void controlTextInvoker(Control ctrl, string text);
 
-        private bool CheckUnpackFolder()
+        private bool securityChecks()
         {
+            if (cbSecurityChecksOff.Checked) return true;
+
             try
             {
-                //Check Unpack Root
-                string[] RootFiles = Directory.GetFiles(TempUnpackPath);
-                string[] RootDirs = Directory.GetDirectories(TempUnpackPath);
-
-                foreach (string thisFile in RootFiles)
-                {
-                    if (!thisFile.ToLower().EndsWith(".app") &&
-                        !thisFile.ToLower().EndsWith(".cert") &&
-                        !thisFile.ToLower().EndsWith(".tik") &&
-                        !thisFile.ToLower().EndsWith(".tmd"))
-                        File.Delete(thisFile);
-                }
-
-                if (RootDirs.Length > 1)
-                {
-                    foreach (string thisDir in RootDirs)
-                    {
-                        if (!thisDir.EndsWith("00000000.app_OUT"))
-                            Directory.Delete(thisDir, true);
-                    }
-                }
-
-                //Check 00000000.app_OUT
-                string[] MetaFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT");
-                string[] MetaDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT");
-
-                foreach (string thisFile in MetaFiles)
-                    File.Delete(thisFile);
-                foreach (string thisDir in MetaDirs)
-                    if (!thisDir.ToLower().EndsWith("meta"))
-                        Directory.Delete(thisDir, true);
-
-                string[] AppFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta");
-                string[] AppDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta");
-
-                foreach (string thisFile in AppFiles)
-                {
-                    if (!thisFile.ToLower().EndsWith("banner.bin") &&
-                        !thisFile.ToLower().EndsWith("icon.bin") &&
-                        !thisFile.ToLower().EndsWith("sound.bin"))
-                        File.Delete(thisFile);
-                }
-
-                if (AppDirs.Length > 2)
-                {
-                    foreach (string thisDir in AppDirs)
-                    {
-                        if (!thisDir.EndsWith("banner.bin_OUT") &&
-                            !thisDir.EndsWith("icon.bin_OUT"))
-                            Directory.Delete(thisDir, true);
-                    }
-                }
-
-                //Check banner.bin_OUT / Banner Replace Path
-                if (string.IsNullOrEmpty(BannerReplace))
-                {
-                    string[] ArcFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT");
-                    string[] ArcDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT");
-
-                    foreach (string thisFile in ArcFiles)
-                        File.Delete(thisFile);
-                    foreach (string thisDir in ArcDirs)
-                        if (!thisDir.ToLower().EndsWith("arc"))
-                            Directory.Delete(thisDir, true);
-
-                    string[] BannerFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc");
-                    string[] BannerDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc");
-
-                    foreach (string thisFile in BannerFiles)
-                        File.Delete(thisFile);
-
-                    if (BannerDirs.Length > 3)
-                    {
-                        foreach (string thisDir in BannerDirs)
-                        {
-                            if (!thisDir.ToLower().EndsWith("anim") &&
-                                !thisDir.ToLower().EndsWith("blyt") &&
-                                !thisDir.ToLower().EndsWith("timg"))
-                                Directory.Delete(thisDir, true);
-                        }
-                    }
-
-                    string[] AnimFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\anim");
-                    string[] AnimDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\anim");
-
-                    foreach (string thisFile in AnimFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlan"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in AnimDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] BlytFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\blyt");
-                    string[] BlytDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\blyt");
-
-                    foreach (string thisFile in BlytFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlyt"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in BlytDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] TimgFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\timg");
-                    string[] TimgDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\timg");
-
-                    foreach (string thisFile in TimgFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".tpl"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in TimgDirs)
-                        Directory.Delete(thisDir, true);
-                }
-                else
-                {
-                    string[] ArcFiles = Directory.GetFiles(TempBannerPath);
-                    string[] ArcDirs = Directory.GetDirectories(TempBannerPath);
-
-                    foreach (string thisFile in ArcFiles)
-                        File.Delete(thisFile);
-                    foreach (string thisDir in ArcDirs)
-                        if (!thisDir.ToLower().EndsWith("arc"))
-                            Directory.Delete(thisDir, true);
-
-                    string[] BannerFiles = Directory.GetFiles(TempBannerPath + "arc");
-                    string[] BannerDirs = Directory.GetDirectories(TempBannerPath + "arc");
-
-                    foreach (string thisFile in BannerFiles)
-                        File.Delete(thisFile);
-
-                    if (BannerDirs.Length > 3)
-                    {
-                        foreach (string thisDir in BannerDirs)
-                        {
-                            if (!thisDir.ToLower().EndsWith("anim") &&
-                                !thisDir.ToLower().EndsWith("blyt") &&
-                                !thisDir.ToLower().EndsWith("timg"))
-                                Directory.Delete(thisDir, true);
-                        }
-                    }
-
-                    string[] AnimFiles = Directory.GetFiles(TempBannerPath + "arc\\anim");
-                    string[] AnimDirs = Directory.GetDirectories(TempBannerPath + "arc\\anim");
-
-                    foreach (string thisFile in AnimFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlan"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in AnimDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] BlytFiles = Directory.GetFiles(TempBannerPath + "arc\\blyt");
-                    string[] BlytDirs = Directory.GetDirectories(TempBannerPath + "arc\\blyt");
-
-                    foreach (string thisFile in BlytFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlyt"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in BlytDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] TimgFiles = Directory.GetFiles(TempBannerPath + "arc\\timg");
-                    string[] TimgDirs = Directory.GetDirectories(TempBannerPath + "arc\\timg");
-
-                    foreach (string thisFile in TimgFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".tpl"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in TimgDirs)
-                        Directory.Delete(thisDir, true);
-                }
-
-                //Check icon.bin_OUT / Icon Replace Path
-                if (string.IsNullOrEmpty(IconReplace))
-                {
-                    string[] ArcFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT");
-                    string[] ArcDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT");
-
-                    foreach (string thisFile in ArcFiles)
-                        File.Delete(thisFile);
-                    foreach (string thisDir in ArcDirs)
-                        if (!thisDir.ToLower().EndsWith("arc"))
-                            Directory.Delete(thisDir, true);
-
-                    string[] IconFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc");
-                    string[] IconDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc");
-
-                    foreach (string thisFile in IconFiles)
-                        File.Delete(thisFile);
-
-                    if (IconDirs.Length > 3)
-                    {
-                        foreach (string thisDir in IconDirs)
-                        {
-                            if (!thisDir.ToLower().EndsWith("anim") &&
-                                !thisDir.ToLower().EndsWith("blyt") &&
-                                !thisDir.ToLower().EndsWith("timg"))
-                                Directory.Delete(thisDir, true);
-                        }
-                    }
-
-                    string[] AnimFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\anim");
-                    string[] AnimDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\anim");
-
-                    foreach (string thisFile in AnimFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlan"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in AnimDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] BlytFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\blyt");
-                    string[] BlytDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\blyt");
-
-                    foreach (string thisFile in BlytFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlyt"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in BlytDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] TimgFiles = Directory.GetFiles(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\timg");
-                    string[] TimgDirs = Directory.GetDirectories(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\timg");
-
-                    foreach (string thisFile in TimgFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".tpl"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in TimgDirs)
-                        Directory.Delete(thisDir, true);
-                }
-                else
-                {
-                    string[] ArcFiles = Directory.GetFiles(TempIconPath);
-                    string[] ArcDirs = Directory.GetDirectories(TempIconPath);
-
-                    foreach (string thisFile in ArcFiles)
-                        File.Delete(thisFile);
-                    foreach (string thisDir in ArcDirs)
-                        if (!thisDir.ToLower().EndsWith("arc"))
-                            Directory.Delete(thisDir, true);
-
-                    string[] IconFiles = Directory.GetFiles(TempIconPath + "arc");
-                    string[] IconDirs = Directory.GetDirectories(TempIconPath + "arc");
-
-                    foreach (string thisFile in IconFiles)
-                        File.Delete(thisFile);
-
-                    if (IconDirs.Length > 3)
-                    {
-                        foreach (string thisDir in IconDirs)
-                        {
-                            if (!thisDir.ToLower().EndsWith("anim") &&
-                                !thisDir.ToLower().EndsWith("blyt") &&
-                                !thisDir.ToLower().EndsWith("timg"))
-                                Directory.Delete(thisDir, true);
-                        }
-                    }
-
-                    string[] AnimFiles = Directory.GetFiles(TempIconPath + "arc\\anim");
-                    string[] AnimDirs = Directory.GetDirectories(TempIconPath + "arc\\anim");
-
-                    foreach (string thisFile in AnimFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlan"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in AnimDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] BlytFiles = Directory.GetFiles(TempIconPath + "arc\\blyt");
-                    string[] BlytDirs = Directory.GetDirectories(TempIconPath + "arc\\blyt");
-
-                    foreach (string thisFile in BlytFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".brlyt"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in BlytDirs)
-                        Directory.Delete(thisDir, true);
-
-                    string[] TimgFiles = Directory.GetFiles(TempIconPath + "arc\\timg");
-                    string[] TimgDirs = Directory.GetDirectories(TempIconPath + "arc\\timg");
-
-                    foreach (string thisFile in TimgFiles)
-                    {
-                        if (!thisFile.ToLower().EndsWith(".tpl"))
-                            File.Delete(thisFile);
-                    }
-
-                    foreach (string thisDir in TimgDirs)
-                        Directory.Delete(thisDir, true);
-                }
-
-                return true;
-            }
-            catch { return false; }
-        }
-
-        private bool FailureCheck()
-        {
-            try
-            {
-                currentProgress.progressValue = 100;
-                currentProgress.progressState = "Error Checks...";
-                this.Invoke(ProgressUpdate);
-
-                //Check Unpack Folder
-                if (CheckUnpackFolder() == false)
-                {
-                    if (UnpackFolderErrorCount > 0)
-                    {
-                        ErrorBox("Something's wrong with the temporary files.\nYou may have to start again." +
-                            "\n\nIf this message keeps bothering you, please report as much information " +
-                            "as possible at the issue tracker: http://code.google.com/p/customizemii/issues/list");
-                    }
-                    else
-                    {
-                        ErrorBox("Something's wrong with the temporary files.\nYou may have to start again.");
-                    }
-
-                    UnpackFolderErrorCount++;
-                    return false;
-                }
-
                 //Check Channel Title Boxes
                 if (!(!string.IsNullOrEmpty(tbAllLanguages.Text) ||
                     (!string.IsNullOrEmpty(tbEnglish.Text) &&
@@ -392,114 +49,130 @@ namespace CustomizeMii
                     !string.IsNullOrEmpty(tbItalian.Text) &&
                     !string.IsNullOrEmpty(tbDutch.Text))))
                 {
-                    ErrorBox("You must either enter a general Channel Title or one for each language!");
+                    errorBox("You must either enter a general Channel Title or one for each language!");
                     return false;
                 }
 
                 //Check Title ID Length + Chars
                 if (tbTitleID.Text.Length != 4)
-                {
-                    ErrorBox("The Title ID must be 4 characters long!"); return false;
-                }
+                { errorBox("The Title ID must be 4 characters long!"); return false; }
 
                 Regex allowedchars = new Regex("[A-Z0-9]{4}$");
                 if (!allowedchars.IsMatch(tbTitleID.Text.ToUpper()))
-                {
-                    ErrorBox("Please enter a valid Title ID!"); return false;
-                }
+                { errorBox("Please enter a valid Title ID!"); return false; }
 
-                //Check Required IOS Box
+                //Check Startup IOS Box
                 int tmp;
                 if (!int.TryParse(tbStartupIos.Text, out tmp))
-                {
-                    ErrorBox("Please enter a valid Required IOS! (0 - 255)"); return false;
-                }
+                { errorBox("Please enter a valid Startup IOS! (0 - 255)"); return false; }
                 else if (tmp < 0 || tmp > 255)
-                {
-                    ErrorBox("Please enter a valid Required IOS! (0 - 255)"); return false;
-                }
+                { errorBox("Please enter a valid Startup IOS! (0 - 255)"); return false; }
 
                 //Check brlan files
-                string[] ValidBrlans = new string[] { "banner.brlan", "icon.brlan", "banner_loop.brlan", "icon_loop.brlan", "banner_start.brlan", "icon_start.brlan" };
+                string[] validBrlans = new string[] { "banner.brlan", "icon.brlan", "banner_loop.brlan", "banner_start.brlan" };
                 foreach (string thisBrlan in lbxBrlanBanner.Items)
                 {
-                    if (!Wii.Tools.StringExistsInStringArray(thisBrlan.ToLower(), ValidBrlans))
-                    {
-                        ErrorBox(thisBrlan + " is not a valid brlan filename!");
-                        return false;
-                    }
+                    if (!Array.Exists(validBrlans, brlanName => brlanName.ToLower() == thisBrlan.ToLower()))
+                    { errorBox(thisBrlan + " is not a valid brlan filename!"); return false; }
                 }
                 foreach (string thisBrlan in lbxBrlanIcon.Items)
                 {
-                    if (!Wii.Tools.StringExistsInStringArray(thisBrlan.ToLower(), ValidBrlans))
-                    {
-                        ErrorBox(thisBrlan + " is not a valid brlan filename!");
-                        return false;
-                    }
+                    if (!Array.Exists(validBrlans, brlanName => brlanName.ToLower() == thisBrlan.ToLower()))
+                    { errorBox(thisBrlan + " is not a valid brlan filename!"); return false; }
                 }
 
                 //Check TPLs
-                List<string> BannerTpls = new List<string>();
-                List<string> IconTpls = new List<string>();
-                foreach (string thisTpl in lbxBannerTpls.Items) BannerTpls.Add(thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1));
-                foreach (string thisTpl in lbxIconTpls.Items) IconTpls.Add(thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1));
+                string[] bannerRequiredTpls = new string[0];
+                string[] iconRequiredTpls = new string[0];
+                List<string> bannerTpls = new List<string>();
+                List<string> iconTpls = new List<string>();
 
-                string[] BannerBrlytPath;
-                string[] BannerBrlanPath;
-                string[] IconBrlytPath;
-                string[] IconBrlanPath;
-
-                if (string.IsNullOrEmpty(BannerReplace))
+                if (string.IsNullOrEmpty(replacedBanner))
                 {
-                    BannerBrlytPath = Directory.GetFiles(TempUnpackBannerBrlytPath);
-                    BannerBrlanPath = Directory.GetFiles(TempUnpackBannerBrlanPath);
+                    for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                    {
+                        if (bannerBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                        { bannerRequiredTpls = Shared.MergeStringArrays(bannerRequiredTpls, Brlyt.GetBrlytTpls(bannerBin.Data[i])); }
+                        else if (bannerBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                        { bannerRequiredTpls = Shared.MergeStringArrays(bannerRequiredTpls, Brlan.GetBrlanTpls(bannerBin.Data[i])); }
+                        else if (bannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                        { bannerTpls.Add(bannerBin.StringTable[i]); }
+                    }
                 }
                 else
                 {
-                    BannerBrlytPath = Directory.GetFiles(TempBannerPath + "arc\\blyt");
-                    BannerBrlanPath = Directory.GetFiles(TempBannerPath + "arc\\anim");
+                    for (int i = 0; i < newBannerBin.NumOfNodes; i++)
+                    {
+                        if (newBannerBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                        { bannerRequiredTpls = Shared.MergeStringArrays(bannerRequiredTpls, Brlyt.GetBrlytTpls(newBannerBin.Data[i])); }
+                        else if (newBannerBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                        { bannerRequiredTpls = Shared.MergeStringArrays(bannerRequiredTpls, Brlan.GetBrlanTpls(newBannerBin.Data[i])); }
+                        else if (newBannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                        { bannerTpls.Add(newBannerBin.StringTable[i]); }
+                    }
                 }
-                if (string.IsNullOrEmpty(IconReplace))
+
+                if (string.IsNullOrEmpty(replacedIcon))
                 {
-                    IconBrlytPath = Directory.GetFiles(TempUnpackIconBrlytPath);
-                    IconBrlanPath = Directory.GetFiles(TempUnpackIconBrlanPath);
+                    for (int i = 0; i < iconBin.NumOfNodes; i++)
+                    {
+                        if (iconBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                        { iconRequiredTpls = Shared.MergeStringArrays(iconRequiredTpls, Brlyt.GetBrlytTpls(iconBin.Data[i])); }
+                        else if (iconBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                        { iconRequiredTpls = Shared.MergeStringArrays(iconRequiredTpls, Brlan.GetBrlanTpls(iconBin.Data[i])); }
+                        else if (iconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                        { iconTpls.Add(iconBin.StringTable[i]); }
+                    }
                 }
                 else
                 {
-                    IconBrlytPath = Directory.GetFiles(TempIconPath + "arc\\blyt");
-                    IconBrlanPath = Directory.GetFiles(TempIconPath + "arc\\anim");
+                    for (int i = 0; i < newIconBin.NumOfNodes; i++)
+                    {
+                        if (newIconBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                        { iconRequiredTpls = Shared.MergeStringArrays(iconRequiredTpls, Brlyt.GetBrlytTpls(newIconBin.Data[i])); }
+                        else if (newIconBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                        { iconRequiredTpls = Shared.MergeStringArrays(iconRequiredTpls, Brlan.GetBrlanTpls(newIconBin.Data[i])); }
+                        else if (newIconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                        { iconTpls.Add(newIconBin.StringTable[i]); }
+                    }
                 }
-
-                string[] BannerMissing;
-                string[] BannerUnused;
-                string[] IconMissing;
-                string[] IconUnused;
 
                 //Check for missing TPLs
-                if (Wii.Brlyt.CheckForMissingTpls(BannerBrlytPath[0], BannerBrlanPath[0], BannerTpls.ToArray(), out BannerMissing) == true)
+                List<string> missingTpls = new List<string>();
+
+                for (int i = 0; i < bannerRequiredTpls.Length; i++)
+                    if (!Array.Exists(bannerTpls.ToArray(), thisTpl => thisTpl.ToLower() == bannerRequiredTpls[i].ToLower()))
+                        missingTpls.Add(bannerRequiredTpls[i]);
+
+                if (missingTpls.Count > 0)
                 {
-                    ErrorBox("The following Banner TPLs are required by the banner.brlyt, but missing:\n\n" + string.Join("\n", BannerMissing));
+                    errorBox("The following Banner TPLs are required by the banner.brlyt, but missing:\n\n" + string.Join("\n", missingTpls.ToArray()));
                     return false;
                 }
-                if (Wii.Brlyt.CheckForMissingTpls(IconBrlytPath[0], IconBrlanPath[0], IconTpls.ToArray(), out IconMissing) == true)
+
+                missingTpls.Clear();
+
+                for (int i = 0; i < iconRequiredTpls.Length; i++)
+                    if (!Array.Exists(iconTpls.ToArray(), thisTpl => thisTpl.ToLower() == iconRequiredTpls[i].ToLower()))
+                        missingTpls.Add(iconRequiredTpls[i]);
+
+                if (missingTpls.Count > 0)
                 {
-                    ErrorBox("The following Icon TPLs are required by the icon.brlyt, but missing:\n\n" + string.Join("\n", IconMissing));
+                    errorBox("The following Icon TPLs are required by the icon.brlyt, but missing:\n\n" + string.Join("\n", missingTpls.ToArray()));
                     return false;
                 }
 
                 //Check Sound length
                 int soundLength = 0;
-                if (!string.IsNullOrEmpty(tbSound.Text) && string.IsNullOrEmpty(SoundReplace))
+                if (!string.IsNullOrEmpty(replacedSound))
                 {
                     if (!tbSound.Text.ToLower().EndsWith(".bns") && !tbSound.Text.StartsWith("BNS:"))
                     {
-                        string SoundFile = tbSound.Text;
-                        if (tbSound.Text.ToLower().EndsWith(".mp3")) SoundFile = TempWavePath;
-
-                        soundLength = Wii.Sound.GetWaveLength(SoundFile);
-                        if (soundLength > SoundMaxLength)
+                        Wave w = new Wave(Headers.IMD5.RemoveHeader(newSoundBin));
+                        soundLength = w.GetWaveLength();
+                        if (soundLength > soundMaxLength)
                         {
-                            ErrorBox(string.Format("Your Sound is longer than {0} seconds and thus not supported.\nIt is recommended to use a Sound shorter than {1} seconds, the maximum length is {0} seconds!", SoundMaxLength, SoundWarningLength));
+                            errorBox(string.Format("Your wave sound is longer than {0} seconds and thus not supported.\nIt is recommended to use a sound shorter than {1} seconds, the maximum length is {0} seconds!\nThis limit doesn't affect BNS sounds!", soundMaxLength, soundWarningLength));
                             return false;
                         }
                     }
@@ -508,75 +181,95 @@ namespace CustomizeMii
                 /*Errors till here..
                   From here only Warnings!*/
 
-                if (soundLength > SoundWarningLength)
+                if (soundLength > soundWarningLength)
                 {
-                    if (MessageBox.Show(string.Format("Your Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", SoundWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                    if (MessageBox.Show(string.Format("Your Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", soundWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                         return false;
                 }
 
                 //Check BNS sound length
                 if (tbSound.Text.StartsWith("BNS:") || tbSound.Text.ToLower().EndsWith(".bns"))
                 {
-                    string bnsFile = tbSound.Text;
-                    if (tbSound.Text.StartsWith("BNS:")) bnsFile = TempBnsPath;
-
-                    int bnsLength = Wii.Sound.GetBnsLength(bnsFile);
-                    if (bnsLength > BnsWarningLength)
+                    int bnsLength = BNS.GetBnsLength(Headers.IMD5.RemoveHeader(newSoundBin));
+                    if (bnsLength > bnsWarningLength)
                     {
-                        if (MessageBox.Show(string.Format("Your BNS Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", BnsWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                        if (MessageBox.Show(string.Format("Your BNS Sound is longer than {0} seconds.\nIt is recommended to use Sounds that are shorter than {0} seconds!\nDo you still want to continue?", bnsWarningLength), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                             return false;
                     }
                 }
 
                 //Check if brlyt or brlan were changed
-                if (BrlytChanged == true && BrlanChanged == false)
+                if (brlytChanged && !brlanChanged)
                 {
                     if (MessageBox.Show("You have changed the brlyt, but didn't change the brlan.\nAre you sure this is correct?", "brlyt Changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                         return false;
                 }
-                else if (BrlanChanged == true && BrlytChanged == false)
+                else if (brlanChanged && !brlytChanged)
                 {
                     if (MessageBox.Show("You have changed the brlan, but didn't change the brlyt.\nAre you sure this is correct?", "brlan Changed", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                         return false;
                 }
 
-                //Check for unused TPLs (Do this at the end of the failure checks, because we don't want a
-                //                       MessageBox asking if unused TPLs should be deleted and after that any error)           
-                if (Wii.Brlyt.CheckForUnusedTpls(BannerBrlytPath[0], BannerBrlanPath[0], BannerTpls.ToArray(), out BannerUnused) == true)
+                //Check for unused TPLs
+                List<string> unusedTpls = new List<string>();
+
+                for (int i = 0; i < bannerTpls.Count; i++)
+                    if (!Array.Exists(bannerRequiredTpls, thisTpl => thisTpl.ToLower() == bannerTpls[i].ToLower()))
+                        unusedTpls.Add(bannerTpls[i]);
+
+                if (unusedTpls.Count > 0)
                 {
                     DialogResult dlgresult = MessageBox.Show(
                         "The following Banner TPLs are unused by the banner.brlyt:\n\n" +
-                        string.Join("\n", BannerUnused) +
+                        string.Join("\n", unusedTpls.ToArray()) +
                         "\n\nDo you want them to be deleted before the WAD is being created? (Saves space!)",
                         "Delete unused TPLs?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                     if (dlgresult == DialogResult.Yes)
                     {
-                        foreach (string thisTpl in BannerUnused)
+                        if (string.IsNullOrEmpty(replacedBanner))
                         {
-                            if (string.IsNullOrEmpty(BannerReplace))
-                                File.Delete(TempUnpackBannerTplPath + thisTpl);
-                            else
-                                File.Delete(TempBannerPath + "arc\\timg\\" + thisTpl);
+                            foreach (string thisTpl in unusedTpls)
+                                bannerBin.RemoveFile("/arc/timg/" + thisTpl);
                         }
+                        else
+                        {
+                            foreach (string thisTpl in unusedTpls)
+                                newBannerBin.RemoveFile("/arc/timg/" + thisTpl);
+                        }
+
+                        addTpls();
                     }
                     else if (dlgresult == DialogResult.Cancel) return false;
                 }
-                if (Wii.Brlyt.CheckForUnusedTpls(IconBrlytPath[0], IconBrlanPath[0], IconTpls.ToArray(), out IconUnused) == true)
+
+                unusedTpls.Clear();
+
+                for (int i = 0; i < iconTpls.Count; i++)
+                    if (!Array.Exists(iconRequiredTpls, thisTpl => thisTpl.ToLower() == iconTpls[i].ToLower()))
+                        unusedTpls.Add(iconTpls[i]);
+
+
+                if (unusedTpls.Count > 0)
                 {
                     DialogResult dlgresult = MessageBox.Show(
                         "The following Icon TPLs are unused by the icon.brlyt:\n\n" +
-                        string.Join("\n", IconUnused) +
+                        string.Join("\n", unusedTpls.ToArray()) +
                         "\n\nDo you want them to be deleted before the WAD is being created? (Saves memory!)",
                         "Delete unused TPLs?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                     if (dlgresult == DialogResult.Yes)
                     {
-                        foreach (string thisTpl in IconUnused)
+                        if (string.IsNullOrEmpty(replacedIcon))
                         {
-                            if (string.IsNullOrEmpty(IconReplace))
-                                File.Delete(TempUnpackIconTplPath + thisTpl);
-                            else
-                                File.Delete(TempIconPath + "arc\\timg\\" + thisTpl);
+                            foreach (string thisTpl in unusedTpls)
+                                iconBin.RemoveFile("/arc/timg/" + thisTpl);
                         }
+                        else
+                        {
+                            foreach (string thisTpl in unusedTpls)
+                                newIconBin.RemoveFile("/arc/timg/" + thisTpl);
+                        }
+
+                        addTpls();
                     }
                     else if (dlgresult == DialogResult.Cancel) return false;
                 }
@@ -589,12 +282,12 @@ namespace CustomizeMii
             }
             catch (Exception ex)
             {
-                ErrorBox(ex.Message);
+                errorBox(ex.Message);
                 return false;
             }
         }
 
-        private void ForwarderDialogSimple()
+        private void forwarderDialogSimple()
         {
             CustomizeMii_InputBox ib = new CustomizeMii_InputBox(false);
             ib.Size = new Size(ib.Size.Width, 120);
@@ -603,80 +296,74 @@ namespace CustomizeMii
             ib.btnExit.Text = "Cancel";
             ib.cbElf.Visible = true;
 
-            ib.tbInput.Text = SimpleForwarder.AppFolder;
-            ib.cbElf.Checked = SimpleForwarder.ForwardToElf;
+            ib.tbInput.Text = simpleForwarder.AppFolder;
+            ib.cbElf.Checked = simpleForwarder.ForwardToElf;
 
             if (ib.ShowDialog() == DialogResult.OK)
             {
-                SimpleForwarder.ForwardToElf = ib.cbElf.Checked;
-                SimpleForwarder.AppFolder = ib.Input;
-                SetText(tbDol, string.Format("Simple Forwarder: \"SD:\\apps\\{0}\\boot.{1}\"",
-                    SimpleForwarder.AppFolder, SimpleForwarder.ForwardToElf == true ? "elf" : "dol"));
+                simpleForwarder.ForwardToElf = ib.cbElf.Checked;
+                simpleForwarder.AppFolder = ib.Input;
+                setControlText(tbDol, string.Format("Simple Forwarder: \"SD:\\apps\\{0}\\boot.{1}\"",
+                    simpleForwarder.AppFolder, simpleForwarder.ForwardToElf == true ? "elf" : "dol"));
                 btnBrowseDol.Text = "Clear";
             }
         }
 
-        private void ForwarderDialogComplex()
+        private void forwarderDialogComplex()
         {
             CustomizeMii_ComplexForwarder cf = new CustomizeMii_ComplexForwarder();
 
             TextBox[] tbs = new TextBox[] { cf.tb1, cf.tb2, cf.tb3, cf.tb4, cf.tb5, cf.tb6, cf.tb7, cf.tb8,
                                             cf.tb9, cf.tb10, cf.tb11, cf.tb12, cf.tb13, cf.tb14, cf.tb15, cf.tb16};
             for (int i = 0; i < tbs.Length; i++)
-                tbs[i].Text = ComplexForwarder.GetPath(i);
+                tbs[i].Text = complexForwarder.GetPath(i);
 
-            cf.cbPack1.Checked = ComplexForwarder.Packs[0];
-            cf.cbPack2.Checked = ComplexForwarder.Packs[1];
-            cf.cbPack3.Checked = ComplexForwarder.Packs[2];
+            cf.cbPack1.Checked = complexForwarder.Packs[0];
+            cf.cbPack2.Checked = complexForwarder.Packs[1];
+            cf.cbPack3.Checked = complexForwarder.Packs[2];
 
-            if (!string.IsNullOrEmpty(ComplexForwarder.Image43))
+            if (!string.IsNullOrEmpty(complexForwarder.Image43))
             {
                 cf.cbImage43.Checked = true;
                 cf.tbImage43.Enabled = true;
                 cf.btnBrowseImage43.Enabled = true;
 
-                cf.tbImage43.Text = ComplexForwarder.Image43;
+                cf.tbImage43.Text = complexForwarder.Image43;
             }
-            if (!string.IsNullOrEmpty(ComplexForwarder.Image169))
+            if (!string.IsNullOrEmpty(complexForwarder.Image169))
             {
                 cf.cbImage169.Checked = true;
                 cf.tbImage169.Enabled = true;
                 cf.btnBrowseImage169.Enabled = true;
 
-                cf.tbImage169.Text = ComplexForwarder.Image169;
+                cf.tbImage169.Text = complexForwarder.Image169;
             }
 
             if (cf.ShowDialog() == DialogResult.OK)
             {
                 for (int i = 0; i < tbs.Length; i++)
-                    ComplexForwarder.SetPath(i, tbs[i].Text.Replace('\\', '/'));
+                    complexForwarder.SetPath(i, tbs[i].Text.Replace('\\', '/'));
 
-                ComplexForwarder.Packs[0] = cf.cbPack1.Checked;
-                ComplexForwarder.Packs[1] = cf.cbPack2.Checked;
-                ComplexForwarder.Packs[2] = cf.cbPack3.Checked;
+                complexForwarder.Packs[0] = cf.cbPack1.Checked;
+                complexForwarder.Packs[1] = cf.cbPack2.Checked;
+                complexForwarder.Packs[2] = cf.cbPack3.Checked;
 
-                ComplexForwarder.Image43 = cf.tbImage43.Text;
-                ComplexForwarder.Image169 = cf.tbImage169.Text;
+                complexForwarder.Image43 = (cf.cbImage43.Checked) ? cf.tbImage43.Text : string.Empty;
+                complexForwarder.Image169 = (cf.cbImage169.Checked) ? cf.tbImage169.Text : string.Empty;
 
-                SetText(tbDol, string.Format("Complex Forwarder"));
+                setControlText(tbDol, string.Format("Complex Forwarder"));
                 btnBrowseDol.Text = "Clear";
             }
         }
 
-        private void FixTpls()
+        private void enableControls()
         {
-            string[] bannerTpls = Directory.GetFiles(GetCurBannerPath() + "timg\\", "*.tpl");
-            string[] iconTpls = Directory.GetFiles(GetCurIconPath() + "timg\\", "*.tpl");
+            if (this.InvokeRequired)
+            {
+               this.Invoke(new MethodInvoker(enableControls));
+               return;
+            }
 
-            foreach (string thisTpl in bannerTpls)
-                Wii.TPL.FixFilter(thisTpl);
-            
-            foreach (string thisTpl in iconTpls)
-                Wii.TPL.FixFilter(thisTpl);
-        }
-
-        private void EnableControls(object sender, EventArgs e)
-        {
             for (int i = 0; i < tabControl.TabCount; i++)
             {
                 if (tabControl.TabPages[i] != tabSource)
@@ -691,10 +378,19 @@ namespace CustomizeMii
                     }
                 }
             }
+
+            llbBannerMultiReplace.Enabled = true;
+            llbIconMultiReplace.Enabled = true;
         }
 
-        private void DisableControls(object sender, EventArgs e)
+        private void disableControls()
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(disableControls));
+                return;
+            }
+
             for (int i = 0; i < tabControl.TabCount; i++)
             {
                 if (tabControl.TabPages[i] != tabSource)
@@ -709,9 +405,12 @@ namespace CustomizeMii
                     }
                 }
             }
+
+            llbBannerMultiReplace.Enabled = false;
+            llbIconMultiReplace.Enabled = false;
         }
 
-        private Image ResizeImage(Image img, int x, int y)
+        private Image resizeImage(Image img, int x, int y)
         {
             Image newimage = new Bitmap(x, y);
             using (Graphics gfx = Graphics.FromImage(newimage))
@@ -721,141 +420,150 @@ namespace CustomizeMii
             return newimage;
         }
 
-        private string GetCurBannerPath()
+        private void setControlText(Control ctrl, string text)
         {
-            if (string.IsNullOrEmpty(BannerReplace))
-                return TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT\\arc\\";
-            else
-                return TempBannerPath + "arc\\";
-        }
-
-        private string GetCurIconPath()
-        {
-            if (string.IsNullOrEmpty(IconReplace))
-                return TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT\\arc\\";
-            else
-                return TempIconPath + "arc\\";
-        }
-
-        private void SetText(TextBox tb, string text)
-        {
-            SetTextInvoker invoker = new SetTextInvoker(this.SetText);
-            this.Invoke(invoker, text, tb);
-        }
-
-        private void SetText(string text, TextBox tb)
-        {
-            tb.Text = text;
-        }
-
-        private void SetLabel(Label lb, string text)
-        {
-            SetLabelInvoker invoker = new SetLabelInvoker(this.SetLabel);
-            this.Invoke(invoker, text, lb);
-        }
-
-        private void SetLabel(string text, Label lb)
-        {
-            lb.Text = text;
-        }
-
-        private void SetButton(Button btn, string text)
-        {
-            SetButtonInvoker invoker = new SetButtonInvoker(this.SetButton);
-            this.Invoke(invoker, text, btn);
-        }
-
-        private void SetButton(string text, Button btn)
-        {
-            btn.Text = text;
-        }
-
-        private void AddBannerTpls(object sender, EventArgs e)
-        {
-            try
+            if (this.InvokeRequired)
             {
-                string[] BannerTpls;
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerTpls = Directory.GetFiles(TempUnpackBannerTplPath);
-                else
-                    BannerTpls = Directory.GetFiles(TempBannerPath + "arc\\timg");
-
-                AddBannerTpls(BannerTpls);
+                this.Invoke(new controlTextInvoker(setControlText), ctrl, text);
+                return;
             }
-            catch { }
+
+            ctrl.Text = text;
         }
 
-        private void AddIconTpls(object sender, EventArgs e)
+        private void addTpls()
         {
-            try
+            if (this.InvokeRequired)
             {
-                string[] IconTpls;
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconTpls = Directory.GetFiles(TempUnpackIconTplPath);
-                else
-                    IconTpls = Directory.GetFiles(TempIconPath + "arc\\timg");
-
-                AddIconTpls(IconTpls);
+                this.Invoke(new MethodInvoker(addTpls));
+                return;
             }
-            catch { }
+
+            List<string> bannerTpls = new List<string>();
+
+            if (string.IsNullOrEmpty(replacedBanner))
+            {
+                for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                    if (bannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                    {
+                        try
+                        {
+                            TPL tmpTpl = TPL.Load(bannerBin.Data[i]);
+                            bannerTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})", bannerBin.StringTable[i], tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height, tmpTpl.GetTextureFormat(0).ToString(), getSizeString(bannerBin.Data[i].Length)));
+                        }
+                        catch { }
+                    }
+            }
+            else
+            {
+                for (int i = 0; i < newBannerBin.NumOfNodes; i++)
+                    if (newBannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                    {
+                        try
+                        {
+                            TPL tmpTpl = TPL.Load(newBannerBin.Data[i]);
+                            bannerTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})", newBannerBin.StringTable[i], tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height, tmpTpl.GetTextureFormat(0).ToString(), getSizeString(newBannerBin.Data[i].Length)));
+                        }
+                        catch { }
+                    }
+            }
+
+            _addBannerTpls(bannerTpls.ToArray());
+
+            List<string> iconTpls = new List<string>();
+
+            if (string.IsNullOrEmpty(replacedIcon))
+            {
+                for (int i = 0; i < iconBin.NumOfNodes; i++)
+                    if (iconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                    {
+                        try
+                        {
+                            TPL tmpTpl = TPL.Load(iconBin.Data[i]);
+                            iconTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})", iconBin.StringTable[i], tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height, tmpTpl.GetTextureFormat(0).ToString(), getSizeString(iconBin.Data[i].Length)));
+                        }
+                        catch { }
+                    }
+            }
+            else
+            {
+                for (int i = 0; i < newIconBin.NumOfNodes; i++)
+                    if (newIconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                    {
+                        try
+                        {
+                            TPL tmpTpl = TPL.Load(newIconBin.Data[i]);
+                            iconTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})", newIconBin.StringTable[i], tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height, tmpTpl.GetTextureFormat(0).ToString(), getSizeString(newIconBin.Data[i].Length)));
+                        }
+                        catch { }
+                    }
+            }
+
+            _addIconTpls(iconTpls.ToArray());
         }
 
-        private void AddBannerTpls(string[] tpls)
+        private string getSizeString(int dataLength)
         {
+            if (dataLength > 1022976)
+                return string.Format("{0}MB", Math.Round(dataLength / 1024d / 1024d, 2)).Replace(',', ',');
+            else
+                return string.Format("{0}KB", Math.Round(dataLength / 1024d, 2)).Replace(',', '.');
+        }
+
+        private void _addBannerTpls(string[] tpls)
+        {
+            lbxBannerTpls.Items.Clear();
+
             if (tpls.Length > 0)
             {
-                lbxBannerTpls.Items.Clear();
-                BannerTplPath = tpls[0].Remove(tpls[0].LastIndexOf('\\') + 1);
-
                 for (int i = 0; i < tpls.Length; i++)
                 {
-                    if (BannerTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
-                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
-                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))) + " (Transparent)");
+                    if (bannerTransparents.Contains(tpls[i].Remove(tpls[i].IndexOf('(') - 3)))
+                        lbxBannerTpls.Items.Add(tpls[i] + " (Transparent)");
                     else
-                        lbxBannerTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
-                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))));
+                        lbxBannerTpls.Items.Add(tpls[i]);
                 }
             }
         }
 
-        private void AddIconTpls(string[] tpls)
+        private void _addIconTpls(string[] tpls)
         {
+            lbxIconTpls.Items.Clear();
+
             if (tpls.Length > 0)
             {
-                lbxIconTpls.Items.Clear();
-                IconTplPath = tpls[0].Remove(tpls[0].LastIndexOf('\\') + 1);
-
                 for (int i = 0; i < tpls.Length; i++)
                 {
-                    if (IconTransparents.Contains(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1)))
-                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
-                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))) + " (Transparent)");
+                    if (iconTransparents.Contains(tpls[i].Remove(tpls[i].IndexOf('(') - 3)))
+                        lbxIconTpls.Items.Add(tpls[i] + " (Transparent)");
                     else
-                        lbxIconTpls.Items.Add(tpls[i].Remove(0, tpls[i].LastIndexOf('\\') + 1) +
-                            string.Format(" ({0} x {1})", Wii.TPL.GetTextureWidth(File.ReadAllBytes(tpls[i])), Wii.TPL.GetTextureHeight(File.ReadAllBytes(tpls[i]))));
+                        lbxIconTpls.Items.Add(tpls[i]);
                 }
             }
         }
 
-        private void AddBrlyts(object sender, EventArgs e)
+        private void addBrlyts()
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(addBrlyts));
+                return;
+            }
+
             try
             {
-                string[] BannerBrlyt;
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerBrlyt = Directory.GetFiles(TempUnpackBannerBrlytPath);
-                else
-                    BannerBrlyt = Directory.GetFiles(TempBannerPath + "arc\\blyt");
+                List<string> bannerBrlyts = new List<string>();
+                for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                    if (bannerBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                        bannerBrlyts.Add(bannerBin.StringTable[i]);
 
-                string[] IconBrlyt;
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconBrlyt = Directory.GetFiles(TempUnpackIconBrlytPath);
-                else
-                    IconBrlyt = Directory.GetFiles(TempIconPath + "arc\\blyt");
+                List<string> iconBrlyts = new List<string>();
+                for (int i = 0; i < iconBin.NumOfNodes; i++)
+                    if (iconBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                        iconBrlyts.Add(iconBin.StringTable[i]);
 
-                AddBannerBrlyt(BannerBrlyt);
-                AddIconBrlyt(IconBrlyt);
+                _addBannerBrlyt(bannerBrlyts.ToArray());
+                _addIconBrlyt(iconBrlyts.ToArray());
 
                 if (lbxBrlytBanner.SelectedIndex == -1 && lbxBrlytIcon.SelectedIndex == -1)
                 {
@@ -866,24 +574,29 @@ namespace CustomizeMii
             catch { }
         }
 
-        private void AddBrlans(object sender, EventArgs e)
+        private void addBrlans()
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(addBrlans));
+                return;
+            }
+
             try
             {
-                string[] BannerBrlan;
-                if (string.IsNullOrEmpty(BannerReplace))
-                    BannerBrlan = Directory.GetFiles(TempUnpackBannerBrlanPath);
-                else
-                    BannerBrlan = Directory.GetFiles(TempBannerPath + "arc\\anim");
+                List<string> bannerBrlans = new List<string>();
 
-                string[] IconBrlan;
-                if (string.IsNullOrEmpty(IconReplace))
-                    IconBrlan = Directory.GetFiles(TempUnpackIconBrlanPath);
-                else
-                    IconBrlan = Directory.GetFiles(TempIconPath + "arc\\anim");
+                for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                    if (bannerBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                        bannerBrlans.Add(bannerBin.StringTable[i]);
 
-                AddBannerBrlan(BannerBrlan);
-                AddIconBrlan(IconBrlan);
+                List<string> iconBrlans = new List<string>();
+                for (int i = 0; i < iconBin.NumOfNodes; i++)
+                    if (iconBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                        iconBrlans.Add(iconBin.StringTable[i]);
+
+                _addBannerBrlan(bannerBrlans.ToArray());
+                _addIconBrlan(iconBrlans.ToArray());
 
                 if (lbxBrlanBanner.SelectedIndex == -1 && lbxBrlanIcon.SelectedIndex == -1)
                 {
@@ -894,127 +607,173 @@ namespace CustomizeMii
             catch { }
         }
 
-        private void AddBannerBrlyt(string[] brlyt)
+        private void _addBannerBrlyt(string[] brlyt)
         {
             if (brlyt.Length > 0)
             {
                 lbxBrlytBanner.Items.Clear();
-                BannerBrlytPath = brlyt[0].Remove(brlyt[0].LastIndexOf('\\') + 1);
 
                 for (int i = 0; i < brlyt.Length; i++)
-                {
-                    lbxBrlytBanner.Items.Add(brlyt[i].Remove(0, brlyt[i].LastIndexOf('\\') + 1));
-                }
+                    lbxBrlytBanner.Items.Add(brlyt[i]);
             }
         }
 
-        private void AddIconBrlyt(string[] brlyt)
+        private void _addIconBrlyt(string[] brlyt)
         {
             if (brlyt.Length > 0)
             {
                 lbxBrlytIcon.Items.Clear();
-                IconBrlytPath = brlyt[0].Remove(brlyt[0].LastIndexOf('\\') + 1);
 
                 for (int i = 0; i < brlyt.Length; i++)
-                {
-                    lbxBrlytIcon.Items.Add(brlyt[i].Remove(0, brlyt[i].LastIndexOf('\\') + 1));
-                }
+                    lbxBrlytIcon.Items.Add(brlyt[i]);
             }
         }
 
-        private void AddBannerBrlan(string[] brlan)
+        private void _addBannerBrlan(string[] brlan)
         {
             if (brlan.Length > 0)
             {
                 lbxBrlanBanner.Items.Clear();
-                BannerBrlanPath = brlan[0].Remove(brlan[0].LastIndexOf('\\') + 1);
 
                 for (int i = 0; i < brlan.Length; i++)
-                {
-                    lbxBrlanBanner.Items.Add(brlan[i].Remove(0, brlan[i].LastIndexOf('\\') + 1));
-                }
+                    lbxBrlanBanner.Items.Add(brlan[i]);
             }
         }
 
-        private void AddIconBrlan(string[] brlan)
+        private void _addIconBrlan(string[] brlan)
         {
             if (brlan.Length > 0)
             {
                 lbxBrlanIcon.Items.Clear();
-                IconBrlanPath = brlan[0].Remove(brlan[0].LastIndexOf('\\') + 1);
 
                 for (int i = 0; i < brlan.Length; i++)
-                {
-                    lbxBrlanIcon.Items.Add(brlan[i].Remove(0, brlan[i].LastIndexOf('\\') + 1));
-                }
+                    lbxBrlanIcon.Items.Add(brlan[i]);
             }
-        }
-
-        private void ErrorBox(string message)
-        {
-            BoxInvoker invoker = new BoxInvoker(this.errorBox);
-            this.Invoke(invoker, new object[] { message });
         }
 
         private void errorBox(string message)
         {
-            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new messageInvoker(errorBox), message);
+                return;
+            }
 
-        private void InfoBox(string message)
-        {
-            BoxInvoker invoker = new BoxInvoker(this.infoBox);
-            this.Invoke(invoker, new object[] { message });
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void infoBox(string message)
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new messageInvoker(infoBox), message);
+                return;
+            }
+
             MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void MakeBannerTplsTransparent()
+        private void makeBannerTplsTransparent()
         {
             foreach (string thisTpl in lbxBannerTpls.Items)
             {
                 if (thisTpl.EndsWith("(Transparent)"))
                 {
-                    string Tpl = GetCurBannerPath() + "timg\\" + thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1);
-                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
-                    int Width = Wii.TPL.GetTextureWidth(TplArray);
-                    int Height = Wii.TPL.GetTextureHeight(TplArray);
+                    if (string.IsNullOrEmpty(replacedBanner))
+                    {
+                        for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                        {
+                            if (thisTpl.Remove(thisTpl.IndexOf('(', 0) - 3).ToLower() == bannerBin.StringTable[i].ToLower())
+                            {
+                                TPL tmpTpl = TPL.Load(bannerBin.Data[i]);
+                                Size tSize = tmpTpl.GetTextureSize(0);
 
-                    Image Img = new Bitmap(Width, Height);
-                    Wii.TPL.ConvertToTPL(Img, Tpl, 5);
+                                Image tImg = new Bitmap(tSize.Width, tSize.Height);
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+
+                                bannerBin.Data[i] = tmpTpl.ToByteArray();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < newBannerBin.NumOfNodes; i++)
+                        {
+                            if (thisTpl.Remove(thisTpl.IndexOf('(', 0) - 3).ToLower() == newBannerBin.StringTable[i].ToLower())
+                            {
+                                TPL tmpTpl = TPL.Load(newBannerBin.Data[i]);
+                                Size tSize = tmpTpl.GetTextureSize(0);
+
+                                Image tImg = new Bitmap(tSize.Width, tSize.Height);
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+
+                                newBannerBin.Data[i] = tmpTpl.ToByteArray();
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        private void MakeIconTplsTransparent()
+        private void makeIconTplsTransparent()
         {
             foreach (string thisTpl in lbxIconTpls.Items)
             {
                 if (thisTpl.EndsWith("(Transparent)"))
                 {
-                    string Tpl = GetCurIconPath() + "timg\\" + thisTpl.Remove(thisTpl.IndexOf('(', 0) - 1);
-                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
-                    int Width = Wii.TPL.GetTextureWidth(TplArray);
-                    int Height = Wii.TPL.GetTextureHeight(TplArray);
+                    if (string.IsNullOrEmpty(replacedIcon))
+                    {
+                        for (int i = 0; i < iconBin.NumOfNodes; i++)
+                        {
+                            if (thisTpl.Remove(thisTpl.IndexOf('(', 0) - 3).ToLower() == iconBin.StringTable[i].ToLower())
+                            {
+                                TPL tmpTpl = TPL.Load(iconBin.Data[i]);
+                                Size tSize = tmpTpl.GetTextureSize(0);
 
-                    Image Img = new Bitmap(Width, Height);
-                    Wii.TPL.ConvertToTPL(Img, Tpl, 5);
+                                Image tImg = new Bitmap(tSize.Width, tSize.Height);
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+
+                                iconBin.Data[i] = tmpTpl.ToByteArray();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < newIconBin.NumOfNodes; i++)
+                        {
+                            if (thisTpl.Remove(thisTpl.IndexOf('(', 0) - 3).ToLower() == newIconBin.StringTable[i].ToLower())
+                            {
+                                TPL tmpTpl = TPL.Load(newIconBin.Data[i]);
+                                Size tSize = tmpTpl.GetTextureSize(0);
+
+                                Image tImg = new Bitmap(tSize.Width, tSize.Height);
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+
+                                newIconBin.Data[i] = tmpTpl.ToByteArray();
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        private void AddTpl(ListBox lbx)
+        private void addTpl(ListBox lbx)
         {
-            AddTpl(lbx, null);
+            addTpl(lbx, null);
         }
 
-        private void AddTpl(ListBox lbx, string inputFile)
+        private void addTpl(ListBox lbx, string inputFile)
         {
             try
             {
+                int switchVal = lbx == lbxBannerTpls ? cmbFormatBanner.SelectedIndex : cmbFormatIcon.SelectedIndex;
+                if (switchVal > 6)
+                    throw new Exception("This format is not supported, you must choose a different one!");
+
                 if (string.IsNullOrEmpty(inputFile))
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
@@ -1022,49 +781,127 @@ namespace CustomizeMii
                     ofd.FilterIndex = 6;
 
                     if (ofd.ShowDialog() == DialogResult.OK)
-                    {
                         inputFile = ofd.FileName;
-                    }
                 }
 
                 if (!string.IsNullOrEmpty(inputFile))
                 {
-                    for (int i = 0; i < lbx.Items.Count; i++)
-                        if (lbx.Items[i].ToString().ToLower() == Path.GetFileNameWithoutExtension(inputFile).ToLower() + ".tpl")
-                            throw new Exception("This TPL already exists, use the Replace button");
+                    string tplName = Path.GetFileNameWithoutExtension(inputFile) + ".tpl";
 
-                    string CurPath;
-                    if (lbx == lbxBannerTpls) CurPath = GetCurBannerPath();
-                    else CurPath = GetCurIconPath();
+                    if (lbx == lbxBannerTpls)
+                    {
+                        if (string.IsNullOrEmpty(replacedBanner))
+                        {
+                            for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                                if (bannerBin.StringTable[i].ToLower() == tplName.ToLower())
+                                { errorBox("This TPL already exists, use the Replace button"); return; }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < newBannerBin.NumOfNodes; i++)
+                                if (newBannerBin.StringTable[i].ToLower() == tplName.ToLower())
+                                { errorBox("This TPL already exists, use the Replace button"); return; }
+                        }
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(replacedIcon))
+                        {
+                            for (int i = 0; i < iconBin.NumOfNodes; i++)
+                                if (iconBin.StringTable[i].ToLower() == tplName.ToLower())
+                                { errorBox("This TPL already exists, use the Replace button"); return; }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < newIconBin.NumOfNodes; i++)
+                                if (newIconBin.StringTable[i].ToLower() == tplName.ToLower())
+                                { errorBox("This TPL already exists, use the Replace button"); return; }
+                        }
+                    }
 
-                    string[] brlytTpls = Wii.Brlyt.GetBrlytTpls(CurPath + string.Format("blyt\\{0}.brlyt", lbx == lbxBannerTpls ? "banner" : "icon"),
-                        CurPath + string.Format("anim\\{0}.brlan", lbx == lbxBannerTpls ? (File.Exists(CurPath + "anim\\banner.brlan")) ? "banner" : "banner_loop" : "icon"));
-                    string TplName = Path.GetFileNameWithoutExtension(inputFile) + ".tpl";
-                    int TplFormat = 6;
+                    string[] requiredTpls = new string[0];
 
-                    int switchVal = lbx == lbxBannerTpls ? cmbFormatBanner.SelectedIndex : cmbFormatIcon.SelectedIndex;
+                    if (lbx == lbxBannerTpls)
+                    {
+                        if (string.IsNullOrEmpty(replacedBanner))
+                        {
+                            for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                            {
+                                if (bannerBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlyt.GetBrlytTpls(bannerBin.Data[i])); }
+                                else if (bannerBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlan.GetBrlanTpls(bannerBin.Data[i])); }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < newBannerBin.NumOfNodes; i++)
+                            {
+                                if (newBannerBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlyt.GetBrlytTpls(newBannerBin.Data[i])); }
+                                else if (newBannerBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlan.GetBrlanTpls(newBannerBin.Data[i])); }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(replacedIcon))
+                        {
+                            for (int i = 0; i < iconBin.NumOfNodes; i++)
+                            {
+                                if (iconBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlyt.GetBrlytTpls(iconBin.Data[i])); }
+                                else if (iconBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlan.GetBrlanTpls(iconBin.Data[i])); }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < newIconBin.NumOfNodes; i++)
+                            {
+                                if (newIconBin.StringTable[i].ToLower().EndsWith(".brlyt"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlyt.GetBrlytTpls(newIconBin.Data[i])); }
+                                else if (newIconBin.StringTable[i].ToLower().EndsWith(".brlan"))
+                                { requiredTpls = Shared.MergeStringArrays(requiredTpls, Brlan.GetBrlanTpls(newIconBin.Data[i])); }
+                            }
+                        }
+                    }
+
+                    if (!Array.Exists(requiredTpls, thisTpl => thisTpl.ToLower() == tplName.ToLower()))
+                    {
+                        if (MessageBox.Show(
+                            string.Format("{0} is not required by your {1}.brlyt and thus only wastes memory!\n" +
+                            "Do you still want to add it?", tplName, lbx == lbxBannerTpls ? "banner" : "icon"),
+                            "TPL not required", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
+                            DialogResult.No)
+                            return;
+                    }
+
+                    int tplFormat = 6;
+
                     switch (switchVal)
                     {
                         case 6: //I4
-                            TplFormat = 0;
+                            tplFormat = 0;
                             break;
                         case 5: //I8
-                            TplFormat = 1;
+                            tplFormat = 1;
                             break;
                         case 4: //IA4
-                            TplFormat = 2;
+                            tplFormat = 2;
                             break;
                         case 3: //IA8
-                            TplFormat = 3;
+                            tplFormat = 3;
                             break;
                         case 0:
-                            TplFormat = 6;
+                            tplFormat = 6;
                             break;
                         case 1:
-                            TplFormat = 4;
+                            tplFormat = 4;
                             break;
                         case 2:
-                            TplFormat = 5;
+                            tplFormat = 5;
                             break;
                         default:
                             if (!inputFile.ToLower().EndsWith(".tpl"))
@@ -1072,39 +909,40 @@ namespace CustomizeMii
                             break;
                     }
 
-                    if (!Wii.Tools.StringExistsInStringArray(TplName, brlytTpls))
-                    {
-                        if (MessageBox.Show(string.Format("{0} is not required by your {1}.brlyt and thus only wastes memory!\nDo you still want to add it?", TplName, lbx == lbxBannerTpls ? "banner" : "icon"), "TPL not required", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.No)
-                            return;
-                    }
-
+                    byte[] newTpl;
                     if (inputFile.ToLower().EndsWith(".tpl"))
+                        newTpl = File.ReadAllBytes(inputFile);
+                    else
+                        newTpl = TPL.FromImage(inputFile, (TPL_Format)tplFormat).ToByteArray();
+
+                    if (lbx == lbxBannerTpls)
                     {
-                        File.Copy(inputFile, CurPath + "timg\\" + TplName, true);
-                        lbx.Items.Add(TplName);
+                        if (string.IsNullOrEmpty(replacedBanner))
+                        { bannerBin.AddFile("/arc/timg/" + tplName, newTpl); }
+                        else
+                        { newBannerBin.AddFile("/arc/timg/" + tplName, newTpl); }
                     }
                     else
                     {
-                        using (Image img = Image.FromFile(inputFile))
-                        {
-                            Wii.TPL.ConvertToTPL(img, CurPath + "timg\\" + TplName, TplFormat);
-                            lbx.Items.Add(TplName + string.Format(" ({0} x {1})", img.Width, img.Height));
-                        }
+                        if (string.IsNullOrEmpty(replacedIcon))
+                        { iconBin.AddFile("/arc/timg/" + tplName, newTpl); }
+                        else
+                        { newIconBin.AddFile("/arc/timg/" + tplName, newTpl); }
                     }
+
+                    addTpls();
                 }
             }
             catch (Exception ex) { throw ex; }
         }
 
-        private void LoadChannel()
+        private void loadChannel()
         {
-            LoadChannel(null);
+            loadChannel(null);
         }
 
-        private void LoadChannel(string inputFile)
+        private void loadChannel(string inputFile)
         {
-            if (Mono) CommonKeyCheck();
-
             if (pbProgress.Value == 100)
             {
                 if (string.IsNullOrEmpty(inputFile))
@@ -1134,12 +972,12 @@ namespace CustomizeMii
             }
         }
 
-        private void ReplacePart()
+        private void replacePart()
         {
-            ReplacePart(null);
+            replacePart(null);
         }
 
-        private void ReplacePart(string inputFile)
+        private void replacePart(string inputFile)
         {
             if (!string.IsNullOrEmpty(tbSourceWad.Text))
             {
@@ -1159,8 +997,6 @@ namespace CustomizeMii
                                 {
                                     if (ofd.FileName != tbSourceWad.Text)
                                     {
-                                        SoundReplace = ofd.FileName;
-                                        SetText(tbReplace, SoundReplace);
                                         BackgroundWorker bwSoundReplace = new BackgroundWorker();
                                         bwSoundReplace.DoWork += new DoWorkEventHandler(bwSoundReplace_DoWork);
                                         bwSoundReplace.ProgressChanged += new ProgressChangedEventHandler(bwSoundReplace_ProgressChanged);
@@ -1174,8 +1010,6 @@ namespace CustomizeMii
                             {
                                 if (inputFile != tbSourceWad.Text)
                                 {
-                                    SoundReplace = inputFile;
-                                    SetText(tbReplace, SoundReplace);
                                     BackgroundWorker bwSoundReplace = new BackgroundWorker();
                                     bwSoundReplace.DoWork += new DoWorkEventHandler(bwSoundReplace_DoWork);
                                     bwSoundReplace.ProgressChanged += new ProgressChangedEventHandler(bwSoundReplace_ProgressChanged);
@@ -1184,12 +1018,15 @@ namespace CustomizeMii
                                     bwSoundReplace.RunWorkerAsync(inputFile);
                                 }
                             }
+
+                            tbSound.Text = string.Empty;
+                            btnBrowseSound.Text = "Browse...";
                         }
                         catch (Exception ex)
                         {
-                            SoundReplace = string.Empty;
-                            SetText(tbReplace, SoundReplace);
-                            ErrorBox(ex.Message);
+                            replacedSound = string.Empty;
+                            setControlText(tbReplace, string.Empty);
+                            errorBox(ex.Message);
                         }
                     }
                     else if (cmbReplace.SelectedIndex == 1) //icon
@@ -1206,8 +1043,6 @@ namespace CustomizeMii
                                 {
                                     if (ofd.FileName != tbSourceWad.Text)
                                     {
-                                        IconReplace = ofd.FileName;
-                                        SetText(tbReplace, IconReplace);
                                         BackgroundWorker bwIconReplace = new BackgroundWorker();
                                         bwIconReplace.DoWork += new DoWorkEventHandler(bwIconReplace_DoWork);
                                         bwIconReplace.ProgressChanged += new ProgressChangedEventHandler(bwIconReplace_ProgressChanged);
@@ -1221,8 +1056,6 @@ namespace CustomizeMii
                             {
                                 if (inputFile != tbSourceWad.Text)
                                 {
-                                    IconReplace = inputFile;
-                                    SetText(tbReplace, IconReplace);
                                     BackgroundWorker bwIconReplace = new BackgroundWorker();
                                     bwIconReplace.DoWork += new DoWorkEventHandler(bwIconReplace_DoWork);
                                     bwIconReplace.ProgressChanged += new ProgressChangedEventHandler(bwIconReplace_ProgressChanged);
@@ -1234,9 +1067,9 @@ namespace CustomizeMii
                         }
                         catch (Exception ex)
                         {
-                            IconReplace = string.Empty;
-                            SetText(tbReplace, IconReplace);
-                            ErrorBox(ex.Message);
+                            replacedIcon = string.Empty;
+                            setControlText(tbReplace, string.Empty);
+                            errorBox(ex.Message);
                         }
                     }
                     else //banner
@@ -1253,8 +1086,6 @@ namespace CustomizeMii
                                 {
                                     if (ofd.FileName != tbSourceWad.Text)
                                     {
-                                        BannerReplace = ofd.FileName;
-                                        SetText(tbReplace, BannerReplace);
                                         BackgroundWorker bwBannerReplace = new BackgroundWorker();
                                         bwBannerReplace.DoWork += new DoWorkEventHandler(bwBannerReplace_DoWork);
                                         bwBannerReplace.ProgressChanged += new ProgressChangedEventHandler(bwBannerReplace_ProgressChanged);
@@ -1268,8 +1099,6 @@ namespace CustomizeMii
                             {
                                 if (inputFile != tbSourceWad.Text)
                                 {
-                                    BannerReplace = inputFile;
-                                    SetText(tbReplace, BannerReplace);
                                     BackgroundWorker bwBannerReplace = new BackgroundWorker();
                                     bwBannerReplace.DoWork += new DoWorkEventHandler(bwBannerReplace_DoWork);
                                     bwBannerReplace.ProgressChanged += new ProgressChangedEventHandler(bwBannerReplace_ProgressChanged);
@@ -1281,16 +1110,16 @@ namespace CustomizeMii
                         }
                         catch (Exception ex)
                         {
-                            BannerReplace = string.Empty;
-                            SetText(tbReplace, BannerReplace);
-                            ErrorBox(ex.Message);
+                            replacedBanner = string.Empty;
+                            setControlText(tbReplace, string.Empty);
+                            errorBox(ex.Message);
                         }
                     }
                 }
             }
         }
 
-        private void MultiReplace(bool banner)
+        private void multiReplace(bool banner)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             fbd.Description = "Please select the folder where the images are in.\nThe images must have the same filename as the TPLs!";
@@ -1298,39 +1127,137 @@ namespace CustomizeMii
             if (fbd.ShowDialog() == DialogResult.OK)
             {
                 string imageDir = fbd.SelectedPath;
-                string tplDir = ((banner) ? GetCurBannerPath() : GetCurIconPath()) + "timg\\";
-                string[] tpls = Directory.GetFiles(tplDir, "*.tpl");
 
+                List<string> tpls = new List<string>();
                 List<string> replacedTpls = new List<string>();
+
+                if (banner)
+                {
+                    if (string.IsNullOrEmpty(replacedBanner))
+                    {
+                        for (int i = 0; i < bannerBin.NumOfNodes; i++)
+                            if (bannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                                tpls.Add(bannerBin.StringTable[i]);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < newBannerBin.NumOfNodes; i++)
+                            if (newBannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                                tpls.Add(newBannerBin.StringTable[i]);
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(replacedIcon))
+                    {
+                        for (int i = 0; i < iconBin.NumOfNodes; i++)
+                            if (iconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                                tpls.Add(iconBin.StringTable[i]);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < newIconBin.NumOfNodes; i++)
+                            if (newIconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                                tpls.Add(newIconBin.StringTable[i]);
+                    }
+                }
+
                 foreach (string thisTpl in tpls)
                 {
                     string image = string.Empty;
 
-                    if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".png"))
-                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".png";
-                    else if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".jpg"))
-                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".jpg";
-                    else if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".gif"))
-                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".gif";
-                    else if (File.Exists(imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".bmp"))
-                        image = imageDir + "\\" + Path.GetFileNameWithoutExtension(thisTpl) + ".bmp";
+                    string path = imageDir + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(thisTpl);
+
+                    if (File.Exists(path + ".png"))
+                        image = path + ".png";
+                    else if (File.Exists(path + ".jpg"))
+                        image = path + ".jpg";
+                    else if (File.Exists(path + ".gif"))
+                        image = path + ".gif";
+                    else if (File.Exists(path + ".bmp"))
+                        image = path + ".bmp";
                     else continue;
 
                     try
                     {
-                        Image img = Image.FromFile(image);
-                        byte[] temp = File.ReadAllBytes(thisTpl);
-                        int width = Wii.TPL.GetTextureWidth(temp);
-                        int height = Wii.TPL.GetTextureHeight(temp);
-                        int format = Wii.TPL.GetTextureFormat(temp);
+                        if (banner)
+                        {
+                            if (string.IsNullOrEmpty(replacedBanner))
+                            {
+                                TPL tmpTpl = TPL.Load(bannerBin.Data[bannerBin.GetNodeIndex(thisTpl)]);
+                                Image img = Image.FromFile(image);
 
-                        if (img.Width != width || img.Height != height) 
-                            img = ResizeImage(img, width, height);
+                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                Size tplSize = tmpTpl.GetTextureSize(0);
 
-                        File.Delete(thisTpl);
-                        Wii.TPL.ConvertToTPL(img, thisTpl, format);
+                                if (tplSize.Width != img.Width ||
+                                    tplSize.Height != img.Height)
+                                    img = resizeImage(img, tplSize.Width, tplSize.Height);
 
-                        replacedTpls.Add(Path.GetFileName(thisTpl));
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(img, tplFormat);
+
+                                bannerBin.ReplaceFile(bannerBin.GetNodeIndex(thisTpl), tmpTpl.ToByteArray());
+                                replacedTpls.Add(thisTpl);
+                            }
+                            else
+                            {
+                                TPL tmpTpl = TPL.Load(newBannerBin.Data[newBannerBin.GetNodeIndex(thisTpl)]);
+                                Image img = Image.FromFile(image);
+
+                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                Size tplSize = tmpTpl.GetTextureSize(0);
+
+                                if (tplSize.Width != img.Width ||
+                                    tplSize.Height != img.Height)
+                                    img = resizeImage(img, tplSize.Width, tplSize.Height);
+
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(img, tplFormat);
+
+                                newBannerBin.ReplaceFile(newBannerBin.GetNodeIndex(thisTpl), tmpTpl.ToByteArray());
+                                replacedTpls.Add(thisTpl);
+                            }
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(replacedIcon))
+                            {
+                                TPL tmpTpl = TPL.Load(iconBin.Data[iconBin.GetNodeIndex(thisTpl)]);
+                                Image img = Image.FromFile(image);
+
+                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                Size tplSize = tmpTpl.GetTextureSize(0);
+
+                                if (tplSize.Width != img.Width ||
+                                    tplSize.Height != img.Height)
+                                    img = resizeImage(img, tplSize.Width, tplSize.Height);
+
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(img, tplFormat);
+
+                                iconBin.ReplaceFile(iconBin.GetNodeIndex(thisTpl), tmpTpl.ToByteArray());
+                                replacedTpls.Add(thisTpl);
+                            }
+                            else
+                            {
+                                TPL tmpTpl = TPL.Load(newIconBin.Data[newIconBin.GetNodeIndex(thisTpl)]);
+                                Image img = Image.FromFile(image);
+
+                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                Size tplSize = tmpTpl.GetTextureSize(0);
+
+                                if (tplSize.Width != img.Width ||
+                                    tplSize.Height != img.Height)
+                                    img = resizeImage(img, tplSize.Width, tplSize.Height);
+
+                                tmpTpl.RemoveTexture(0);
+                                tmpTpl.AddTexture(img, tplFormat);
+
+                                newIconBin.ReplaceFile(newIconBin.GetNodeIndex(thisTpl), tmpTpl.ToByteArray());
+                                replacedTpls.Add(thisTpl);
+                            }
+                        }
                     }
                     catch { }
                 }
@@ -1338,9 +1265,9 @@ namespace CustomizeMii
                 if (replacedTpls.Count > 0)
                 {
                     string replaced = string.Join("\n", replacedTpls.ToArray());
-                    InfoBox(string.Format("The following TPLs were successfully replaced:\n\n{0}", replaced));
+                    infoBox(string.Format("The following TPLs were successfully replaced:\n\n{0}", replaced));
                 }
-                else ErrorBox("No TPLs were replaced, did you name the images right?");
+                else errorBox("No TPLs were replaced, did you name the images right?");
             }
         }
     }

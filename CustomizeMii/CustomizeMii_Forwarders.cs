@@ -58,6 +58,12 @@ namespace CustomizeMii
                 Forwarder.Save(Destination, true);
             }
 
+            public byte[] ToByteArray()
+            {
+                GXForwarder Forwarder = new GXForwarder(image43, image169, paths);
+                return Forwarder.ToByteArray();
+            }
+
             public void Clear()
             {
                 paths[0] = "SD:/apps/example/boot.dol";
@@ -84,15 +90,18 @@ namespace CustomizeMii
             public string AppFolder { get { return thisAppFolder; } set { thisAppFolder = value; } }
             public bool ForwardToElf { get { return toElf; } set { toElf = value; } }
 
-            public Simple()
-            {
-
-            }
+            public Simple() { }
 
             public void Save(string Destination)
             {
                 SDSDHC_Forwarder Forwarder = new SDSDHC_Forwarder(thisAppFolder, toElf);
                 Forwarder.Save(Destination, true);
+            }
+
+            public byte[] ToByteArray()
+            {
+                SDSDHC_Forwarder Forwarder = new SDSDHC_Forwarder(thisAppFolder, toElf);
+                return Forwarder.ToByteArray();
             }
 
             public void Clear()

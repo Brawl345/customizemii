@@ -16,22 +16,18 @@
  */
  
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace CustomizeMii
 {
     public partial class CustomizeMii_InputBox : Form
     {
+        //Wow, need to change this whole thing, but too lazy ~~
+
         public bool CommonKeyMode = true;
-        public string Input
-        {
-            get { return tbInput.Text; }
-        }
+        public string Input { get { return tbInput.Text; } set { tbInput.Text = value; } }
+        public string Description { get { return lbInfo.Text; } set { lbInfo.Text = value; } }
+        public string Input2 { get { return tbInput2.Text; } set { tbInput2.Text = value; } }
 
         public CustomizeMii_InputBox()
         {
@@ -76,7 +72,7 @@ namespace CustomizeMii
             }
             else
             {
-                if (tbInput.Text.Length > 2)
+                if (tbInput.Text.Length > 0)
                 {
                     this.DialogResult = DialogResult.OK;
                     this.Close();

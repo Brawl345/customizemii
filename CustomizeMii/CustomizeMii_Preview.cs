@@ -16,17 +16,25 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
+using libWiiSharp;
 
 namespace CustomizeMii
 {
     public partial class CustomizeMii_Preview : Form
     {
-        public string startTPL;
-        public bool startIcon = false;
-        private TplImage[,] images;
+        private TplImage[][] images = new TplImage[2][];
+        private U8 bannerBin;
+        private U8 iconBin;
+        private string startTPL;
+        private bool startIcon = false;
+
+        public U8 BannerBin { get { return bannerBin; } set { bannerBin = value; } }
+        public U8 IconBin { get { return iconBin; } set { iconBin = value; } }
+        public string StartTPL { get { return startTPL; } set { startTPL = value; } }
+        public bool StartIcon { get { return startIcon; } set { startIcon = value; } }
 
         public CustomizeMii_Preview()
         {
@@ -49,50 +57,66 @@ namespace CustomizeMii
         private void Preview_Load(object sender, EventArgs e)
         {
             this.CenterToParent();
-
-            string[] bannerpics;
-            string[] iconpics;
-
-            if (string.IsNullOrEmpty(CustomizeMii_Main.BannerReplace))
-                bannerpics = Directory.GetFiles(CustomizeMii_Main.TempUnpackBannerTplPath, "*.tpl");
-            else bannerpics = Directory.GetFiles(CustomizeMii_Main.BannerTplPath, "*.tpl");
-
-            if (string.IsNullOrEmpty(CustomizeMii_Main.IconReplace))
-                iconpics = Directory.GetFiles(CustomizeMii_Main.TempUnpackIconTplPath, "*.tpl");
-            else iconpics = Directory.GetFiles(CustomizeMii_Main.IconTplPath, "*.tpl");
+            cbBanner.Items.Clear();
+            cbIcon.Items.Clear();
 
             int startIndex = -1;
-            if (!startIcon)
+
+            List<TplImage> bannerImages = new List<TplImage>();
+            List<TplImage> iconImages = new List<TplImage>();
+
+            for (int i = 0; i < bannerBin.NumOfNodes; i++)
             {
-                for (int i = 0; i < bannerpics.Length; i++)
-                    if (Path.GetFileName(bannerpics[i]) == startTPL)
+                if (bannerBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                {
+                    TplImage tmpImage = new TplImage();
+                    TPL tmpTpl = TPL.Load(bannerBin.Data[i]);
+
+                    if (i == 10) { }
+
+                    tmpImage.fileName = bannerBin.StringTable[i];
+                    tmpImage.tplFormat = tmpTpl.GetTextureFormat(0).ToString();
+                    tmpImage.tplImage = tmpTpl.ExtractTexture();
+                    tmpImage.checkerBoard = createCheckerBoard(tmpImage.tplImage.Width, tmpImage.tplImage.Height);
+
+                    bannerImages.Add(tmpImage);
+                }
+            }
+
+            for (int i = 0; i < iconBin.NumOfNodes; i++)
+            {
+                if (iconBin.StringTable[i].ToLower().EndsWith(".tpl"))
+                {
+                    TplImage tmpImage = new TplImage();
+                    TPL tmpTpl = TPL.Load(iconBin.Data[i]);
+
+                    tmpImage.fileName = iconBin.StringTable[i];
+                    tmpImage.tplFormat = tmpTpl.GetTextureFormat(0).ToString();
+                    tmpImage.tplImage = tmpTpl.ExtractTexture();
+                    tmpImage.checkerBoard = createCheckerBoard(tmpImage.tplImage.Width, tmpImage.tplImage.Height);
+
+                    iconImages.Add(tmpImage);
+                }
+            }
+
+            images[0] = bannerImages.ToArray();
+            images[1] = iconImages.ToArray();
+
+            for (int i = 0; i < images[0].Length; i++)
+            {
+                cbBanner.Items.Add(images[0][i].fileName);
+                if (!startIcon)
+                    if (images[0][i].fileName.ToLower() == startTPL.ToLower())
                         startIndex = i;
             }
-            else
+
+            for (int i = 0; i < images[1].Length; i++)
             {
-                for (int i = 0; i < iconpics.Length; i++)
-                    if (Path.GetFileName(iconpics[i]) == startTPL)
+                cbIcon.Items.Add(images[1][i].fileName);
+                if (startIcon)
+                    if (images[1][i].fileName.ToLower() == startTPL.ToLower())
                         startIndex = i;
             }
-
-            foreach (string thispic in bannerpics)
-            {
-                string picname = thispic.Remove(0, thispic.LastIndexOf('\\') + 1);
-                picname = picname.Remove(picname.LastIndexOf('.'));
-                cbBanner.Items.Add((object)picname);
-            }
-
-            foreach (string thispic in iconpics)
-            {
-                string picname = thispic.Remove(0, thispic.LastIndexOf('\\') + 1);
-                picname = picname.Remove(picname.LastIndexOf('.'));
-                cbIcon.Items.Add((object)picname);
-            }
-
-            if (bannerpics.Length > iconpics.Length)
-                images = new TplImage[2, bannerpics.Length];
-            else
-                images = new TplImage[2, iconpics.Length];
 
             try
             {
@@ -112,44 +136,11 @@ namespace CustomizeMii
         {
             if (cbBanner.SelectedIndex != -1)
             {
-                if (images[0, cbBanner.SelectedIndex].tplImage == null) 
-                {
-                    byte[] tpl;
+                pbPic.Image = images[0][cbBanner.SelectedIndex].tplImage;
+                lbFormat.Text = images[0][cbBanner.SelectedIndex].tplFormat;
+                lbSize.Text = string.Format("{0} x {1}", images[0][cbBanner.SelectedIndex].tplImage.Width, images[0][cbBanner.SelectedIndex].tplImage.Height);
 
-                    if (string.IsNullOrEmpty(CustomizeMii_Main.BannerReplace))
-                        tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.TempUnpackBannerTplPath + cbBanner.SelectedItem.ToString() + ".tpl");
-                    else tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.BannerTplPath + cbBanner.SelectedItem.ToString() + ".tpl");
-
-                    lbSize.Text = Wii.TPL.GetTextureWidth(tpl).ToString() + " x " + Wii.TPL.GetTextureHeight(tpl).ToString();
-                    images[0, cbBanner.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(tpl);
-                    lbFormat.Text = images[0, cbBanner.SelectedIndex].tplFormat;
-
-                    if (images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci4" ||
-                        images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci8" ||
-                        images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci14x2")
-                    {
-                        int tempW = Wii.TPL.GetTextureWidth(tpl);
-                        int tempH = Wii.TPL.GetTextureHeight(tpl);
-
-                        images[0, cbBanner.SelectedIndex].tplImage = new Bitmap(tempW, tempH);
-                    }
-                    else
-                    {
-                        images[0, cbBanner.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(tpl);
-                    }
-
-                    tpl = null;
-                }
-
-                pbPic.Image = images[0, cbBanner.SelectedIndex].tplImage;
-                lbFormat.Text = images[0, cbBanner.SelectedIndex].tplFormat;
-                lbSize.Text = string.Format("{0} x {1}", images[0, cbBanner.SelectedIndex].tplImage.Width, images[0, cbBanner.SelectedIndex].tplImage.Height);
-
-                if (images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci4" ||
-                    images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci8" ||
-                    images[0, cbBanner.SelectedIndex].tplFormat.ToLower() == "ci14x2")
-                    lbNoPreview.Visible = true;
-                else lbNoPreview.Visible = false;
+                if (cbCheckerBoard.Checked) pbPic.BackgroundImage = images[0][cbBanner.SelectedIndex].checkerBoard;
 
                 cbIcon.SelectedIndex = -1;
             }
@@ -159,66 +150,59 @@ namespace CustomizeMii
         {
             if (cbIcon.SelectedIndex != -1)
             {
-                if (images[1, cbIcon.SelectedIndex].tplImage == null)
-                {
-                    byte[] tpl;
+                pbPic.Image = images[1][cbIcon.SelectedIndex].tplImage;
+                lbFormat.Text = images[1][cbIcon.SelectedIndex].tplFormat;
+                lbSize.Text = string.Format("{0} x {1}", images[1][cbIcon.SelectedIndex].tplImage.Width, images[1][cbIcon.SelectedIndex].tplImage.Height);
 
-                    if (string.IsNullOrEmpty(CustomizeMii_Main.IconReplace))
-                        tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.TempUnpackIconTplPath + cbIcon.SelectedItem.ToString() + ".tpl");
-                    else tpl = Wii.Tools.LoadFileToByteArray(CustomizeMii_Main.IconTplPath + cbIcon.SelectedItem.ToString() + ".tpl");
-
-                    lbSize.Text = Wii.TPL.GetTextureWidth(tpl).ToString() + " x " + Wii.TPL.GetTextureHeight(tpl).ToString();
-                    images[1, cbIcon.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(tpl);
-                    lbFormat.Text = images[1, cbIcon.SelectedIndex].tplFormat;
-
-                    if (images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci4" ||
-                        images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci8" ||
-                        images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci14x2")
-                    {
-                        int tempW = Wii.TPL.GetTextureWidth(tpl);
-                        int tempH = Wii.TPL.GetTextureHeight(tpl);
-
-                        images[1, cbIcon.SelectedIndex].tplImage = new Bitmap(tempW, tempH);
-                    }
-                    else
-                    {
-                        images[1, cbIcon.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(tpl);
-                    }
-
-                    tpl = null;
-                }
-
-                pbPic.Image = images[1, cbIcon.SelectedIndex].tplImage;
-                lbFormat.Text = images[1, cbIcon.SelectedIndex].tplFormat;
-                lbSize.Text = string.Format("{0} x {1}", images[1, cbIcon.SelectedIndex].tplImage.Width, images[1, cbIcon.SelectedIndex].tplImage.Height);
-
-                if (images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci4" ||
-                    images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci8" ||
-                    images[1, cbIcon.SelectedIndex].tplFormat.ToLower() == "ci14x2")
-                    lbNoPreview.Visible = true;
-                else lbNoPreview.Visible = false;
+                if (cbCheckerBoard.Checked) pbPic.BackgroundImage = images[1][cbIcon.SelectedIndex].checkerBoard;
 
                 cbBanner.SelectedIndex = -1;
             }
         }
 
-        private void cmSave_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.FileName = pbPic.ImageLocation.Remove(0, pbPic.ImageLocation.LastIndexOf('\\') + 1);
-            sfd.Filter = "PNG|*.png";
-            if (sfd.ShowDialog() == DialogResult.OK)
-                File.Copy(pbPic.ImageLocation, sfd.FileName);
-        }
-
-        private Image ResizeImage(Image img, int x, int y)
+        private Image resizeImage(Image img, int x, int y)
         {
             Image newimage = new Bitmap(x, y);
+
             using (Graphics gfx = Graphics.FromImage(newimage))
-            {
                 gfx.DrawImage(img, 0, 0, x, y);
-            }
+
             return newimage;
+        }
+
+        private Image createCheckerBoard(int w, int h)
+        {
+            Color darkColor = Color.DarkGray;
+            Color lightColor = Color.White;
+            int tileSize = 10;
+
+            Bitmap img = new Bitmap(w, h);
+
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                g.Clear(lightColor);
+
+                for (int col = 0; col < w; col += tileSize)
+                {
+                    for (int row = 0; row < h; row += tileSize)
+                    {
+                        Color curColor;
+
+                        if ((col / tileSize) % 2 == 0)
+                            curColor = (row / tileSize) % 2 == 0 ? darkColor : lightColor;
+                        else
+                            curColor = (row / tileSize) % 2 == 0 ? lightColor : darkColor;
+
+
+                        if (curColor == lightColor) continue;
+
+                        Rectangle rect = new Rectangle(col, row, tileSize, tileSize);
+                        g.FillRectangle(new SolidBrush(darkColor), rect);
+                    }
+                }
+            }
+
+            return (Image)img;
         }
 
         private void btnReplace_Click(object sender, EventArgs e)
@@ -236,79 +220,83 @@ namespace CustomizeMii
             {
                 try
                 {
-                    string Tpl;
+                    string tplName;
+                    TPL tmpTpl = new TPL();
+                    Image newImg;
 
-                    if (cbBanner.SelectedIndex != -1) { Tpl = CustomizeMii_Main.BannerTplPath + cbBanner.SelectedItem + ".tpl"; }
-                    else { Tpl = CustomizeMii_Main.IconTplPath + cbIcon.SelectedItem + ".tpl"; }
-
-                    byte[] TplArray = Wii.Tools.LoadFileToByteArray(Tpl);
-                    Image Img;
-
-                    if (!ofd.FileName.ToLower().EndsWith(".tpl")) Img = Image.FromFile(ofd.FileName);
-                    else Img = Wii.TPL.ConvertFromTPL(ofd.FileName);
-
-                    int TplFormat;
-                    int X = Wii.TPL.GetTextureWidth(TplArray);
-                    int Y = Wii.TPL.GetTextureHeight(TplArray);
-
-                    if (X != Img.Width ||
-                        Y != Img.Height)
+                    if (cbIcon.SelectedIndex == -1)
                     {
-                        Img = ResizeImage(Img, X, Y);
+                        tplName = cbBanner.SelectedItem.ToString().ToLower();
+                        tmpTpl.LoadFile(bannerBin.Data[bannerBin.GetNodeIndex(tplName)]);
                     }
+                    else
+                    {
+                        tplName = cbIcon.SelectedItem.ToString().ToLower();
+                        tmpTpl.LoadFile(iconBin.Data[iconBin.GetNodeIndex(tplName)]);
+                    }
+
+                    if (!ofd.FileName.ToLower().EndsWith(".tpl")) newImg = Image.FromFile(ofd.FileName);
+                    else
+                    {
+                        TPL newTpl = TPL.Load(ofd.FileName);
+                        newImg = newTpl.ExtractTexture();
+                    }
+
+                    Size tplSize = tmpTpl.GetTextureSize(0);
+                    TPL_Format tplFormat;
+
+                    if (newImg.Width != tplSize.Width ||
+                        newImg.Height != tplSize.Height)
+                        newImg = resizeImage(newImg, tplSize.Width, tplSize.Height);
 
                     ToolStripMenuItem cmSender = sender as ToolStripMenuItem;
                     switch (cmSender.Tag.ToString().ToLower())
                     {
                         case "i4":
-                            TplFormat = 0;
-                            lbFormat.Text = "I4";
+                            tplFormat = TPL_Format.I4;
                             break;
                         case "i8":
-                            TplFormat = 1;
-                            lbFormat.Text = "I8";
+                            tplFormat = TPL_Format.I8;
                             break;
                         case "ia4":
-                            TplFormat = 2;
-                            lbFormat.Text = "IA4";
+                            tplFormat = TPL_Format.IA4;
                             break;
                         case "ia8":
-                            TplFormat = 3;
-                            lbFormat.Text = "IA8";
+                            tplFormat = TPL_Format.IA8;
                             break;
                         case "rgb565":
-                            TplFormat = 4;
-                            lbFormat.Text = "RGB565";
+                            tplFormat = TPL_Format.RGB565;
                             break;
                         case "rgb5a3":
-                            TplFormat = 5;
-                            lbFormat.Text = "RGB5A3";
+                            tplFormat = TPL_Format.RGB5A3;
                             break;
                         default:
-                            TplFormat = 6;
-                            lbFormat.Text = "RGBA8";
+                            tplFormat = TPL_Format.RGBA8;
                             break;
                     }
 
-                    Wii.TPL.ConvertToTPL(Img, Tpl, TplFormat);
+                    tmpTpl.RemoveTexture(0);
+                    tmpTpl.AddTexture(newImg, tplFormat);
 
                     if (cbBanner.SelectedIndex != -1)
                     {
-                        images[0, cbBanner.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(Tpl);
-                        images[0, cbBanner.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(File.ReadAllBytes(Tpl));
+                        bannerBin.ReplaceFile(bannerBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
+                        images[0][cbBanner.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
+                        images[0][cbBanner.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
 
-                        pbPic.Image = images[0, cbBanner.SelectedIndex].tplImage;
-                        lbFormat.Text = images[0, cbBanner.SelectedIndex].tplFormat;
-                        lbSize.Text = string.Format("{0} x {1}", images[0, cbBanner.SelectedIndex].tplImage.Width, images[0, cbBanner.SelectedIndex].tplImage.Height);
+                        pbPic.Image = images[0][cbBanner.SelectedIndex].tplImage;
+                        lbFormat.Text = images[0][cbBanner.SelectedIndex].tplFormat;
+                        lbSize.Text = string.Format("{0} x {1}", images[0][cbBanner.SelectedIndex].tplImage.Width, images[0][cbBanner.SelectedIndex].tplImage.Height);
                     }
                     else
                     {
-                        images[1, cbIcon.SelectedIndex].tplImage = Wii.TPL.ConvertFromTPL(Tpl);
-                        images[1, cbIcon.SelectedIndex].tplFormat = Wii.TPL.GetTextureFormatName(File.ReadAllBytes(Tpl));
+                        iconBin.ReplaceFile(iconBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
+                        images[1][cbIcon.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
+                        images[1][cbIcon.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
 
-                        pbPic.Image = images[1, cbIcon.SelectedIndex].tplImage;
-                        lbFormat.Text = images[1, cbIcon.SelectedIndex].tplFormat;
-                        lbSize.Text = string.Format("{0} x {1}", images[1, cbIcon.SelectedIndex].tplImage.Width, images[1, cbIcon.SelectedIndex].tplImage.Height);
+                        pbPic.Image = images[1][cbIcon.SelectedIndex].tplImage;
+                        lbFormat.Text = images[1][cbIcon.SelectedIndex].tplFormat;
+                        lbSize.Text = string.Format("{0} x {1}", images[1][cbIcon.SelectedIndex].tplImage.Width, images[1][cbIcon.SelectedIndex].tplImage.Height);
                     }
 
                     if (cbBanner.SelectedIndex != -1) cbBanner.Select();
@@ -317,6 +305,105 @@ namespace CustomizeMii
                 catch (Exception ex)
                 { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             }
+        }
+
+        private void cmChangeFormat_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string tplName;
+                TPL tmpTpl = new TPL();
+                Image newImg;
+
+                if (cbIcon.SelectedIndex == -1)
+                {
+                    tplName = cbBanner.SelectedItem.ToString().ToLower();
+                    tmpTpl.LoadFile(bannerBin.Data[bannerBin.GetNodeIndex(tplName)]);
+                }
+                else
+                {
+                    tplName = cbIcon.SelectedItem.ToString().ToLower();
+                    tmpTpl.LoadFile(iconBin.Data[iconBin.GetNodeIndex(tplName)]);
+                }
+
+                newImg = tmpTpl.ExtractTexture();
+                TPL_Format tplFormat;
+
+                ToolStripMenuItem cmSender = sender as ToolStripMenuItem;
+                switch (cmSender.Tag.ToString().ToLower())
+                {
+                    case "i4":
+                        tplFormat = TPL_Format.I4;
+                        break;
+                    case "i8":
+                        tplFormat = TPL_Format.I8;
+                        break;
+                    case "ia4":
+                        tplFormat = TPL_Format.IA4;
+                        break;
+                    case "ia8":
+                        tplFormat = TPL_Format.IA8;
+                        break;
+                    case "rgb565":
+                        tplFormat = TPL_Format.RGB565;
+                        break;
+                    case "rgb5a3":
+                        tplFormat = TPL_Format.RGB5A3;
+                        break;
+                    default:
+                        tplFormat = TPL_Format.RGBA8;
+                        break;
+                }
+
+                if (tmpTpl.GetTextureFormat(0) == tplFormat) return;
+
+                tmpTpl.RemoveTexture(0);
+                tmpTpl.AddTexture(newImg, tplFormat);
+
+                if (cbBanner.SelectedIndex != -1)
+                {
+                    bannerBin.ReplaceFile(bannerBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
+                    images[0][cbBanner.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
+                    images[0][cbBanner.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
+
+
+                    pbPic.Image = images[0][cbBanner.SelectedIndex].tplImage;
+                    lbFormat.Text = images[0][cbBanner.SelectedIndex].tplFormat;
+                    lbSize.Text = string.Format("{0} x {1}", images[0][cbBanner.SelectedIndex].tplImage.Width, images[0][cbBanner.SelectedIndex].tplImage.Height);
+                }
+                else
+                {
+                    iconBin.ReplaceFile(iconBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
+                    images[1][cbIcon.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
+                    images[1][cbIcon.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
+
+                    pbPic.Image = images[1][cbIcon.SelectedIndex].tplImage;
+                    lbFormat.Text = images[1][cbIcon.SelectedIndex].tplFormat;
+                    lbSize.Text = string.Format("{0} x {1}", images[1][cbIcon.SelectedIndex].tplImage.Width, images[1][cbIcon.SelectedIndex].tplImage.Height);
+                }
+
+                if (cbBanner.SelectedIndex != -1) cbBanner.Select();
+                else if (cbIcon.SelectedIndex != -1) cbIcon.Select();
+            }
+            catch (Exception ex)
+            { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+
+        private void cbCheckerBoard_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbCheckerBoard.Checked)
+            {
+                if (cbBanner.SelectedIndex != -1)
+                    pbPic.BackgroundImage = images[0][cbBanner.SelectedIndex].checkerBoard;
+                else
+                    pbPic.BackgroundImage = images[1][cbIcon.SelectedIndex].checkerBoard;
+            }
+            else pbPic.BackgroundImage = null;
+
+            if (cbBanner.SelectedIndex != -1)
+                cbBanner.Focus();
+            else
+                cbIcon.Focus();
         }
     }
 }

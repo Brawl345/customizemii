@@ -24,33 +24,21 @@ namespace CustomizeMii
 {
     static class Program
     {
-        static Mutex mtx;
-
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            CleanupRemains();
+            if (!File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "libWiiSharp.dll"))
+            {
+                MessageBox.Show("libWiiSharp.dll wasn't found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Environment.Exit(-1);
+            }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new CustomizeMii_Main());
-        }
-
-        static void CleanupRemains()
-        {
-            bool firstInstance = false;
-            mtx = new System.Threading.Mutex(false, "CustomizeMii", out firstInstance);
-
-            if (firstInstance)
-            {
-                if (Directory.Exists(Path.GetTempPath() + "CustomizeMii_Temp"))
-                    Directory.Delete(Path.GetTempPath() + "CustomizeMii_Temp", true);
-                if (Directory.Exists(Path.GetTempPath() + "ForwardMii_Temp"))
-                    Directory.Delete(Path.GetTempPath() + "ForwardMii_Temp", true);
-            }
+            Application.Run(new CustomizeMii_Main(args));
         }
     }
 }

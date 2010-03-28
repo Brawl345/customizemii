@@ -33,7 +33,10 @@ namespace ForwardMii
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DEVKITPRO")) ||
                 string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DEVKITPPC"))) return false;
 
-            if (!System.IO.Directory.Exists(Environment.GetEnvironmentVariable("DEVKITPRO").Remove(0, 1).Insert(1, ":") + "/libogc")) return false;
+            if (Environment.OSVersion.VersionString.ToLower().Contains("windows"))
+            { if (!System.IO.Directory.Exists(Environment.GetEnvironmentVariable("DEVKITPRO").Remove(0, 1).Insert(1, ":") + "/libogc")) return false; }
+            else
+            { if (!System.IO.Directory.Exists(Environment.GetEnvironmentVariable("DEVKITPRO") + "/libogc")) return false; }
 
             return true;
         }

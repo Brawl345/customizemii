@@ -47,6 +47,7 @@ namespace CustomizeMii
         {
             this.components = new System.ComponentModel.Container();
             this.Panel = new System.Windows.Forms.Panel();
+            this.cbCheckerBoard = new System.Windows.Forms.CheckBox();
             this.btnReplace = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.cbIcon = new System.Windows.Forms.ComboBox();
@@ -67,6 +68,15 @@ namespace CustomizeMii
             this.cmIA4 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmI8 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmI4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.cmChangeFormat = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToRGBA8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToRGB565 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToRGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToIA8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToIA4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToI8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToI4 = new System.Windows.Forms.ToolStripMenuItem();
             this.lbNoPreview = new System.Windows.Forms.Label();
             this.Panel.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -76,6 +86,7 @@ namespace CustomizeMii
             // 
             // Panel
             // 
+            this.Panel.Controls.Add(this.cbCheckerBoard);
             this.Panel.Controls.Add(this.btnReplace);
             this.Panel.Controls.Add(this.btnClose);
             this.Panel.Controls.Add(this.cbIcon);
@@ -88,10 +99,24 @@ namespace CustomizeMii
             this.Panel.Size = new System.Drawing.Size(817, 28);
             this.Panel.TabIndex = 0;
             // 
+            // cbCheckerBoard
+            // 
+            this.cbCheckerBoard.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.cbCheckerBoard.AutoSize = true;
+            this.cbCheckerBoard.Checked = true;
+            this.cbCheckerBoard.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbCheckerBoard.Location = new System.Drawing.Point(390, 7);
+            this.cbCheckerBoard.Name = "cbCheckerBoard";
+            this.cbCheckerBoard.Size = new System.Drawing.Size(93, 17);
+            this.cbCheckerBoard.TabIndex = 4;
+            this.cbCheckerBoard.Text = "Checkerboard";
+            this.cbCheckerBoard.UseVisualStyleBackColor = true;
+            this.cbCheckerBoard.CheckedChanged += new System.EventHandler(this.cbCheckerBoard_CheckedChanged);
+            // 
             // btnReplace
             // 
             this.btnReplace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReplace.Location = new System.Drawing.Point(512, 4);
+            this.btnReplace.Location = new System.Drawing.Point(513, 4);
             this.btnReplace.Name = "btnReplace";
             this.btnReplace.Size = new System.Drawing.Size(137, 21);
             this.btnReplace.TabIndex = 3;
@@ -116,7 +141,7 @@ namespace CustomizeMii
             this.cbIcon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbIcon.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbIcon.FormattingEnabled = true;
-            this.cbIcon.Location = new System.Drawing.Point(239, 4);
+            this.cbIcon.Location = new System.Drawing.Point(234, 4);
             this.cbIcon.MaxDropDownItems = 20;
             this.cbIcon.Name = "cbIcon";
             this.cbIcon.Size = new System.Drawing.Size(121, 21);
@@ -127,7 +152,7 @@ namespace CustomizeMii
             // 
             this.lbIcon.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lbIcon.AutoSize = true;
-            this.lbIcon.Location = new System.Drawing.Point(203, 7);
+            this.lbIcon.Location = new System.Drawing.Point(198, 7);
             this.lbIcon.Name = "lbIcon";
             this.lbIcon.Size = new System.Drawing.Size(31, 13);
             this.lbIcon.TabIndex = 2;
@@ -208,6 +233,7 @@ namespace CustomizeMii
             // 
             // pbPic
             // 
+            this.pbPic.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.pbPic.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbPic.Location = new System.Drawing.Point(0, 22);
             this.pbPic.Name = "pbPic";
@@ -225,9 +251,11 @@ namespace CustomizeMii
             this.cmIA8,
             this.cmIA4,
             this.cmI8,
-            this.cmI4});
+            this.cmI4,
+            this.toolStripSeparator1,
+            this.cmChangeFormat});
             this.cmFormat.Name = "cmFormat";
-            this.cmFormat.Size = new System.Drawing.Size(234, 158);
+            this.cmFormat.Size = new System.Drawing.Size(234, 186);
             // 
             // cmRGBA8
             // 
@@ -284,6 +312,81 @@ namespace CustomizeMii
             this.cmI4.Tag = "i4";
             this.cmI4.Text = "As I4 (B/W)";
             this.cmI4.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(230, 6);
+            // 
+            // cmChangeFormat
+            // 
+            this.cmChangeFormat.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmToRGBA8,
+            this.cmToRGB565,
+            this.cmToRGB5A3,
+            this.cmToIA8,
+            this.cmToIA4,
+            this.cmToI8,
+            this.cmToI4});
+            this.cmChangeFormat.Name = "cmChangeFormat";
+            this.cmChangeFormat.Size = new System.Drawing.Size(233, 22);
+            this.cmChangeFormat.Text = "Change Format";
+            // 
+            // cmToRGBA8
+            // 
+            this.cmToRGBA8.Name = "cmToRGBA8";
+            this.cmToRGBA8.Size = new System.Drawing.Size(234, 22);
+            this.cmToRGBA8.Tag = "rgba8";
+            this.cmToRGBA8.Text = "To RGBA8 (High Quality)";
+            this.cmToRGBA8.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToRGB565
+            // 
+            this.cmToRGB565.Name = "cmToRGB565";
+            this.cmToRGB565.Size = new System.Drawing.Size(234, 22);
+            this.cmToRGB565.Tag = "rgb565";
+            this.cmToRGB565.Text = "To RGB565 (Moderate Quality)";
+            this.cmToRGB565.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToRGB5A3
+            // 
+            this.cmToRGB5A3.Name = "cmToRGB5A3";
+            this.cmToRGB5A3.Size = new System.Drawing.Size(234, 22);
+            this.cmToRGB5A3.Tag = "rgb5a3";
+            this.cmToRGB5A3.Text = "To RGB5A3 (Low Quality)";
+            this.cmToRGB5A3.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToIA8
+            // 
+            this.cmToIA8.Name = "cmToIA8";
+            this.cmToIA8.Size = new System.Drawing.Size(234, 22);
+            this.cmToIA8.Tag = "ia8";
+            this.cmToIA8.Text = "To IA8 (B/W with Alpha)";
+            this.cmToIA8.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToIA4
+            // 
+            this.cmToIA4.Name = "cmToIA4";
+            this.cmToIA4.Size = new System.Drawing.Size(234, 22);
+            this.cmToIA4.Tag = "ia4";
+            this.cmToIA4.Text = "To IA4 (B/W with Alpha)";
+            this.cmToIA4.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToI8
+            // 
+            this.cmToI8.Name = "cmToI8";
+            this.cmToI8.Size = new System.Drawing.Size(234, 22);
+            this.cmToI8.Tag = "i8";
+            this.cmToI8.Text = "To I8 (B/W)";
+            this.cmToI8.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToI4
+            // 
+            this.cmToI4.Name = "cmToI4";
+            this.cmToI4.Size = new System.Drawing.Size(234, 22);
+            this.cmToI4.Tag = "i4";
+            this.cmToI4.Text = "To I4 (B/W)";
+            this.cmToI4.Click += new System.EventHandler(this.cmChangeFormat_Click);
             // 
             // lbNoPreview
             // 
@@ -347,5 +450,15 @@ namespace CustomizeMii
         private System.Windows.Forms.ToolStripMenuItem cmI8;
         private System.Windows.Forms.ToolStripMenuItem cmI4;
         private System.Windows.Forms.Label lbNoPreview;
+        private System.Windows.Forms.ToolStripMenuItem cmChangeFormat;
+        private System.Windows.Forms.ToolStripMenuItem cmToRGBA8;
+        private System.Windows.Forms.ToolStripMenuItem cmToRGB565;
+        private System.Windows.Forms.ToolStripMenuItem cmToRGB5A3;
+        private System.Windows.Forms.ToolStripMenuItem cmToIA8;
+        private System.Windows.Forms.ToolStripMenuItem cmToIA4;
+        private System.Windows.Forms.ToolStripMenuItem cmToI8;
+        private System.Windows.Forms.ToolStripMenuItem cmToI4;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.CheckBox cbCheckerBoard;
     }
 }

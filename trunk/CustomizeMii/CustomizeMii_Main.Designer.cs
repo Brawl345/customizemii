@@ -86,7 +86,7 @@ namespace CustomizeMii
             this.tabOptions = new System.Windows.Forms.TabPage();
             this.btnOptionsExtract = new System.Windows.Forms.Button();
             this.btnForwarder = new System.Windows.Forms.Button();
-            this.cbFailureChecks = new System.Windows.Forms.CheckBox();
+            this.cbSecurityChecksOff = new System.Windows.Forms.CheckBox();
             this.cbLz77 = new System.Windows.Forms.CheckBox();
             this.lbOptionsOptional = new System.Windows.Forms.Label();
             this.btnBrowseSound = new System.Windows.Forms.Button();
@@ -147,13 +147,15 @@ namespace CustomizeMii
             this.tabInstructions = new System.Windows.Forms.TabPage();
             this.rtbInstructions = new System.Windows.Forms.RichTextBox();
             this.tabCredits = new System.Windows.Forms.TabPage();
+            this.lbLicense = new System.Windows.Forms.Label();
             this.lbCreditInstaller = new System.Windows.Forms.Label();
             this.panCredits = new System.Windows.Forms.Panel();
             this.lbCreditThanks = new System.Windows.Forms.Label();
             this.llbUpdateAvailable = new System.Windows.Forms.LinkLabel();
             this.llbSite = new System.Windows.Forms.LinkLabel();
             this.lbCreditVersion = new System.Windows.Forms.Label();
-            this.lbCreditInfo = new System.Windows.Forms.Label();
+            this.cmTpls = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmRename = new System.Windows.Forms.ToolStripMenuItem();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.lbStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbStatusText = new System.Windows.Forms.ToolStripStatusLabel();
@@ -181,6 +183,7 @@ namespace CustomizeMii
             this.cmDol = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmLoadDol = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDolFromSource = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmResize = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl.SuspendLayout();
             this.tabSource.SuspendLayout();
             this.tabTitle.SuspendLayout();
@@ -192,6 +195,7 @@ namespace CustomizeMii
             this.tabInstructions.SuspendLayout();
             this.tabCredits.SuspendLayout();
             this.panCredits.SuspendLayout();
+            this.cmTpls.SuspendLayout();
             this.ssMain.SuspendLayout();
             this.cmForwarder.SuspendLayout();
             this.cmOptionsExtract.SuspendLayout();
@@ -595,7 +599,7 @@ namespace CustomizeMii
             // 
             this.tabOptions.Controls.Add(this.btnOptionsExtract);
             this.tabOptions.Controls.Add(this.btnForwarder);
-            this.tabOptions.Controls.Add(this.cbFailureChecks);
+            this.tabOptions.Controls.Add(this.cbSecurityChecksOff);
             this.tabOptions.Controls.Add(this.cbLz77);
             this.tabOptions.Controls.Add(this.lbOptionsOptional);
             this.tabOptions.Controls.Add(this.btnBrowseSound);
@@ -638,16 +642,16 @@ namespace CustomizeMii
             this.btnForwarder.UseVisualStyleBackColor = true;
             this.btnForwarder.Click += new System.EventHandler(this.btnForwarder_Click);
             // 
-            // cbFailureChecks
+            // cbSecurityChecksOff
             // 
-            this.cbFailureChecks.AutoSize = true;
-            this.cbFailureChecks.Location = new System.Drawing.Point(263, 180);
-            this.cbFailureChecks.Name = "cbFailureChecks";
-            this.cbFailureChecks.Size = new System.Drawing.Size(172, 17);
-            this.cbFailureChecks.TabIndex = 12;
-            this.cbFailureChecks.Tag = "Independent";
-            this.cbFailureChecks.Text = "/!\\ Turn off security checks /!\\";
-            this.cbFailureChecks.UseVisualStyleBackColor = true;
+            this.cbSecurityChecksOff.AutoSize = true;
+            this.cbSecurityChecksOff.Location = new System.Drawing.Point(263, 180);
+            this.cbSecurityChecksOff.Name = "cbSecurityChecksOff";
+            this.cbSecurityChecksOff.Size = new System.Drawing.Size(172, 17);
+            this.cbSecurityChecksOff.TabIndex = 12;
+            this.cbSecurityChecksOff.Tag = "Independent";
+            this.cbSecurityChecksOff.Text = "/!\\ Turn off security checks /!\\";
+            this.cbSecurityChecksOff.UseVisualStyleBackColor = true;
             // 
             // cbLz77
             // 
@@ -922,6 +926,7 @@ namespace CustomizeMii
             this.lbxBannerTpls.Size = new System.Drawing.Size(343, 173);
             this.lbxBannerTpls.Sorted = true;
             this.lbxBannerTpls.TabIndex = 0;
+            this.lbxBannerTpls.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lbxBannerTpls_MouseUp);
             this.lbxBannerTpls.SelectedIndexChanged += new System.EventHandler(this.lbxBannerTpls_SelectedIndexChanged);
             this.lbxBannerTpls.DragDrop += new System.Windows.Forms.DragEventHandler(this.lbxBannerTpls_DragDrop);
             this.lbxBannerTpls.DragEnter += new System.Windows.Forms.DragEventHandler(this.lbxBannerTpls_DragEnter);
@@ -1057,6 +1062,7 @@ namespace CustomizeMii
             this.lbxIconTpls.Size = new System.Drawing.Size(343, 173);
             this.lbxIconTpls.Sorted = true;
             this.lbxIconTpls.TabIndex = 6;
+            this.lbxIconTpls.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lbxIconTpls_MouseUp);
             this.lbxIconTpls.SelectedIndexChanged += new System.EventHandler(this.lbxIconTpls_SelectedIndexChanged);
             this.lbxIconTpls.DragDrop += new System.Windows.Forms.DragEventHandler(this.lbxIconTpls_DragDrop);
             this.lbxIconTpls.DragEnter += new System.Windows.Forms.DragEventHandler(this.lbxIconTpls_DragEnter);
@@ -1308,12 +1314,12 @@ namespace CustomizeMii
             // 
             // tabCredits
             // 
+            this.tabCredits.Controls.Add(this.lbLicense);
             this.tabCredits.Controls.Add(this.lbCreditInstaller);
             this.tabCredits.Controls.Add(this.panCredits);
             this.tabCredits.Controls.Add(this.llbUpdateAvailable);
             this.tabCredits.Controls.Add(this.llbSite);
             this.tabCredits.Controls.Add(this.lbCreditVersion);
-            this.tabCredits.Controls.Add(this.lbCreditInfo);
             this.tabCredits.Location = new System.Drawing.Point(4, 22);
             this.tabCredits.Name = "tabCredits";
             this.tabCredits.Padding = new System.Windows.Forms.Padding(3);
@@ -1321,6 +1327,16 @@ namespace CustomizeMii
             this.tabCredits.TabIndex = 5;
             this.tabCredits.Text = "About";
             this.tabCredits.UseVisualStyleBackColor = true;
+            // 
+            // lbLicense
+            // 
+            this.lbLicense.Location = new System.Drawing.Point(0, 92);
+            this.lbLicense.Name = "lbLicense";
+            this.lbLicense.Size = new System.Drawing.Size(443, 30);
+            this.lbLicense.TabIndex = 8;
+            this.lbLicense.Text = "CustomizeMii is licensed under the terms of the GNU General Public License v3,\r\ns" +
+                "ee License.txt for more information!";
+            this.lbLicense.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lbCreditInstaller
             // 
@@ -1335,7 +1351,7 @@ namespace CustomizeMii
             // 
             this.panCredits.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panCredits.Controls.Add(this.lbCreditThanks);
-            this.panCredits.Location = new System.Drawing.Point(0, 94);
+            this.panCredits.Location = new System.Drawing.Point(0, 125);
             this.panCredits.Name = "panCredits";
             this.panCredits.Size = new System.Drawing.Size(443, 79);
             this.panCredits.TabIndex = 5;
@@ -1383,15 +1399,20 @@ namespace CustomizeMii
             this.lbCreditVersion.Text = "CustomizeMii Version X by Leathl";
             this.lbCreditVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // lbCreditInfo
+            // cmTpls
             // 
-            this.lbCreditInfo.ForeColor = System.Drawing.Color.Red;
-            this.lbCreditInfo.Location = new System.Drawing.Point(0, 189);
-            this.lbCreditInfo.Name = "lbCreditInfo";
-            this.lbCreditInfo.Size = new System.Drawing.Size(443, 16);
-            this.lbCreditInfo.TabIndex = 0;
-            this.lbCreditInfo.Text = "Thanks to icefire / Xuzz for the basic idea of this Application!";
-            this.lbCreditInfo.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.cmTpls.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmRename,
+            this.cmResize});
+            this.cmTpls.Name = "cmTpls";
+            this.cmTpls.Size = new System.Drawing.Size(153, 70);
+            // 
+            // cmRename
+            // 
+            this.cmRename.Name = "cmRename";
+            this.cmRename.Size = new System.Drawing.Size(117, 22);
+            this.cmRename.Text = "Rename";
+            this.cmRename.Click += new System.EventHandler(this.cmRename_Click);
             // 
             // ssMain
             // 
@@ -1603,6 +1624,13 @@ namespace CustomizeMii
             this.cmDolFromSource.Text = "Take From Source WAD";
             this.cmDolFromSource.Click += new System.EventHandler(this.cmDolFromSource_Click);
             // 
+            // cmResize
+            // 
+            this.cmResize.Name = "cmResize";
+            this.cmResize.Size = new System.Drawing.Size(152, 22);
+            this.cmResize.Text = "Resize";
+            this.cmResize.Click += new System.EventHandler(this.cmResize_Click);
+            // 
             // CustomizeMii_Main
             // 
             this.AllowDrop = true;
@@ -1639,6 +1667,7 @@ namespace CustomizeMii
             this.tabInstructions.ResumeLayout(false);
             this.tabCredits.ResumeLayout(false);
             this.panCredits.ResumeLayout(false);
+            this.cmTpls.ResumeLayout(false);
             this.ssMain.ResumeLayout(false);
             this.ssMain.PerformLayout();
             this.cmForwarder.ResumeLayout(false);
@@ -1707,7 +1736,6 @@ namespace CustomizeMii
         private System.Windows.Forms.Button btnExtractIcon;
         private System.Windows.Forms.Button btnReplaceIcon;
         private System.Windows.Forms.ListBox lbxIconTpls;
-        private System.Windows.Forms.Label lbCreditInfo;
         private System.Windows.Forms.Label lbCreditVersion;
         private System.Windows.Forms.Label lbCreditThanks;
         private System.Windows.Forms.StatusStrip ssMain;
@@ -1749,7 +1777,7 @@ namespace CustomizeMii
         private System.Windows.Forms.CheckBox cbIconMakeTransparent;
         private System.Windows.Forms.TabPage tabInstructions;
         private System.Windows.Forms.RichTextBox rtbInstructions;
-        private System.Windows.Forms.CheckBox cbFailureChecks;
+        private System.Windows.Forms.CheckBox cbSecurityChecksOff;
         private System.Windows.Forms.Button btnForwarder;
         private System.Windows.Forms.ContextMenuStrip cmForwarder;
         private System.Windows.Forms.ToolStripMenuItem cmSimpleForwarder;
@@ -1786,6 +1814,10 @@ namespace CustomizeMii
         private System.Windows.Forms.Label lbKorean;
         private System.Windows.Forms.LinkLabel llbBannerMultiReplace;
         private System.Windows.Forms.LinkLabel llbIconMultiReplace;
+        private System.Windows.Forms.Label lbLicense;
+        private System.Windows.Forms.ContextMenuStrip cmTpls;
+        private System.Windows.Forms.ToolStripMenuItem cmRename;
+        private System.Windows.Forms.ToolStripMenuItem cmResize;
     }
 }
 

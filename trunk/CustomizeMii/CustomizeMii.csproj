@@ -55,6 +55,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -65,13 +66,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CustomizeMiiInstaller, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="libWiiSharp, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\CustomizeMiiInstaller\bin\Release\CustomizeMiiInstaller.dll</HintPath>
-    </Reference>
-    <Reference Include="ForwardMii, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ForwardMii\bin\x86\Release\ForwardMii.dll</HintPath>
+      <HintPath>.\libWiiSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -79,7 +76,6 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BNS.cs" />
     <Compile Include="CustomizeMii_BackgroundWorkers.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -153,8 +149,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <EmbeddedResource Include="Resources\comex.app" />
-    <EmbeddedResource Include="Resources\Waninkoko.app" />
+    <None Include="Resources\comex.app" />
+    <None Include="Resources\Waninkoko.app" />
     <EmbeddedResource Include="CustomizeMii_Preview.resx">
       <DependentUpon>CustomizeMii_Preview.cs</DependentUpon>
     </EmbeddedResource>
@@ -170,8 +166,6 @@
     <Compile Include="CustomizeMii_Preview.designer.cs">
       <DependentUpon>CustomizeMii_Preview.cs</DependentUpon>
     </Compile>
-    <Compile Include="Wave.cs" />
-    <Compile Include="Wii.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="License.txt" />
@@ -182,6 +176,7 @@
     <None Include="Resources\btnCreate.png" />
     <None Include="Resources\CustomizeMii.ico" />
     <None Include="Resources\Instructions.rtf" />
+    <None Include="Resources\WaninkokoLeathl.app" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -209,6 +204,16 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CustomizeMiiInstaller\CustomizeMiiInstaller.csproj">
+      <Project>{475F3ADF-B529-449F-89DA-BA5E8BE15DD5}</Project>
+      <Name>CustomizeMiiInstaller</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ForwardMii\ForwardMii.csproj">
+      <Project>{20CB2CA7-6767-4758-97FA-97395F47CD6B}</Project>
+      <Name>ForwardMii</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

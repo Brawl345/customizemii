@@ -14,25 +14,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using BNS;
-using System.Net.Sockets;
+using System.Net;
+using System.Windows.Forms;
+using libWiiSharp;
 
 namespace CustomizeMii
 {
     partial class CustomizeMii_Main
     {
-        private Stopwatch CreationTimer = new Stopwatch();
-        private Stopwatch TransmitTimer = new Stopwatch();
         private TransmitInfo transmitInfo;
-        public int sendWadReady = 0;
-        private bool sendToWii = false;
-        private bool internalSound;
         private WadCreationInfo wadCreationInfo;
+        private bool internalSound;
+
+        private WAD sourceWad = new WAD();
+        private U8 bannerBin = new U8();
+        private U8 newBannerBin = new U8();
+        private U8 iconBin = new U8();
+        private U8 newIconBin = new U8();
+        private byte[] newSoundBin = new byte[0];
+        private byte[] newDol = new byte[0];
+        private string replacedBanner = string.Empty;
+        private string replacedIcon = string.Empty;
+        private string replacedSound = string.Empty;
 
         void bwBannerReplace_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -40,7 +48,7 @@ namespace CustomizeMii
             currentProgress.progressState = " ";
 
             this.Invoke(ProgressUpdate);
-            SetText(tbReplace, BannerReplace);
+            setControlText(tbReplace, replacedBanner);
         }
 
         void bwBannerReplace_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -56,51 +64,47 @@ namespace CustomizeMii
             try
             {
                 BackgroundWorker bwBannerReplace = sender as BackgroundWorker;
-                string thisFile = (string)e.Argument;
-                if (Directory.Exists(TempTempPath)) Directory.Delete(TempTempPath, true);
-                if (Directory.Exists(TempBannerPath)) Directory.Delete(TempBannerPath, true);
+                replacedBanner = (string)e.Argument;
 
-                if (thisFile.EndsWith(".bin"))
+                if (replacedBanner.ToLower().EndsWith(".bin"))
                 {
                     bwBannerReplace.ReportProgress(0, "Loading banner.bin...");
-                    Wii.U8.UnpackU8(thisFile, TempBannerPath);
+                    newBannerBin.LoadFile(replacedBanner);
                 }
-                else if (thisFile.EndsWith(".app"))
+                else if (replacedBanner.ToLower().EndsWith(".app"))
                 {
                     bwBannerReplace.ReportProgress(0, "Loading 00000000.app...");
-                    Wii.U8.UnpackU8(thisFile, TempTempPath);
+                    U8 tmpU8 = U8.Load(replacedBanner);
+
                     bwBannerReplace.ReportProgress(50, "Loading banner.bin...");
-                    Wii.U8.UnpackU8(TempTempPath + "meta\\banner.bin", TempBannerPath);
-                    Directory.Delete(TempTempPath, true);
+                    for (int i = 0; i < tmpU8.NumOfNodes; i++)
+                        if (tmpU8.StringTable[i].ToLower() == "banner.bin")
+                        { newBannerBin.LoadFile(tmpU8.Data[i]); break; }
                 }
-                else
+                else //wad
                 {
                     bwBannerReplace.ReportProgress(0, "Loading WAD...");
-                    Wii.WadUnpack.UnpackWad(thisFile, TempTempPath);
-                    if (Wii.U8.CheckU8(TempTempPath + "00000000.app") == false)
+                    WAD tmpWad = WAD.Load(replacedBanner);
+
+                    if (!tmpWad.HasBanner)
                         throw new Exception("CustomizeMii only handles Channel WADs!");
-                    bwBannerReplace.ReportProgress(30, "Loading 00000000.app...");
-                    Wii.U8.UnpackU8(TempTempPath + "00000000.app", TempTempPath + "00000000.app_OUT");
+
                     bwBannerReplace.ReportProgress(60, "Loading banner.bin...");
-                    Wii.U8.UnpackU8(TempTempPath + "00000000.app_OUT\\meta\\banner.bin", TempBannerPath);
-                    Directory.Delete(TempTempPath, true);
+                    for (int i = 0; i < tmpWad.BannerApp.NumOfNodes; i++)
+                        if (tmpWad.BannerApp.StringTable[i].ToLower() == "banner.bin")
+                        { newBannerBin.LoadFile(tmpWad.BannerApp.Data[i]); break; }
                 }
 
-                EventHandler AddBannerTpls = new EventHandler(this.AddBannerTpls);
-                EventHandler AddIconTpls = new EventHandler(this.AddIconTpls);
-                EventHandler AddBrlyts = new EventHandler(this.AddBrlyts);
-                EventHandler AddBrlans = new EventHandler(this.AddBrlans);
-                this.Invoke(AddBannerTpls);
-                this.Invoke(AddIconTpls);
-                this.Invoke(AddBrlyts);
-                this.Invoke(AddBrlans);
+                bannerTransparents.Clear();
+
+                addTpls();
+                addBrlyts();
+                addBrlans();
             }
             catch (Exception ex)
             {
-                if (Directory.Exists(TempTempPath)) Directory.Delete(TempTempPath, true);
-                if (Directory.Exists(TempBannerPath)) Directory.Delete(TempBannerPath, true);
-                BannerReplace = string.Empty;
-                ErrorBox(ex.Message);
+                replacedBanner = string.Empty;
+                errorBox(ex.Message);
             }
         }
 
@@ -110,7 +114,7 @@ namespace CustomizeMii
             currentProgress.progressState = " ";
 
             this.Invoke(ProgressUpdate);
-            SetText(tbReplace, IconReplace);
+            setControlText(tbReplace, replacedIcon);
         }
 
         void bwIconReplace_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -126,51 +130,49 @@ namespace CustomizeMii
             try
             {
                 BackgroundWorker bwIconReplace = sender as BackgroundWorker;
-                string thisFile = (string)e.Argument;
-                if (Directory.Exists(TempTempPath)) Directory.Delete(TempTempPath, true);
-                if (Directory.Exists(TempIconPath)) Directory.Delete(TempIconPath, true);
+                replacedIcon = (string)e.Argument;
 
-                if (thisFile.EndsWith(".bin"))
+                bwIconReplace.ReportProgress(0);
+
+                if (replacedIcon.ToLower().EndsWith(".bin"))
                 {
                     bwIconReplace.ReportProgress(0, "Loading icon.bin...");
-                    Wii.U8.UnpackU8(thisFile, TempIconPath);
+                    newIconBin.LoadFile(replacedIcon);
                 }
-                else if (thisFile.EndsWith(".app"))
+                else if (replacedIcon.ToLower().EndsWith(".app"))
                 {
                     bwIconReplace.ReportProgress(0, "Loading 00000000.app...");
-                    Wii.U8.UnpackU8(thisFile, TempTempPath);
+                    U8 tmpU8 = U8.Load(replacedIcon);
+
                     bwIconReplace.ReportProgress(50, "Loading icon.bin...");
-                    Wii.U8.UnpackU8(TempTempPath + "meta\\icon.bin", TempIconPath);
-                    Directory.Delete(TempTempPath, true);
+                    for (int i = 0; i < tmpU8.NumOfNodes; i++)
+                        if (tmpU8.StringTable[i].ToLower() == "icon.bin")
+                        { newIconBin.LoadFile(tmpU8.Data[i]); break; }
                 }
-                else
+                else //wad
                 {
                     bwIconReplace.ReportProgress(0, "Loading WAD...");
-                    Wii.WadUnpack.UnpackWad(thisFile, TempTempPath);
-                    if (Wii.U8.CheckU8(TempTempPath + "00000000.app") == false)
+                    WAD tmpWad = WAD.Load(replacedIcon);
+
+                    if (!tmpWad.HasBanner)
                         throw new Exception("CustomizeMii only handles Channel WADs!");
-                    bwIconReplace.ReportProgress(30, "Loading 00000000.app...");
-                    Wii.U8.UnpackU8(TempTempPath + "00000000.app", TempTempPath + "00000000.app_OUT");
+
                     bwIconReplace.ReportProgress(60, "Loading icon.bin...");
-                    Wii.U8.UnpackU8(TempTempPath + "00000000.app_OUT\\meta\\icon.bin", TempIconPath);
-                    Directory.Delete(TempTempPath, true);
+                    for (int i = 0; i < tmpWad.BannerApp.NumOfNodes; i++)
+                        if (tmpWad.BannerApp.StringTable[i].ToLower() == "icon.bin")
+                        { newIconBin.LoadFile(tmpWad.BannerApp.Data[i]); break; }
                 }
 
-                EventHandler AddBannerTpls = new EventHandler(this.AddBannerTpls);
-                EventHandler AddIconTpls = new EventHandler(this.AddIconTpls);
-                EventHandler AddBrlyts = new EventHandler(this.AddBrlyts);
-                EventHandler AddBrlans = new EventHandler(this.AddBrlans);
-                this.Invoke(AddBannerTpls);
-                this.Invoke(AddIconTpls);
-                this.Invoke(AddBrlyts);
-                this.Invoke(AddBrlans);
+                iconTransparents.Clear();
+
+                addTpls();
+                addBrlyts();
+                addBrlans();
             }
             catch (Exception ex)
             {
-                if (Directory.Exists(TempTempPath)) Directory.Delete(TempTempPath, true);
-                if (Directory.Exists(TempIconPath)) Directory.Delete(TempIconPath, true);
-                IconReplace = string.Empty;
-                ErrorBox(ex.Message);
+                replacedIcon = string.Empty;
+                errorBox(ex.Message);
             }
         }
 
@@ -180,7 +182,7 @@ namespace CustomizeMii
             currentProgress.progressState = " ";
 
             this.Invoke(ProgressUpdate);
-            SetText(tbReplace, SoundReplace);
+            setControlText(tbReplace, replacedSound);
         }
 
         void bwSoundReplace_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -196,69 +198,60 @@ namespace CustomizeMii
             try
             {
                 BackgroundWorker bwSoundReplace = sender as BackgroundWorker;
-                string thisFile = (string)e.Argument;
-                if (File.Exists(TempSoundPath)) File.Delete(TempSoundPath);
-                if (Directory.Exists(TempTempPath)) Directory.Delete(TempTempPath, true);
+                replacedSound = (string)e.Argument;
 
-                if (thisFile.EndsWith(".bin"))
+                bwSoundReplace.ReportProgress(0);
+
+                if (replacedSound.ToLower().EndsWith(".bin"))
                 {
-                    bwSoundReplace.ReportProgress(0, "Copying sound.bin...");
-                    File.Copy(thisFile, TempSoundPath);
+                    bwSoundReplace.ReportProgress(0, "Loading sound.bin...");
+                    newSoundBin = File.ReadAllBytes(replacedSound);
                 }
-                else if (thisFile.EndsWith(".app"))
+                else if (replacedSound.ToLower().EndsWith(".app"))
                 {
                     bwSoundReplace.ReportProgress(0, "Loading 00000000.app...");
-                    Wii.U8.UnpackU8(thisFile, TempTempPath);
-                    bwSoundReplace.ReportProgress(80, "Copying sound.bin...");
-                    File.Copy(TempTempPath + "meta\\sound.bin", TempSoundPath);
-                    Directory.Delete(TempTempPath, true);
+                    U8 tmpU8 = U8.Load(replacedSound);
+
+                    bwSoundReplace.ReportProgress(80, "Loading sound.bin...");
+                    for (int i = 0; i < tmpU8.NumOfNodes; i++)
+                        if (tmpU8.StringTable[i].ToLower() == "sound.bin")
+                        { newSoundBin = tmpU8.Data[i]; break; }
                 }
                 else
                 {
                     bwSoundReplace.ReportProgress(0, "Loading WAD...");
-                    Wii.WadUnpack.UnpackWad(thisFile, TempTempPath);
-                    if (Wii.U8.CheckU8(TempTempPath + "00000000.app") == false)
-                        throw new Exception("CustomizeMii only handles Channel WADs!");
-                    bwSoundReplace.ReportProgress(50, "Loading 00000000.app...");
-                    Wii.U8.UnpackU8(TempTempPath + "00000000.app", TempTempPath + "00000000.app_OUT");
-                    bwSoundReplace.ReportProgress(90, "Copying sound.bin...");
-                    File.Copy(TempTempPath + "00000000.app_OUT\\meta\\sound.bin", TempSoundPath);
-                    Directory.Delete(TempTempPath, true);
-                }
+                    WAD tmpWad = WAD.Load(replacedSound);
 
-                SetText(tbSound, SoundReplace);
+                    if (!tmpWad.HasBanner)
+                        throw new Exception("CustomizeMii only handles Channel WADs!");
+
+                    bwSoundReplace.ReportProgress(90, "Loading sound.bin...");
+                    for (int i = 0; i < tmpWad.BannerApp.NumOfNodes; i++)
+                        if (tmpWad.BannerApp.StringTable[i].ToLower() == "sound.bin")
+                        { newSoundBin = tmpWad.BannerApp.Data[i]; break; }
+                }
             }
             catch (Exception ex)
             {
-                if (Directory.Exists(TempTempPath)) Directory.Delete(TempTempPath, true);
-                if (File.Exists(TempSoundPath)) File.Delete(TempSoundPath);
-                SoundReplace = string.Empty;
-                ErrorBox(ex.Message);
+                replacedSound = string.Empty;
+                errorBox(ex.Message);
             }
         }
 
         void bwConvertToBns_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (File.Exists(TempBnsPath))
+            if (!string.IsNullOrEmpty(replacedSound))
             {
                 if (internalSound == true)
-                    SetText(tbSound, "BNS: Internal Sound");
+                    setControlText(tbSound, "BNS: Internal Sound");
                 else
-                    SetText(tbSound, "BNS: " + Mp3Path);
+                    setControlText(tbSound, "BNS: " + replacedSound);
 
                 btnBrowseSound.Text = "Clear";
 
-                if (!string.IsNullOrEmpty(SoundReplace))
-                {
-                    SoundReplace = string.Empty;
-                    if (cmbReplace.SelectedIndex == 2) SetText(tbReplace, SoundReplace);
-                    if (File.Exists(TempSoundPath)) File.Delete(TempSoundPath);
-                }
+                if (cmbReplace.SelectedIndex == 2) setControlText(tbReplace, string.Empty);
             }
 
-            if (File.Exists(TempWavePath)) File.Delete(TempWavePath);
-
-            Mp3Path = string.Empty;
             currentProgress.progressValue = 100;
             currentProgress.progressState = " ";
 
@@ -286,23 +279,30 @@ namespace CustomizeMii
             {
                 BackgroundWorker bwConvertToBns = sender as BackgroundWorker;
                 BnsConversionInfo bnsInfo = (BnsConversionInfo)e.Argument;
-                string audioFile;
+                byte[] audioData = new byte[0];
 
-                if (bnsInfo.AudioFile == "Internal Sound")
-                { audioFile = TempWavePath; internalSound = true; }
+                if (bnsInfo.audioFile.ToLower() == "internal sound")
+                {
+                    for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
+                    {
+                        if (sourceWad.BannerApp.StringTable[i].ToLower() == "sound.bin")
+                            audioData = Headers.IMD5.RemoveHeader(sourceWad.BannerApp.Data[i]);
+                    }
+
+                    internalSound = true;
+                }
                 else
-                    audioFile = bnsInfo.AudioFile;
-                Mp3Path = audioFile; //Rather audioPath...
+                    audioData = File.ReadAllBytes(bnsInfo.audioFile);
 
-                bool mp3 = audioFile.EndsWith(".mp3");
-                if (mp3 && bnsInfo.Loop == BnsConversionInfo.LoopType.FromWave) bnsInfo.Loop = BnsConversionInfo.LoopType.None;
+                bool mp3 = bnsInfo.audioFile.EndsWith(".mp3");
+                if (mp3 && bnsInfo.loopType == BnsConversionInfo.LoopType.FromWave) bnsInfo.loopType = BnsConversionInfo.LoopType.None;
 
                 if (mp3)
                 {
                     bwConvertToBns.ReportProgress(0, "Converting MP3...");
 
-                    ProcessStartInfo lameI = new ProcessStartInfo(System.Windows.Forms.Application.StartupPath + "\\lame.exe",
-                        string.Format("--decode \"{0}\" \"{1}\"", audioFile, "C:\\cmtempmp3wav.wav")); //Gotta go this step, cause the TempWavePath is too long for lame.exe
+                    ProcessStartInfo lameI = new ProcessStartInfo(Application.StartupPath + Path.DirectorySeparatorChar + "lame.exe",
+                        string.Format("--decode \"{0}\" \"{1}\"", bnsInfo.audioFile, Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav"));
                     lameI.CreateNoWindow = true;
                     lameI.UseShellExecute = false;
                     lameI.RedirectStandardError = true;
@@ -331,55 +331,46 @@ namespace CustomizeMii
                     lame.WaitForExit();
                     lame.Close();
 
-                    if (File.Exists("C:\\cmtempmp3wav.wav"))
+                    if (File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav"))
                     {
-                        FileInfo fi = new FileInfo("C:\\cmtempmp3wav.wav");
-                        fi.MoveTo(TempWavePath);
+                        audioData = File.ReadAllBytes(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav");
+                        File.Delete(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav");
                     }
-
-                    if (!File.Exists(TempWavePath)) throw new Exception("Error converting MP3...");
-                    else audioFile = TempWavePath;
+                    else throw new Exception("Error converting MP3...");
                 }
 
-                bwConvertToBns.ReportProgress(0, "Converting To BNS...");
-                
-                BNS_File bns = new BNS_File(audioFile, bnsInfo.Loop == BnsConversionInfo.LoopType.FromWave);
-                bns.ProgressChanged += new EventHandler<ProgressChangedEventArgs>(bns_ProgressChanged);
+                bwConvertToBns.ReportProgress(0, "Converting to BNS...");
 
-                bns.StereoToMono = bnsInfo.StereoToMono;
+                BNS bns = new BNS(audioData, bnsInfo.loopType == BnsConversionInfo.LoopType.FromWave);
+                bns.Progress += new EventHandler<ProgressChangedEventArgs>(bns_ProgressChanged);
+
+                bns.StereoToMono = bnsInfo.stereoToMono;
                 bns.Convert();
 
-                if (bnsInfo.Loop == BnsConversionInfo.LoopType.Manual && bnsInfo.LoopStartSample > -1 && bnsInfo.LoopStartSample < bns.TotalSampleCount)
-                    bns.SetLoop(bnsInfo.LoopStartSample);
+                if (bnsInfo.loopType == BnsConversionInfo.LoopType.Manual && bnsInfo.loopStartSample > -1 && bnsInfo.loopStartSample < bns.TotalSampleCount)
+                    bns.SetLoop(bnsInfo.loopStartSample);
 
-                bns.Save(TempBnsPath);
-
-                if (File.Exists(TempWavePath))
-                    File.Delete(TempWavePath);
+                newSoundBin = Headers.IMD5.AddHeader(bns.ToByteArray());
+                replacedSound = bnsInfo.audioFile;
             }
             catch (Exception ex)
             {
-                ErrorBox("Error during conversion:\n" + ex.Message);
+                replacedSound = string.Empty;
+                if (File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav")) File.Delete(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav");
+                errorBox("Error during conversion:\n" + ex.Message);
             }
         }
 
         void bwConvertMp3_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (File.Exists(TempWavePath))
+            if (!string.IsNullOrEmpty(replacedSound))
             {
-                SetText(tbSound, Mp3Path);
-
+                setControlText(tbSound, replacedSound);
                 btnBrowseSound.Text = "Clear";
 
-                if (!string.IsNullOrEmpty(SoundReplace))
-                {
-                    SoundReplace = string.Empty;
-                    if (cmbReplace.SelectedIndex == 2) SetText(tbReplace, SoundReplace);
-                    if (File.Exists(TempSoundPath)) File.Delete(TempSoundPath);
-                }
+                if (cmbReplace.SelectedIndex == 2) setControlText(tbReplace, string.Empty);
             }
 
-            Mp3Path = string.Empty;
             currentProgress.progressValue = 100;
             currentProgress.progressState = " ";
 
@@ -389,6 +380,7 @@ namespace CustomizeMii
         void bwConvertMp3_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             currentProgress.progressValue = e.ProgressPercentage;
+            currentProgress.progressState = (string)e.UserState;
 
             this.Invoke(ProgressUpdate);
         }
@@ -398,9 +390,9 @@ namespace CustomizeMii
             try
             {
                 BackgroundWorker bwConvertMp3 = sender as BackgroundWorker;
-                Mp3Path = (string)e.Argument;
-                ProcessStartInfo lameI = new ProcessStartInfo(System.Windows.Forms.Application.StartupPath + "\\lame.exe",
-                    string.Format("--decode \"{0}\" \"{1}\"", e.Argument, "C:\\cmtempmp3wav.wav")); //Gotta go this step, cause the TempWavePath is too long for lame.exe
+
+                ProcessStartInfo lameI = new ProcessStartInfo(Application.StartupPath + Path.DirectorySeparatorChar + "lame.exe",
+                    string.Format("--decode \"{0}\" \"{1}\"", e.Argument, Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav"));
                 lameI.CreateNoWindow = true;
                 lameI.UseShellExecute = false;
                 lameI.RedirectStandardError = true;
@@ -417,11 +409,12 @@ namespace CustomizeMii
                         {
                             string thisFrame = thisLine.Remove(thisLine.IndexOf('/'));
                             thisFrame = thisFrame.Remove(0, thisFrame.LastIndexOf(' ') + 1);
+
                             string Frames = thisLine.Remove(0, thisLine.IndexOf('/') + 1);
                             Frames = Frames.Remove(Frames.IndexOf(' '));
 
                             int thisProgress = (int)((Convert.ToDouble(thisFrame) / Convert.ToDouble(Frames)) * 100);
-                            bwConvertMp3.ReportProgress(thisProgress);
+                            bwConvertMp3.ReportProgress(thisProgress, "Converting MP3...");
                         }
                     }
                 }
@@ -429,17 +422,19 @@ namespace CustomizeMii
                 lame.WaitForExit();
                 lame.Close();
 
-                if (File.Exists("C:\\cmtempmp3wav.wav"))
+                if (File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav"))
                 {
-                    FileInfo fi = new FileInfo("C:\\cmtempmp3wav.wav");
-                    fi.MoveTo(TempWavePath);
+                    newSoundBin = Headers.IMD5.AddHeader(File.ReadAllBytes(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav"));
+                    File.Delete(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav");
+
+                    replacedSound = (string)e.Argument;
                 }
             }
             catch (Exception ex)
             {
-                if (File.Exists(TempWavePath)) File.Delete(TempWavePath);
-                Mp3Path = string.Empty;
-                ErrorBox("Error during conversion:\n" + ex.Message);
+                if (File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav")) File.Delete(Application.StartupPath + Path.DirectorySeparatorChar + "customizemii_temp.wav");
+                replacedSound = string.Empty;
+                errorBox("Error during conversion:\n" + ex.Message);
             }
         }
 
@@ -464,128 +459,106 @@ namespace CustomizeMii
             try
             {
                 BackgroundWorker bwLoadChannel = sender as BackgroundWorker;
-                EventHandler Initialize = new EventHandler(this.Initialize);
-                EventHandler SetSourceWad = new EventHandler(this.SetSourceWad);
-                byte[] WadFile = Wii.Tools.LoadFileToByteArray((string)e.Argument);
-                bool hashesMatch = true;
+                initialize();
 
-                this.Invoke(Initialize);
-
-                if (Directory.Exists(TempUnpackPath)) Directory.Delete(TempUnpackPath, true);
+                if (e.Argument is string) setControlText(tbSourceWad, (string)e.Argument);
+                else if (e.Argument is DownloadDataCompletedEventArgs) setControlText(tbSourceWad, (string)((DownloadDataCompletedEventArgs)e.Argument).UserState);
 
                 bwLoadChannel.ReportProgress(0, "Loading WAD...");
-                Wii.WadUnpack.UnpackWad(WadFile, TempUnpackPath, out hashesMatch);
-                if (Wii.U8.CheckU8(TempUnpackPath + "00000000.app") == false)
+
+                if (e.Argument is string) sourceWad.LoadFile((string)e.Argument);
+                else if (e.Argument is DownloadDataCompletedEventArgs) sourceWad.LoadFile(((DownloadDataCompletedEventArgs)e.Argument).Result);
+
+                if (!sourceWad.HasBanner)
                     throw new Exception("CustomizeMii only edits Channel WADs!");
 
-                SourceWad = (string)e.Argument;
-                this.Invoke(SetSourceWad);
-
-                bwLoadChannel.ReportProgress(25, "Loading 00000000.app...");
-                Wii.U8.UnpackU8(TempUnpackPath + "00000000.app", TempUnpackPath + "00000000.app_OUT");
-
-                bwLoadChannel.ReportProgress(50, "Loading banner.bin...");
-                Wii.U8.UnpackU8(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin", TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT");
-
-                bwLoadChannel.ReportProgress(75, "Loading icon.bin...");
-                Wii.U8.UnpackU8(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin", TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT");
-
-                bwLoadChannel.ReportProgress(90, "Gathering Information...");
-                string[] ChannelTitles = Wii.WadInfo.GetChannelTitles(WadFile);
-                string TitleID = Wii.WadInfo.GetTitleID(WadFile, 1);
-                string IosFlag = Wii.WadInfo.GetIosFlag(WadFile).Replace("IOS", string.Empty);
-
-                bool allLangs = true;
-                SetText(tbTitleID, TitleID);
-                SetText(tbStartupIos, IosFlag);
-
-                if (ChannelTitles[0] != ChannelTitles[1]) SetText(tbJapanese, ChannelTitles[0]);
-                else allLangs = false;
-                if (ChannelTitles[2] != ChannelTitles[1]) SetText(tbGerman, ChannelTitles[2]);
-                else allLangs = false;
-                if (ChannelTitles[3] != ChannelTitles[1]) SetText(tbFrench, ChannelTitles[3]);
-                else allLangs = false;
-                if (ChannelTitles[4] != ChannelTitles[1]) SetText(tbSpanish, ChannelTitles[4]);
-                else allLangs = false;
-                if (ChannelTitles[5] != ChannelTitles[1]) SetText(tbItalian, ChannelTitles[5]);
-                else allLangs = false;
-                if (ChannelTitles[6] != ChannelTitles[1]) SetText(tbDutch, ChannelTitles[6]);
-                else allLangs = false;
-                if (ChannelTitles[7] != ChannelTitles[1]) SetText(tbKorean, ChannelTitles[7]);
-
-                if (allLangs) SetText(tbEnglish, ChannelTitles[1]);
-                else SetText(tbAllLanguages, ChannelTitles[1]);
-
-                string[] trailer = Directory.GetFiles(TempUnpackPath, "*.trailer");
-                if (trailer.Length > 0)
+                int progressValue = 30;
+                for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
                 {
-                    DateTime timestamp = Wii.WadInfo.GetCreationTime(trailer[0]);
-
-                    if (timestamp > new DateTime(1970, 1, 1))
+                    if (sourceWad.BannerApp.StringTable[i].ToLower() == "banner.bin")
                     {
-                        SetLabel(lbCreatedValue, timestamp.ToString() + " (UTC)");
+                        progressValue += 20;
+                        bwLoadChannel.ReportProgress(progressValue, "Loading banner.bin...");
+                        bannerBin.LoadFile(sourceWad.BannerApp.Data[i]);
                     }
-                    else SetLabel(lbCreatedValue, "No Timestamp!");
+                    else if (sourceWad.BannerApp.StringTable[i].ToLower() == "icon.bin")
+                    {
+                        progressValue += 20;
+                        bwLoadChannel.ReportProgress(progressValue, "Loading icon.bin...");
+                        iconBin.LoadFile(sourceWad.BannerApp.Data[i]);
+                    }
                 }
-                else SetLabel(lbCreatedValue, "No Timestamp!");
 
-                EventHandler AddBannerTpls = new EventHandler(this.AddBannerTpls);
-                EventHandler AddIconTpls = new EventHandler(this.AddIconTpls);
-                EventHandler AddBrlyts = new EventHandler(this.AddBrlyts);
-                EventHandler AddBrlans = new EventHandler(this.AddBrlans);
-                this.Invoke(AddBannerTpls);
-                this.Invoke(AddIconTpls);
-                this.Invoke(AddBrlyts);
-                this.Invoke(AddBrlans);
+                bwLoadChannel.ReportProgress(90, "Loading Channel Information...");
+                setControlText(tbTitleID, sourceWad.UpperTitleID);
+                setControlText(tbStartupIos, ((int)sourceWad.StartupIOS).ToString());
 
-                bwLoadChannel.ReportProgress(100);
-                EventHandler EnableCtrls = new EventHandler(this.EnableControls);
-                this.Invoke(EnableCtrls);
+                string[] channelTitles = ((Headers.IMET)sourceWad.BannerApp.Header).GetTitles();
+                bool allLangs = true;
 
-                SetButton(btnBrowseSource, "Clear");
+                if (channelTitles[0] != channelTitles[1]) setControlText(tbJapanese, channelTitles[0]);
+                else allLangs = false;
+                if (channelTitles[2] != channelTitles[1]) setControlText(tbGerman, channelTitles[2]);
+                else allLangs = false;
+                if (channelTitles[3] != channelTitles[1]) setControlText(tbFrench, channelTitles[3]);
+                else allLangs = false;
+                if (channelTitles[4] != channelTitles[1]) setControlText(tbSpanish, channelTitles[4]);
+                else allLangs = false;
+                if (channelTitles[5] != channelTitles[1]) setControlText(tbItalian, channelTitles[5]);
+                else allLangs = false;
+                if (channelTitles[6] != channelTitles[1]) setControlText(tbDutch, channelTitles[6]);
+                else allLangs = false;
+                if (channelTitles[7] != channelTitles[1]) setControlText(tbKorean, channelTitles[7]);
 
-                if (!hashesMatch)
-                    System.Windows.Forms.MessageBox.Show("At least one content's hash doesn't match the hash in the TMD!\n" +
-                        "Some files of the WAD might be corrupted, thus it might brick your Wii!", "Warning",
-                        System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Warning);
+                if (allLangs) setControlText(tbEnglish, channelTitles[1]);
+                else setControlText(tbAllLanguages, channelTitles[1]);
+
+                bwLoadChannel.ReportProgress(95, "Loading Footer...");
+                if (sourceWad.CreationTimeUTC > new DateTime(1970, 1, 1))
+                    setControlText(lbCreatedValue, sourceWad.CreationTimeUTC.ToString() + " (UTC)");
+                else setControlText(lbCreatedValue, "No Timestamp!");
+
+                addTpls();
+                addBrlyts();
+                addBrlans();
+
+                enableControls();
+
+                setControlText(btnBrowseSource, "Clear");
             }
             catch (Exception ex)
             {
-                if (Directory.Exists(TempUnpackPath)) Directory.Delete(TempUnpackPath, true);
-                SourceWad = string.Empty;
-                SetText(tbSourceWad, string.Empty);
-                ErrorBox(ex.Message);
+                setControlText(tbSourceWad, string.Empty);
+                errorBox(ex.Message);
             }
         }
 
         void bwTransmit_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            EventHandler EnableControls = new EventHandler(this.EnableControls);
-            EventHandler Initialize = new EventHandler(this.Initialize);
             currentProgress.progressValue = 100;
             currentProgress.progressState = " ";
 
             this.Invoke(ProgressUpdate);
-            this.Invoke(EnableControls);
+            enableControls();
 
             if (transmitInfo.timeElapsed > 0)
             {
-                System.Windows.Forms.DialogResult dlg;
+                DialogResult dlg;
 
-                if (transmitInfo.usedCompression)
-                    dlg = System.Windows.Forms.MessageBox.Show(
+                if (transmitInfo.compressionRatio > 0)
+                    dlg = MessageBox.Show(
                         string.Format("Transmitted {0} kB in {1} milliseconds...\nCompression Ratio: {2}%\n\nDo you want to save the wad file?",
                         transmitInfo.transmittedLength, transmitInfo.timeElapsed, transmitInfo.compressionRatio),
-                        "Save File?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question);
+                        "Save File?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 else
-                    dlg = System.Windows.Forms.MessageBox.Show(
+                    dlg = MessageBox.Show(
                         string.Format("Transmitted {0} kB in {1} milliseconds...\n\nDo you want to save the wad file?",
                         transmitInfo.transmittedLength, transmitInfo.timeElapsed),
-                        "Save File?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question);
+                        "Save File?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                if (dlg == System.Windows.Forms.DialogResult.Yes)
+                if (dlg == DialogResult.Yes)
                 {
-                    System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
+                    SaveFileDialog sfd = new SaveFileDialog();
                     sfd.Filter = "Wii Channels|*.wad";
 
                     if (!string.IsNullOrEmpty(tbAllLanguages.Text))
@@ -593,15 +566,15 @@ namespace CustomizeMii
                     else
                         sfd.FileName = tbEnglish.Text + " - " + tbTitleID.Text.ToUpper() + ".wad";
 
-                    if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                        File.Copy(TempPath + "SendToWii.wad", sfd.FileName, true);
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        if (File.Exists(sfd.FileName)) File.Delete(sfd.FileName);
+                        File.WriteAllBytes(sfd.FileName, wadCreationInfo.wadFile);
+                    }
                 }
 
-                this.Invoke(Initialize);
+                initialize();
             }
-
-            try { File.Delete(TempPath + "SendToWii.wad"); }
-            catch { }
         }
 
         void bwTransmit_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -620,164 +593,56 @@ namespace CustomizeMii
 
                 //Insert wad into stub dol
                 string fileName = "CMiiInstaller.dol";
-                byte[] fileData = CustomizeMiiInstaller.InstallerHelper.CreateInstaller(TempPath + "SendToWii.wad", (byte)wadCreationInfo.transmitIos).ToArray();
+                byte[] fileData = CustomizeMiiInstaller.InstallerHelper.CreateInstaller(wadCreationInfo.wadFile, (byte)wadCreationInfo.transmitIos).ToArray();
 
                 //Transmit installer
-                transmitInfo.timeElapsed = 0; TransmitTimer.Reset(); TransmitTimer.Start();
-                bool compress = File.Exists(System.Windows.Forms.Application.StartupPath + "\\zlib1.dll");
+                Stopwatch transmitTimer = new Stopwatch();
 
-                if (!Environment.OSVersion.ToString().Contains("Windows"))
-                    compress = false;
+                HbcTransmitter transmitter = new HbcTransmitter(wadCreationInfo.transmitProtocol, wadCreationInfo.transmitIp);
+                transmitter.Progress += new EventHandler<ProgressChangedEventArgs>(transmitter_Progress);
 
-                if ((int)(wadCreationInfo.transmitProtocol) == 1) compress = false;
+                transmitter_Progress(null, new ProgressChangedEventArgs(0, null));
+                transmitTimer.Start();
 
-                TcpClient theClient = new TcpClient();
+                bool success = transmitter.TransmitFile(fileName, fileData);
 
-                byte[] compFileData;
-                int Blocksize = 4 * 1024;
-                if (wadCreationInfo.transmitProtocol != TransmitProtocol.JODI) Blocksize = 16 * 1024;
-                byte[] buffer = new byte[4];
-                string theIP = wadCreationInfo.transmitIp;
+                transmitTimer.Stop();
 
-                bwTransmit.ReportProgress(0, "Connecting...");
-                //StatusUpdate("Connecting...");
-                try { theClient.Connect(theIP, 4299); }
-                catch (Exception ex) { theClient.Close(); throw new Exception("Connection Failed:\n" + ex.Message); }
-                NetworkStream theStream = theClient.GetStream();
-
-                bwTransmit.ReportProgress(0, "Connected... Sending Magic...");
-                //StatusUpdate("Connected... Sending Magic...");
-                buffer[0] = (byte)'H';
-                buffer[1] = (byte)'A';
-                buffer[2] = (byte)'X';
-                buffer[3] = (byte)'X';
-                try { theStream.Write(buffer, 0, 4); }
-                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Magic:\n" + ex.Message); }
-
-                bwTransmit.ReportProgress(0, "Magic Sent... Sending Version Info...");
-                //StatusUpdate("Magic Sent... Sending Version Info...");
-                buffer[0] = 0;
-                buffer[1] = wadCreationInfo.transmitProtocol == TransmitProtocol.JODI ? (byte)5 : (byte)4;
-                buffer[2] = (byte)(((fileName.Length + 2) >> 8) & 0xff);
-                buffer[3] = (byte)((fileName.Length + 2) & 0xff);
-
-                try { theStream.Write(buffer, 0, 4); }
-                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Version Info:\n" + ex.Message); }
-
-                if (compress)
-                {
-                    bwTransmit.ReportProgress(0, "Version Info Sent... Compressing File...");
-                    //StatusUpdate("Version Info Sent... Compressing File...");
-                    try { compFileData = TransmitMii.zlib.Compress(fileData); }
-                    catch (Exception ex)
-                    {
-                        ErrorBox(ex.Message);
-                        //Compression failed, let's continue without compression
-                        compFileData = fileData;
-                        fileData = new byte[0];
-                    }
-
-                    bwTransmit.ReportProgress(0, "Compressed File... Sending Filesize...");
-                    //StatusUpdate("Compressed File... Sending Filesize...");
-                }
+                if (!success) errorBox(transmitter.LastError);
                 else
                 {
-                    compFileData = fileData;
-                    fileData = new byte[0];
-
-                    bwTransmit.ReportProgress(0, "Version Info Sent... Sending Filesize...");
-                    //StatusUpdate("Version Info Sent... Sending Filesize...");
+                    transmitInfo.timeElapsed = (int)transmitTimer.ElapsedMilliseconds;
+                    transmitInfo.compressionRatio = transmitter.CompressionRatio;
+                    transmitInfo.transmittedLength = Math.Round(transmitter.TransmittedLength * 0.0009765625, 2);
                 }
-
-                //First compressed filesize, then uncompressed filesize
-                buffer[0] = (byte)((compFileData.Length >> 24) & 0xff);
-                buffer[1] = (byte)((compFileData.Length >> 16) & 0xff);
-                buffer[2] = (byte)((compFileData.Length >> 8) & 0xff);
-                buffer[3] = (byte)(compFileData.Length & 0xff);
-                try { theStream.Write(buffer, 0, 4); }
-                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Filesize:\n" + ex.Message); }
-
-                if (wadCreationInfo.transmitProtocol != TransmitProtocol.HAXX)
-                {
-                    buffer[0] = (byte)((fileData.Length >> 24) & 0xff);
-                    buffer[1] = (byte)((fileData.Length >> 16) & 0xff);
-                    buffer[2] = (byte)((fileData.Length >> 8) & 0xff);
-                    buffer[3] = (byte)(fileData.Length & 0xff);
-                    try { theStream.Write(buffer, 0, 4); }
-                    catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Filesize:\n" + ex.Message); }
-                }
-
-                bwTransmit.ReportProgress(0, "Filesize Sent... Sending File...");
-                //StatusUpdate("Filesize Sent... Sending File...");
-                int off = 0;
-                int cur = 0;
-                int count = compFileData.Length / Blocksize;
-                int left = compFileData.Length % Blocksize;
-
-                try
-                {
-                    do
-                    {
-                        bwTransmit.ReportProgress((cur + 1) * 100 / count, "Sending File...");
-                        //StatusUpdate("Sending File: " + ((cur + 1) * 100 / count).ToString() + "%");
-                        theStream.Write(compFileData, off, Blocksize);
-                        off += Blocksize;
-                        cur++;
-                    } while (cur < count);
-
-                    if (left > 0)
-                    {
-                        theStream.Write(compFileData, off, compFileData.Length - off);
-                    }
-                }
-                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending File:\n" + ex.Message); }
-
-                bwTransmit.ReportProgress(0, "File Sent... Sending Arguments...");
-                //StatusUpdate("File Sent... Sending Arguments...");
-                byte[] theArgs = new byte[fileName.Length + 2];
-                for (int i = 0; i < fileName.Length; i++) { theArgs[i] = (byte)fileName.ToCharArray()[i]; }
-                try { theStream.Write(theArgs, 0, theArgs.Length); }
-                catch (Exception ex) { theStream.Close(); theClient.Close(); throw new Exception("Error sending Arguments:\n" + ex.Message); }
-
-                theStream.Close();
-                theClient.Close();
-
-                bwTransmit.ReportProgress(0, string.Empty);
-                //StatusUpdate(string.Empty);
-
-                TransmitTimer.Stop();
-                transmitInfo.timeElapsed = (int)TransmitTimer.ElapsedMilliseconds;
-                transmitInfo.usedCompression = compress;
-                transmitInfo.transmittedLength = Math.Round(compFileData.Length * 0.0009765625, 2);
-                if (compress && fileData.Length != 0)
-                    transmitInfo.compressionRatio = (compFileData.Length * 100) / fileData.Length;
             }
-            catch (Exception ex)
-            {
-                ErrorBox(ex.Message);
-            }
+            catch (Exception ex) { errorBox(ex.Message); }
+        }
+
+        void transmitter_Progress(object sender, ProgressChangedEventArgs e)
+        {
+            currentProgress.progressValue = e.ProgressPercentage;
+            currentProgress.progressState = "Sending File...";
+
+            this.Invoke(ProgressUpdate);
         }
 
         void bwCreateWad_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (!this.sendToWii)
+            if (!wadCreationInfo.sendToWii)
             {
-                EventHandler EnableControls = new EventHandler(this.EnableControls);
                 currentProgress.progressValue = 100;
                 currentProgress.progressState = " ";
 
                 this.Invoke(ProgressUpdate);
-                this.Invoke(EnableControls);
+                enableControls();
 
                 if (wadCreationInfo.success)
-                {
-                    EventHandler Initialize = new EventHandler(this.Initialize);
-                    this.Invoke(Initialize);
-                }
+                    initialize();
             }
             else
             {
-                if (sendWadReady == 1)
+                if (wadCreationInfo.sendWadReady == true)
                 {
                     //Start new BackgroundWorker to Transmit
                     BackgroundWorker bwTransmit = new BackgroundWorker();
@@ -786,6 +651,14 @@ namespace CustomizeMii
                     bwTransmit.ProgressChanged += new ProgressChangedEventHandler(bwTransmit_ProgressChanged);
                     bwTransmit.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwTransmit_RunWorkerCompleted);
                     bwTransmit.RunWorkerAsync();
+                }
+                else
+                {
+                    currentProgress.progressValue = 100;
+                    currentProgress.progressState = " ";
+
+                    this.Invoke(ProgressUpdate);
+                    enableControls();
                 }
             }
         }
@@ -800,229 +673,162 @@ namespace CustomizeMii
 
         void bwCreateWad_DoWork(object sender, DoWorkEventArgs e)
         {
-            //try
-            //{
-                BackgroundWorker bwCreateWad = sender as BackgroundWorker;
+            BackgroundWorker bwCreateWad = sender as BackgroundWorker;
+            Stopwatch creationTimer = new Stopwatch();
+            creationTimer.Start();
+
+            try
+            {
                 WadCreationInfo wadInfo = (WadCreationInfo)e.Argument;
-                EventHandler DisableControls = new EventHandler(this.DisableControls);
-                this.Invoke(DisableControls);
 
-                this.sendToWii = wadInfo.sendToWii;
-                sendWadReady = 0;
 
+                disableControls();
+
+                //Check Startup IOS
+                if (wadInfo.startupIos < 0 || wadInfo.startupIos > 255)
+                    throw new Exception("Startup IOS must be between 0 and 255!");
+
+                wadInfo.success = false;
+                wadInfo.sendWadReady = false;
                 wadCreationInfo = wadInfo;
-                wadCreationInfo.success = false;
 
-                bwCreateWad.ReportProgress(0, "Making TPLs transparent");
-                MakeBannerTplsTransparent();
-                MakeIconTplsTransparent();
+                //Make TPLs transparent
+                makeBannerTplsTransparent();
+                makeIconTplsTransparent();
 
-                bwCreateWad.ReportProgress(3, "Fixing TPL Filters...");
-                FixTpls();
-
-                bwCreateWad.ReportProgress(5, "Packing icon.bin...");
-                byte[] iconbin;
-
-                if (!string.IsNullOrEmpty(IconReplace))
-                    iconbin = Wii.U8.PackU8(TempIconPath);
-                else
-                    iconbin = Wii.U8.PackU8(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT");
-
-                if (cbLz77.Checked == true) iconbin = Wii.Lz77.Compress(iconbin);
-                iconbin = Wii.U8.AddHeaderIMD5(iconbin);
-                Wii.Tools.SaveFileFromByteArray(iconbin, TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin");
-                Directory.Delete(TempUnpackPath + "00000000.app_OUT\\meta\\icon.bin_OUT", true);
-
-                bwCreateWad.ReportProgress(25, "Packing banner.bin...");
-                byte[] bannerbin;
-
-                if (!string.IsNullOrEmpty(BannerReplace))
-                    bannerbin = Wii.U8.PackU8(TempBannerPath);
-                else
-                    bannerbin = Wii.U8.PackU8(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT");
-
-                if (cbLz77.Checked == true) bannerbin = Wii.Lz77.Compress(bannerbin);
-                bannerbin = Wii.U8.AddHeaderIMD5(bannerbin);
-                Wii.Tools.SaveFileFromByteArray(bannerbin, TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin");
-                Directory.Delete(TempUnpackPath + "00000000.app_OUT\\meta\\banner.bin_OUT", true);
-
-                if (!string.IsNullOrEmpty(SoundReplace) || !string.IsNullOrEmpty(wadInfo.sound))
+                //Pack icon.bin
+                bwCreateWad.ReportProgress(0, "Packing icon.bin...");
+                if (string.IsNullOrEmpty(replacedIcon))
                 {
-                    bwCreateWad.ReportProgress(50, "Packing sound.bin...");
+                    iconBin.AddHeaderImd5();
+                    iconBin.Lz77Compress = wadInfo.lz77;
 
-                    if (!string.IsNullOrEmpty(SoundReplace))
-                    {
-                        File.Delete(TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin");
-                        File.Copy(TempSoundPath, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin");
-                    }
-                    else if (!string.IsNullOrEmpty(wadInfo.sound))
-                    {
-                        if (tbSound.Text.EndsWith(".bns"))
-                        {
-                            Wii.Sound.BnsToSoundBin(wadInfo.sound, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
-                        }
-                        else if (wadInfo.sound.StartsWith("BNS:"))
-                        {
-                            Wii.Sound.BnsToSoundBin(TempBnsPath, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
-                        }
-                        else
-                        {
-                            string SoundFile = wadInfo.sound;
-                            if (wadInfo.sound.EndsWith(".mp3")) SoundFile = TempWavePath;
+                    for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
+                        if (sourceWad.BannerApp.StringTable[i].ToLower() == "icon.bin")
+                        { sourceWad.BannerApp.ReplaceFile(i, iconBin.ToByteArray()); break; }
+                }
+                else
+                {
+                    newIconBin.AddHeaderImd5();
+                    newIconBin.Lz77Compress = wadInfo.lz77;
 
-                            Wii.Sound.WaveToSoundBin(SoundFile, TempUnpackPath + "00000000.app_OUT\\meta\\sound.bin", false);
-                        }
-                    }
+                    for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
+                        if (sourceWad.BannerApp.StringTable[i].ToLower() == "icon.bin")
+                        { sourceWad.BannerApp.ReplaceFile(i, newIconBin.ToByteArray()); break; }
                 }
 
-                bwCreateWad.ReportProgress(60, "Packing 00000000.app...");
-                int[] Sizes = new int[3];
-                
+                //Pack banner.bin
+                bwCreateWad.ReportProgress(20, "Packing banner.bin...");
+                if (string.IsNullOrEmpty(replacedBanner))
+                {
+                    bannerBin.AddHeaderImd5();
+                    bannerBin.Lz77Compress = wadInfo.lz77;
 
-                for (int i = 0; i < wadInfo.titles.Length; i++)
-                    if (string.IsNullOrEmpty(wadInfo.titles[i])) wadInfo.titles[i] = wadInfo.allLangTitle;
+                    for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
+                        if (sourceWad.BannerApp.StringTable[i].ToLower() == "banner.bin")
+                        { sourceWad.BannerApp.ReplaceFile(i, bannerBin.ToByteArray()); break; }
+                }
+                else
+                {
+                    newBannerBin.AddHeaderImd5();
+                    bannerBin.Lz77Compress = wadInfo.lz77;
 
-                byte[] nullapp = Wii.U8.PackU8(TempUnpackPath + "00000000.app_OUT", out Sizes[0], out Sizes[1], out Sizes[2]);               
-                nullapp = Wii.U8.AddHeaderIMET(nullapp, wadInfo.titles, Sizes);
-                Wii.Tools.SaveFileFromByteArray(nullapp, TempUnpackPath + "00000000.app");
-                Directory.Delete(TempUnpackPath + "00000000.app_OUT", true);
+                    for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
+                        if (sourceWad.BannerApp.StringTable[i].ToLower() == "banner.bin")
+                        { sourceWad.BannerApp.ReplaceFile(i, newBannerBin.ToByteArray()); break; }
+                }
 
-                string[] tikfile = Directory.GetFiles(TempUnpackPath, "*.tik");
-                string[] tmdfile = Directory.GetFiles(TempUnpackPath, "*.tmd");
-                byte[] tmd = Wii.Tools.LoadFileToByteArray(tmdfile[0]);
+                //Pack sound.bin
+                bwCreateWad.ReportProgress(40, "Packing sound.bin...");
+                if (!string.IsNullOrEmpty(replacedSound) || !string.IsNullOrEmpty(wadInfo.sound))
+                {
+                    for (int i = 0; i < sourceWad.BannerApp.NumOfNodes; i++)
+                        if (sourceWad.BannerApp.StringTable[i].ToLower() == "sound.bin")
+                        { sourceWad.BannerApp.ReplaceFile(i, newSoundBin); break; }
+                }
 
+                //Insert new dol
                 if (!string.IsNullOrEmpty(wadInfo.dol))
                 {
-                    bwCreateWad.ReportProgress(80, "Inserting new DOL...");
-                    string[] AppFiles = Directory.GetFiles(TempUnpackPath, "*.app");
+                    bwCreateWad.ReportProgress(50, "Inserting DOL...");
+                    sourceWad.RemoveAllContents();
 
-                    foreach (string thisApp in AppFiles)
-                        if (!thisApp.EndsWith("00000000.app")) File.Delete(thisApp);
-
-                    if (wadInfo.nandLoader == 0)
+                    if (wadInfo.nandLoader == WadCreationInfo.NandLoader.comex)
                     {
-                        using (BinaryReader nandloader = new BinaryReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CustomizeMii.Resources.comex.app")))
-                        {
-                            using (FileStream fs = new FileStream(TempUnpackPath + "\\00000001.app", FileMode.Create))
-                            {
-                                byte[] temp = nandloader.ReadBytes((int)nandloader.BaseStream.Length);
-                                fs.Write(temp, 0, temp.Length);
-                            }
-                        }
+                        sourceWad.AddContent(Properties.Resources.comex, 1, 1, ContentType.Normal);
 
                         if (wadInfo.dol.StartsWith("Simple Forwarder:"))
-                        {
-                            CreateForwarderSimple(TempUnpackPath + "\\00000002.app");
-                        }
+                            sourceWad.AddContent(createForwarderSimple(), 2, 2, ContentType.Normal);
                         else if (wadInfo.dol.StartsWith("Complex Forwarder"))
                         {
-                            bwCreateWad.ReportProgress(82, "Compiling Forwarder...");
-                            CreateForwarderComplex(TempUnpackPath + "\\00000002.app");
-                        }
-                        else if (wadInfo.dol == "Internal" || wadInfo.dol.EndsWith(".wad"))
-                        {
-                            File.Copy(TempDolPath, TempUnpackPath + "\\00000002.app");
+                            bwCreateWad.ReportProgress(55, "Compiling Forwarder...");
+                            sourceWad.AddContent(createForwarderComplex(), 2, 2, ContentType.Normal);
                         }
                         else
-                        {
-                            File.Copy(wadInfo.dol, TempUnpackPath + "\\00000002.app");
-                        }
+                            sourceWad.AddContent(newDol, 2, 2, ContentType.Normal);
 
-                        tmd = Wii.WadEdit.ChangeTmdBootIndex(tmd, 1);
+                        sourceWad.BootIndex = 1;
                     }
                     else
                     {
-                        using (BinaryReader nandloader = new BinaryReader(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CustomizeMii.Resources.Waninkoko.app")))
-                        {
-                            using (FileStream fs = new FileStream(TempUnpackPath + "\\00000002.app", FileMode.Create))
-                            {
-                                byte[] temp = nandloader.ReadBytes((int)nandloader.BaseStream.Length);
-                                fs.Write(temp, 0, temp.Length);
-                            }
-                        }
+                        sourceWad.AddContent(Properties.Resources.Waninkoko, 2, 2, ContentType.Normal);
 
                         if (wadInfo.dol.StartsWith("Simple Forwarder:"))
-                        {
-                            CreateForwarderSimple(TempUnpackPath + "\\00000001.app");
-                        }
+                            sourceWad.AddContent(createForwarderSimple(), 1, 1, ContentType.Normal);
                         else if (wadInfo.dol.StartsWith("Complex Forwarder"))
                         {
-                            bwCreateWad.ReportProgress(82, "Compiling Forwarder...");
-                            CreateForwarderComplex(TempUnpackPath + "\\00000001.app");
-                        }
-                        else if (wadInfo.dol == "Internal")
-                        {
-                            File.Copy(TempDolPath, TempUnpackPath + "\\00000001.app");
+                            bwCreateWad.ReportProgress(55, "Compiling Forwarder...");
+                            sourceWad.AddContent(createForwarderComplex(), 1, 1, ContentType.Normal);
                         }
                         else
-                        {
-                            File.Copy(tbDol.Text, TempUnpackPath + "\\00000001.app");
-                        }
+                            sourceWad.AddContent(newDol, 1, 1, ContentType.Normal);
 
-                        tmd = Wii.WadEdit.ChangeTmdBootIndex(tmd, 2);
-                    }
-
-                    tmd = Wii.WadEdit.ChangeTmdContentCount(tmd, 3);
-
-                    bwCreateWad.ReportProgress(85, "Updating TMD...");
-                    File.Delete(tmdfile[0]);
-                    using (FileStream fs = new FileStream(tmdfile[0], FileMode.Create))
-                    {
-                        byte[] tmdconts = new byte[108];
-                        tmdconts[7] = 0x01;
-                        tmdconts[39] = 0x01;
-                        tmdconts[41] = 0x01;
-                        tmdconts[43] = 0x01;
-                        tmdconts[75] = 0x02;
-                        tmdconts[77] = 0x02;
-                        tmdconts[79] = 0x01;
-
-                        fs.Write(tmd, 0, 484);
-                        fs.Write(tmdconts, 0, tmdconts.Length);
+                        sourceWad.BootIndex = 2;
                     }
                 }
 
-                bwCreateWad.ReportProgress(85, "Updating TMD...");
-                Wii.WadEdit.ChangeIosFlag(tmdfile[0], wadInfo.requiredIos);
-                Wii.WadEdit.UpdateTmdContents(tmdfile[0]);
+                //Change channel information
+                for (int i = 0; i < wadInfo.titles.Length; i++)
+                    if (string.IsNullOrEmpty(wadInfo.titles[i]))
+                        wadInfo.titles[i] = wadInfo.allLangTitle;
 
+                bwCreateWad.ReportProgress(75, "Updating Channel Information...");
+                sourceWad.ChangeStartupIOS(wadInfo.startupIos);
+                sourceWad.ChangeChannelTitles(wadInfo.titles);
                 if (!string.IsNullOrEmpty(wadInfo.titleId))
-                {
-                    Wii.WadEdit.ChangeTitleID(tikfile[0], 0, wadInfo.titleId);
-                    Wii.WadEdit.ChangeTitleID(tmdfile[0], 1, wadInfo.titleId);
-                }
+                    sourceWad.ChangeTitleID(LowerTitleID.Channel, wadInfo.titleId);
 
-                bwCreateWad.ReportProgress(90, "Trucha Signing...");
-                Wii.WadEdit.TruchaSign(tmdfile[0], 1);
-                Wii.WadEdit.TruchaSign(tikfile[0], 0);
+                sourceWad.FakeSign = true;
+                sourceWad.ChangeTitleKey("GottaGetSomeBeer");
 
-                bwCreateWad.ReportProgress(95, "Packing WAD...");
-                if (File.Exists(wadInfo.outFile)) File.Delete(wadInfo.outFile);
-                Wii.WadPack.PackWad(TempUnpackPath, wadInfo.outFile);
+                //Pack WAD
+                bwCreateWad.ReportProgress(80, "Packing WAD...");
+                if (!wadInfo.sendToWii) sourceWad.Save(wadInfo.outFile);
+                else wadInfo.wadFile = sourceWad.ToByteArray();
 
                 bwCreateWad.ReportProgress(100, " ");
-                CreationTimer.Stop();
+                creationTimer.Stop();
 
-                if (!sendToWii)
+                if (!wadInfo.sendToWii)
                 {
                     FileInfo fi = new FileInfo(wadInfo.outFile);
                     double fileSize = Math.Round(fi.Length * 0.0009765625 * 0.0009765625, 2);
 
-                    InfoBox(string.Format("Successfully created custom channel!\nTime elapsed: {0} ms\nFilesize: {1} MB\nApprox. Blocks: {2}", CreationTimer.ElapsedMilliseconds, fileSize, Wii.WadInfo.GetNandBlocks(wadInfo.outFile)));
+                    infoBox(string.Format("Successfully created custom channel!\nTime elapsed: {0} ms\nFilesize: {1} MB\nApprox. Blocks: {2}", creationTimer.ElapsedMilliseconds, fileSize, sourceWad.NandBlocks));
                 }
-                else sendWadReady = 1;
+                else wadInfo.sendWadReady = true;
 
                 wadCreationInfo = wadInfo;
                 wadCreationInfo.success = true;
-            //}
-            //catch (Exception ex)
-            //{
-            //    sendWadReady = -1;
-            //    CreationTimer.Stop();
-            //    EventHandler EnableControls = new EventHandler(this.EnableControls);
-            //    this.Invoke(EnableControls);
-            //    ErrorBox(ex.Message);
-            //}
+            }
+            catch (Exception ex)
+            {
+                wadCreationInfo.sendWadReady = false;
+                creationTimer.Stop();
+
+                enableControls();
+                errorBox(ex.Message);
+            }
         }
     }
 }

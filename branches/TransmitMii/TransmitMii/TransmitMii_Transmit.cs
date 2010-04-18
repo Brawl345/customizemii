@@ -65,8 +65,9 @@ namespace TransmitMii
             theClient = new TcpClient();
 
             byte[] compFileData;
-            int Blocksize = 4 * 1024;
-            if (protocol != Protocol.JODI) Blocksize = 16 * 1024;
+            //int Blocksize = 4 * 1024;
+            int Blocksize = 64 * 1024; //Had problems with smaller values and bigger files...
+            if (protocol == Protocol.HAXX) Blocksize = 16 * 1024;
             byte[] buffer = new byte[4];
             string theIP = tbIP.Text;
 
@@ -85,7 +86,7 @@ namespace TransmitMii
 
             StatusUpdate("Magic Sent... Sending Version Info...");
             buffer[0] = 0;
-            buffer[1] = protocol == Protocol.JODI ? (byte)5 : (byte)4;
+            buffer[1] = protocol != Protocol.HAXX ? (byte)5 : (byte)4;
             buffer[2] = (byte)(((fileName.Length + 2) >> 8) & 0xff);
             buffer[3] = (byte)((fileName.Length + 2) & 0xff);
 
@@ -95,11 +96,11 @@ namespace TransmitMii
             if (compress)
             {
                 StatusUpdate("Version Info Sent... Compressing File...");
-                try { compFileData = zlib.Compress(fileData); }
+                try { byte[] temp = zlib.Compress(fileData); compFileData = temp; }
                 catch
                 {
                     //Compression failed, let's continue without compression
-                    if (!Aborted) ErrorBox("a");
+                    compress = false;
                     compFileData = fileData;
                     fileData = new byte[0];
                 }
@@ -122,7 +123,7 @@ namespace TransmitMii
             try { theStream.Write(buffer, 0, 4); }
             catch (Exception ex) { if (!Aborted) ErrorBox("Error sending Filesize:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 
-            if (compress)
+            if (protocol != Protocol.HAXX)
             {
                 buffer[0] = (byte)((fileData.Length >> 24) & 0xff);
                 buffer[1] = (byte)((fileData.Length >> 16) & 0xff);
@@ -152,6 +153,8 @@ namespace TransmitMii
                 {
                     theStream.Write(compFileData, off, compFileData.Length - off);
                 }
+
+                //theStream.Write(compFileData, 0, compFileData.Length);
             }
             catch (Exception ex) { if (!Aborted) ErrorBox("Error sending File:\n" + ex.Message); theStream.Close(); theClient.Close(); return false; }
 

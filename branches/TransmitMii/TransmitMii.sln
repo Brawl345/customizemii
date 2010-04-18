@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransmitMii", "TransmitMii\TransmitMii.csproj", "{70517550-06FA-4743-B5D7-2CB7C153E35E}"
 EndProject
 Global

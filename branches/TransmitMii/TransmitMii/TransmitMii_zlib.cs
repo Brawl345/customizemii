@@ -47,7 +47,7 @@ namespace TransmitMii
 
             err = compress2(outFile, ref outLength, inFile, inFile.Length, 6);
 
-            if (err == ZLibError.Z_OK && outLength > -1)
+            if (err == ZLibError.Z_OK && (outLength > -1 && outLength < inFile.Length))
             {
                 Array.Resize(ref outFile, outLength);
                 return outFile;

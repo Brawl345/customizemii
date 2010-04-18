@@ -27,7 +27,7 @@ namespace TransmitMii
 {
     public partial class TransmitMii_Main : Form
     {
-        const string version = "1.2"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "1.3"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private bool IsRunning = false;
         private string fileName;
         private string statusText;
@@ -182,7 +182,7 @@ namespace TransmitMii
 
                 bwTransmit.CancelAsync();
 
-                try { theStream.Close(); ; }
+                try { theStream.Close(); }
                 catch { }
                 try { theClient.Close(); }
                 catch { }

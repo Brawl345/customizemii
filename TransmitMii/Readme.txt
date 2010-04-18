@@ -9,6 +9,9 @@ TransmitMii is hosted on the CustomizeMii project page: http://customizemii.goog
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 1.3
+	- Fixed sending zip files
+
 Version 1.2
 	- Improvement in startup speed (thanks shadow1643)
 	- Added ability to send ZIPs (to HBC)

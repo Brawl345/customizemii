@@ -30,6 +30,7 @@ namespace CustomizeMii
         private U8 iconBin;
         private string startTPL;
         private bool startIcon = false;
+        Timer tipTimer = new Timer();
 
         public U8 BannerBin { get { return bannerBin; } set { bannerBin = value; } }
         public U8 IconBin { get { return iconBin; } set { iconBin = value; } }
@@ -79,6 +80,9 @@ namespace CustomizeMii
                     tmpImage.tplImage = tmpTpl.ExtractTexture();
                     tmpImage.checkerBoard = createCheckerBoard(tmpImage.tplImage.Width, tmpImage.tplImage.Height);
 
+                    if (tmpImage.tplFormat.StartsWith("CI"))
+                        tmpImage.tplFormat += " + " + tmpTpl.GetPaletteFormat(0);
+
                     bannerImages.Add(tmpImage);
                 }
             }
@@ -94,6 +98,9 @@ namespace CustomizeMii
                     tmpImage.tplFormat = tmpTpl.GetTextureFormat(0).ToString();
                     tmpImage.tplImage = tmpTpl.ExtractTexture();
                     tmpImage.checkerBoard = createCheckerBoard(tmpImage.tplImage.Width, tmpImage.tplImage.Height);
+
+                    if (tmpImage.tplFormat.StartsWith("CI"))
+                        tmpImage.tplFormat += " + " + tmpTpl.GetPaletteFormat(0);
 
                     iconImages.Add(tmpImage);
                 }
@@ -130,6 +137,16 @@ namespace CustomizeMii
 
             if (cbBanner.SelectedIndex != -1) cbBanner.Select();
             else if (cbIcon.SelectedIndex != -1) cbIcon.Select();
+
+            tipTimer.Interval = 7000;
+            tipTimer.Tag = 0;
+            tipTimer.Tick += new EventHandler(tipTimer_Tick);
+        }
+
+        void tipTimer_Tick(object sender, EventArgs e)
+        {
+            lbTip.Visible = false;
+            tipTimer.Stop();
         }
 
         private void cbBanner_SelectedIndexChanged(object sender, EventArgs e)
@@ -243,46 +260,75 @@ namespace CustomizeMii
                     }
 
                     Size tplSize = tmpTpl.GetTextureSize(0);
-                    TPL_Format tplFormat;
 
                     if (newImg.Width != tplSize.Width ||
                         newImg.Height != tplSize.Height)
                         newImg = resizeImage(newImg, tplSize.Width, tplSize.Height);
 
                     ToolStripMenuItem cmSender = sender as ToolStripMenuItem;
+                    TPL_TextureFormat tplFormat;
+                    TPL_PaletteFormat pFormat = TPL_PaletteFormat.RGB5A3;
+
                     switch (cmSender.Tag.ToString().ToLower())
                     {
                         case "i4":
-                            tplFormat = TPL_Format.I4;
+                            tplFormat = TPL_TextureFormat.I4;
                             break;
                         case "i8":
-                            tplFormat = TPL_Format.I8;
+                            tplFormat = TPL_TextureFormat.I8;
                             break;
                         case "ia4":
-                            tplFormat = TPL_Format.IA4;
+                            tplFormat = TPL_TextureFormat.IA4;
                             break;
                         case "ia8":
-                            tplFormat = TPL_Format.IA8;
+                            tplFormat = TPL_TextureFormat.IA8;
                             break;
                         case "rgb565":
-                            tplFormat = TPL_Format.RGB565;
+                            tplFormat = TPL_TextureFormat.RGB565;
                             break;
                         case "rgb5a3":
-                            tplFormat = TPL_Format.RGB5A3;
+                            tplFormat = TPL_TextureFormat.RGB5A3;
+                            break;
+                        case "ci8rgb5a3":
+                            tplFormat = TPL_TextureFormat.CI8;
+                            pFormat = TPL_PaletteFormat.RGB5A3;
+                            break;
+                        case "ci8rgb565":
+                            tplFormat = TPL_TextureFormat.CI8;
+                            pFormat = TPL_PaletteFormat.RGB565;
+                            break;
+                        case "ci8ia8":
+                            tplFormat = TPL_TextureFormat.CI8;
+                            pFormat = TPL_PaletteFormat.IA8;
+                            break;
+                        case "ci4rgb5a3":
+                            tplFormat = TPL_TextureFormat.CI4;
+                            pFormat = TPL_PaletteFormat.RGB5A3;
+                            break;
+                        case "ci4rgb565":
+                            tplFormat = TPL_TextureFormat.CI4;
+                            pFormat = TPL_PaletteFormat.RGB565;
+                            break;
+                        case "ci4ia8":
+                            tplFormat = TPL_TextureFormat.CI4;
+                            pFormat = TPL_PaletteFormat.IA8;
                             break;
                         default:
-                            tplFormat = TPL_Format.RGBA8;
+                            tplFormat = TPL_TextureFormat.RGBA8;
                             break;
                     }
 
                     tmpTpl.RemoveTexture(0);
-                    tmpTpl.AddTexture(newImg, tplFormat);
+                    tmpTpl.AddTexture(newImg, tplFormat, pFormat);
 
                     if (cbBanner.SelectedIndex != -1)
                     {
                         bannerBin.ReplaceFile(bannerBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
                         images[0][cbBanner.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
                         images[0][cbBanner.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
+
+                        if (images[0][cbBanner.SelectedIndex].tplFormat.StartsWith("CI"))
+                            images[0][cbBanner.SelectedIndex].tplFormat += " + " + tmpTpl.GetPaletteFormat(0);
 
                         pbPic.Image = images[0][cbBanner.SelectedIndex].tplImage;
                         lbFormat.Text = images[0][cbBanner.SelectedIndex].tplFormat;
@@ -294,6 +340,9 @@ namespace CustomizeMii
                         images[1][cbIcon.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
                         images[1][cbIcon.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
 
+                        if (images[1][cbIcon.SelectedIndex].tplFormat.StartsWith("CI"))
+                            images[1][cbIcon.SelectedIndex].tplFormat += " + " + tmpTpl.GetPaletteFormat(0);
+
                         pbPic.Image = images[1][cbIcon.SelectedIndex].tplImage;
                         lbFormat.Text = images[1][cbIcon.SelectedIndex].tplFormat;
                         lbSize.Text = string.Format("{0} x {1}", images[1][cbIcon.SelectedIndex].tplImage.Width, images[1][cbIcon.SelectedIndex].tplImage.Height);
@@ -301,6 +350,12 @@ namespace CustomizeMii
 
                     if (cbBanner.SelectedIndex != -1) cbBanner.Select();
                     else if (cbIcon.SelectedIndex != -1) cbIcon.Select();
+
+                    if (tplFormat == TPL_TextureFormat.CI4 || tplFormat == TPL_TextureFormat.CI8)
+                    {
+                        lbTip.Visible = true;
+                        tipTimer.Start();
+                    }
                 }
                 catch (Exception ex)
                 { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
@@ -327,38 +382,63 @@ namespace CustomizeMii
                 }
 
                 newImg = tmpTpl.ExtractTexture();
-                TPL_Format tplFormat;
+                TPL_TextureFormat tplFormat;
+                TPL_PaletteFormat pFormat = TPL_PaletteFormat.RGB5A3;
 
                 ToolStripMenuItem cmSender = sender as ToolStripMenuItem;
                 switch (cmSender.Tag.ToString().ToLower())
                 {
                     case "i4":
-                        tplFormat = TPL_Format.I4;
+                        tplFormat = TPL_TextureFormat.I4;
                         break;
                     case "i8":
-                        tplFormat = TPL_Format.I8;
+                        tplFormat = TPL_TextureFormat.I8;
                         break;
                     case "ia4":
-                        tplFormat = TPL_Format.IA4;
+                        tplFormat = TPL_TextureFormat.IA4;
                         break;
                     case "ia8":
-                        tplFormat = TPL_Format.IA8;
+                        tplFormat = TPL_TextureFormat.IA8;
                         break;
                     case "rgb565":
-                        tplFormat = TPL_Format.RGB565;
+                        tplFormat = TPL_TextureFormat.RGB565;
                         break;
                     case "rgb5a3":
-                        tplFormat = TPL_Format.RGB5A3;
+                        tplFormat = TPL_TextureFormat.RGB5A3;
+                        break;
+                    case "ci8rgb5a3":
+                        tplFormat = TPL_TextureFormat.CI8;
+                        pFormat = TPL_PaletteFormat.RGB5A3;
+                        break;
+                    case "ci8rgb565":
+                        tplFormat = TPL_TextureFormat.CI8;
+                        pFormat = TPL_PaletteFormat.RGB565;
+                        break;
+                    case "ci8ia8":
+                        tplFormat = TPL_TextureFormat.CI8;
+                        pFormat = TPL_PaletteFormat.IA8;
+                        break;
+                    case "ci4rgb5a3":
+                        tplFormat = TPL_TextureFormat.CI4;
+                        pFormat = TPL_PaletteFormat.RGB5A3;
+                        break;
+                    case "ci4rgb565":
+                        tplFormat = TPL_TextureFormat.CI4;
+                        pFormat = TPL_PaletteFormat.RGB565;
+                        break;
+                    case "ci4ia8":
+                        tplFormat = TPL_TextureFormat.CI4;
+                        pFormat = TPL_PaletteFormat.IA8;
                         break;
                     default:
-                        tplFormat = TPL_Format.RGBA8;
+                        tplFormat = TPL_TextureFormat.RGBA8;
                         break;
                 }
 
                 if (tmpTpl.GetTextureFormat(0) == tplFormat) return;
 
                 tmpTpl.RemoveTexture(0);
-                tmpTpl.AddTexture(newImg, tplFormat);
+                tmpTpl.AddTexture(newImg, tplFormat, pFormat);
 
                 if (cbBanner.SelectedIndex != -1)
                 {
@@ -366,6 +446,8 @@ namespace CustomizeMii
                     images[0][cbBanner.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
                     images[0][cbBanner.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
 
+                    if (images[0][cbBanner.SelectedIndex].tplFormat.StartsWith("CI"))
+                        images[0][cbBanner.SelectedIndex].tplFormat += " + " + tmpTpl.GetPaletteFormat(0);
 
                     pbPic.Image = images[0][cbBanner.SelectedIndex].tplImage;
                     lbFormat.Text = images[0][cbBanner.SelectedIndex].tplFormat;
@@ -377,6 +459,9 @@ namespace CustomizeMii
                     images[1][cbIcon.SelectedIndex].tplImage = tmpTpl.ExtractTexture();
                     images[1][cbIcon.SelectedIndex].tplFormat = tmpTpl.GetTextureFormat(0).ToString();
 
+                    if (images[1][cbIcon.SelectedIndex].tplFormat.StartsWith("CI"))
+                        images[1][cbIcon.SelectedIndex].tplFormat += " + " + tmpTpl.GetPaletteFormat(0);
+
                     pbPic.Image = images[1][cbIcon.SelectedIndex].tplImage;
                     lbFormat.Text = images[1][cbIcon.SelectedIndex].tplFormat;
                     lbSize.Text = string.Format("{0} x {1}", images[1][cbIcon.SelectedIndex].tplImage.Width, images[1][cbIcon.SelectedIndex].tplImage.Height);
@@ -384,6 +469,12 @@ namespace CustomizeMii
 
                 if (cbBanner.SelectedIndex != -1) cbBanner.Select();
                 else if (cbIcon.SelectedIndex != -1) cbIcon.Select();
+
+                if (tplFormat == TPL_TextureFormat.CI4 || tplFormat == TPL_TextureFormat.CI8)
+                {
+                    lbTip.Visible = true;
+                    tipTimer.Start();
+                }
             }
             catch (Exception ex)
             { MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }

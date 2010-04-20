@@ -227,7 +227,7 @@ namespace CustomizeMii
                 else
                 { wave = new Wave((string)e.Argument); }
 
-                try { this.sampleCount = wave.SampleCount; }
+                try { this.sampleCount = wave.NumSamples; }
                 catch { }
 
                 try { bitDepth = wave.BitDepth; }
@@ -236,13 +236,13 @@ namespace CustomizeMii
                 try { sampleRate = wave.SampleRate; }
                 catch { sampleRate = -1; }
 
-                try { channelCount = wave.ChannelCount; }
+                try { channelCount = wave.NumChannels; }
                 catch { channelCount = -1; }
 
                 try { dataFormat = wave.DataFormat; }
                 catch { dataFormat = -1; }
 
-                try { loopCount = wave.LoopCount; }
+                try { loopCount = wave.NumLoops; }
                 catch { loopCount = -1; }
 
                 try { loopStart = wave.LoopStart; }
@@ -389,12 +389,17 @@ namespace CustomizeMii
 
                     Wave wave;
                     if (cbSourceSound.Checked)
-                    {
                         wave = new Wave(sourceSound);
-                    }
-                    else wave = new Wave(tbAudioFile.Text);
+                    else 
+                        wave = new Wave(tbAudioFile.Text);
 
-                    sPlayer = new SoundPlayer(wave.TrimStart(loopStart));
+                    wave.TrimStart(loopStart);
+                    MemoryStream waveFile = wave.ToMemoryStream();
+                    wave.Dispose();
+
+                    waveFile.Seek(0, SeekOrigin.Begin);
+
+                    sPlayer = new SoundPlayer(waveFile);
                     sPlayer.PlayLooping();
 
                     btnPlay.Text = "Stop";

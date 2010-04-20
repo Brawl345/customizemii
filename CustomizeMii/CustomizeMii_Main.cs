@@ -31,7 +31,7 @@ namespace CustomizeMii
     public partial class CustomizeMii_Main : Form
     {
         #region Constants
-        private const string version = "3.0"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        private const string version = "3.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private const int soundMaxLength = 40; //In seconds
         private const int soundWarningLength = 25; //In seconds
         private const int bnsWarningLength = 45; //In seconds
@@ -768,7 +768,7 @@ namespace CustomizeMii
             {
                 int format = cmbFormatBanner.SelectedIndex;
 
-                if (format < 7)
+                if (format < 9)
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
                     ofd.Filter = "PNG|*.png|JPG|*.jpg|GIF|*.gif|BMP|*.bmp|TPL|*.tpl|All|*.png;*.jpg;*.gif;*.bmp;*.tpl";
@@ -797,33 +797,59 @@ namespace CustomizeMii
                                 img.Height != tmpTpl.GetTextureSize(0).Height)
                                 img = resizeImage(img, tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height);
 
+                            TPL_PaletteFormat pFormat = TPL_PaletteFormat.RGB5A3;
+
                             switch (format)
                             {
-                                case 6: //I4
-                                    format = 0;
+                                case 6:
+                                    format = (int)TPL_TextureFormat.I4;
                                     break;
-                                case 5: //I8
-                                    format = 1;
+                                case 5:
+                                    format = (int)TPL_TextureFormat.I8;
                                     break;
-                                case 4: //IA4
-                                    format = 2;
+                                case 4:
+                                    format = (int)TPL_TextureFormat.IA4;
                                     break;
-                                case 3: //IA8
-                                    format = 3;
+                                case 3:
+                                    format = (int)TPL_TextureFormat.IA8;
                                     break;
                                 case 1:
-                                    format = 4;
+                                    format = (int)TPL_TextureFormat.RGB565;
                                     break;
                                 case 2:
-                                    format = 5;
+                                    format = (int)TPL_TextureFormat.RGB5A3;
+                                    break;
+                                case 7:
+                                    format = (int)TPL_TextureFormat.CI4;
+
+                                    CustomizeMii_PaletteFormatBox pfb = new CustomizeMii_PaletteFormatBox();
+                                    pfb.ShowDialog();
+
+                                    pFormat = pfb.PaletteFormat;
+                                    break;
+                                case 8:
+                                    format = (int)TPL_TextureFormat.CI8;
+
+                                    CustomizeMii_PaletteFormatBox pfb2 = new CustomizeMii_PaletteFormatBox();
+                                    pfb2.ShowDialog();
+
+                                    pFormat = pfb2.PaletteFormat;
+                                    break;
+                                case 9:
+                                    format = (int)TPL_TextureFormat.CI14X2;
+
+                                    CustomizeMii_PaletteFormatBox pfb3 = new CustomizeMii_PaletteFormatBox();
+                                    pfb3.ShowDialog();
+
+                                    pFormat = pfb3.PaletteFormat;
                                     break;
                                 default:
-                                    format = 6;
+                                    format = (int)TPL_TextureFormat.RGBA8;
                                     break;
                             }
 
                             tmpTpl.RemoveTexture(0);
-                            tmpTpl.AddTexture(img, (TPL_Format)format);
+                            tmpTpl.AddTexture(img, (TPL_TextureFormat)format, pFormat);
 
                             if (string.IsNullOrEmpty(replacedBanner))
                                 bannerBin.ReplaceFile(bannerBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
@@ -918,7 +944,7 @@ namespace CustomizeMii
             {
                 int format = cmbFormatIcon.SelectedIndex;
 
-                if (format < 7)
+                if (format < 9)
                 {
                     OpenFileDialog ofd = new OpenFileDialog();
                     ofd.Filter = "PNG|*.png|JPG|*.jpg|GIF|*.gif|BMP|*.bmp|TPL|*.tpl|All|*.png;*.jpg;*.gif;*.bmp;*.tpl";
@@ -947,33 +973,59 @@ namespace CustomizeMii
                                 img.Height != tmpTpl.GetTextureSize(0).Height)
                                 img = resizeImage(img, tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height);
 
+                            TPL_PaletteFormat pFormat = TPL_PaletteFormat.RGB5A3;
+
                             switch (format)
                             {
-                                case 6: //I4
-                                    format = 0;
+                                case 6:
+                                    format = (int)TPL_TextureFormat.I4;
                                     break;
-                                case 5: //I8
-                                    format = 1;
+                                case 5:
+                                    format = (int)TPL_TextureFormat.I8;
                                     break;
-                                case 4: //IA4
-                                    format = 2;
+                                case 4:
+                                    format = (int)TPL_TextureFormat.IA4;
                                     break;
-                                case 3: //IA8
-                                    format = 3;
+                                case 3:
+                                    format = (int)TPL_TextureFormat.IA8;
                                     break;
                                 case 1:
-                                    format = 4;
+                                    format = (int)TPL_TextureFormat.RGB565;
                                     break;
                                 case 2:
-                                    format = 5;
+                                    format = (int)TPL_TextureFormat.RGB5A3;
+                                    break;
+                                case 7:
+                                    format = (int)TPL_TextureFormat.CI4;
+
+                                    CustomizeMii_PaletteFormatBox pfb = new CustomizeMii_PaletteFormatBox();
+                                    pfb.ShowDialog();
+
+                                    pFormat = pfb.PaletteFormat;
+                                    break;
+                                case 8:
+                                    format = (int)TPL_TextureFormat.CI8;
+
+                                    CustomizeMii_PaletteFormatBox pfb2 = new CustomizeMii_PaletteFormatBox();
+                                    pfb2.ShowDialog();
+
+                                    pFormat = pfb2.PaletteFormat;
+                                    break;
+                                case 9:
+                                    format = (int)TPL_TextureFormat.CI14X2;
+
+                                    CustomizeMii_PaletteFormatBox pfb3 = new CustomizeMii_PaletteFormatBox();
+                                    pfb3.ShowDialog();
+
+                                    pFormat = pfb3.PaletteFormat;
                                     break;
                                 default:
-                                    format = 6;
+                                    format = (int)TPL_TextureFormat.RGBA8;
                                     break;
                             }
 
                             tmpTpl.RemoveTexture(0);
-                            tmpTpl.AddTexture(img, (TPL_Format)format);
+                            tmpTpl.AddTexture(img, (TPL_TextureFormat)format, pFormat);
 
                             if (string.IsNullOrEmpty(replacedIcon))
                                 iconBin.ReplaceFile(iconBin.GetNodeIndex(tplName), tmpTpl.ToByteArray());
@@ -1902,19 +1954,19 @@ namespace CustomizeMii
                     if (cmSender.Name.ToLower() == "cmextractsoundasbin") { sfd.Filter = "BIN|*.bin"; sfd.FileName = "sound.bin"; }
                     else if (cmSender.Name.ToLower() == "cmextractsoundasaudio")
                     {
-                        if (soundFile[0] == 'R' && soundFile[1] == 'I' && soundFile[2] == 'F' && soundFile[3] == 'F')
+                        if (soundFile[32] == 'R' && soundFile[33] == 'I' && soundFile[34] == 'F' && soundFile[35] == 'F')
                         { sfd.Filter = "Wave|*.wav"; sfd.FileName = "sound.wav"; }
-                        else if (soundFile[0] == 'B' && soundFile[1] == 'N' && soundFile[2] == 'S' && soundFile[3] == ' ')
-                        { sfd.Filter = "BNS|*.bns"; sfd.FileName = "sound.bns"; }
-                        else if (soundFile[0] == 'F' && soundFile[1] == 'O' && soundFile[2] == 'R' && soundFile[3] == 'M')
+                        else if (soundFile[32] == 'B' && soundFile[33] == 'N' && soundFile[34] == 'S' && soundFile[35] == ' ')
+                        { sfd.Filter = "Wave|*.wav"; sfd.FileName = "sound.wav"; }
+                        else if (soundFile[32] == 'F' && soundFile[33] == 'O' && soundFile[34] == 'R' && soundFile[35] == 'M')
                         { sfd.Filter = "AIFF|*.aif;*.aiff"; sfd.FileName = "sound.aif"; }
-                        else if (soundFile[0] == 'L' && soundFile[1] == 'Z' && soundFile[2] == '7' && soundFile[3] == '7')
+                        else if (soundFile[32] == 'L' && soundFile[33] == 'Z' && soundFile[34] == '7' && soundFile[35] == '7')
                         {
-                            if (soundFile[9] == 'R' && soundFile[10] == 'I' && soundFile[11] == 'F' && soundFile[12] == 'F')
+                            if (soundFile[41] == 'R' && soundFile[42] == 'I' && soundFile[43] == 'F' && soundFile[44] == 'F')
                             { sfd.Filter = "Wave|*.wav"; sfd.FileName = "sound.wav"; }
-                            else if (soundFile[9] == 'B' && soundFile[10] == 'N' && soundFile[11] == 'S' && soundFile[12] == ' ')
-                            { sfd.Filter = "BNS|*.bns"; sfd.FileName = "sound.bns"; }
-                            else if (soundFile[9] == 'F' && soundFile[10] == 'O' && soundFile[11] == 'R' && soundFile[12] == 'M')
+                            else if (soundFile[41] == 'B' && soundFile[42] == 'N' && soundFile[43] == 'S' && soundFile[44] == ' ')
+                            { sfd.Filter = "Wave|*.wav"; sfd.FileName = "sound.wave"; }
+                            else if (soundFile[41] == 'F' && soundFile[42] == 'O' && soundFile[43] == 'R' && soundFile[44] == 'M')
                             { sfd.Filter = "AIFF|*.aif;*.aiff"; sfd.FileName = "sound.aif"; }
                             else throw new Exception("Unsupported Audio Format!");
                         }
@@ -1937,7 +1989,15 @@ namespace CustomizeMii
                             if (Lz77.IsLz77Compressed(soundFile))
                             { Lz77 l = new Lz77(); soundFile = l.Decompress(soundFile); }
 
-                            File.WriteAllBytes(sfd.FileName, soundFile);
+                            if (soundFile[0] == 'B' && soundFile[1] == 'N' && soundFile[2] == 'S' && soundFile[3] == ' ')
+                            {
+                                Wave w = BNS.BnsToWave(soundFile);
+                                w.Save(sfd.FileName);
+                                w.Dispose();
+                            }
+                            else
+                                File.WriteAllBytes(sfd.FileName, soundFile);
+
                             infoBox(string.Format("The sound.bin was successfully converted to {0}!", Path.GetFileName(sfd.FileName)));
                         }
                     }
@@ -2421,7 +2481,7 @@ namespace CustomizeMii
                         else
                             tmpTpl = TPL.Load(newIconBin.Data[newIconBin.GetNodeIndex(tplName)]);
 
-                    TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                    TPL_TextureFormat tplFormat = tmpTpl.GetTextureFormat(0);
                     Image newImg = resizeImage(tmpTpl.ExtractTexture(0), newSize.Width, newSize.Height);
 
                     tmpTpl.RemoveTexture(0);
@@ -2445,6 +2505,19 @@ namespace CustomizeMii
                 }
             }
             catch (Exception ex) { errorBox(ex.Message); }
+        }
+
+        private void cmMakeSilent_Click(object sender, EventArgs e)
+        {
+            Wave w = new Wave(1, 8, 500, new byte[] { 0x80, 0x80, 0x80, 0x80, 0x80 });
+            newSoundBin = Headers.IMD5.AddHeader(w.ToByteArray());
+            w.Dispose();
+
+            replacedSound = "Silence";
+            setControlText(tbSound, "Silence");
+            btnBrowseSound.Text = "Clear";
+
+            if (cmbReplace.SelectedIndex == 2) setControlText(tbReplace, string.Empty);
         }
     }
 }

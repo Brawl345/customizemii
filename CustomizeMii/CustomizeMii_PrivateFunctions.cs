@@ -169,7 +169,7 @@ namespace CustomizeMii
                     if (!tbSound.Text.ToLower().EndsWith(".bns") && !tbSound.Text.StartsWith("BNS:"))
                     {
                         Wave w = new Wave(Headers.IMD5.RemoveHeader(newSoundBin));
-                        soundLength = w.GetWaveLength();
+                        soundLength = w.PlayLength;
                         if (soundLength > soundMaxLength)
                         {
                             errorBox(string.Format("Your wave sound is longer than {0} seconds and thus not supported.\nIt is recommended to use a sound shorter than {1} seconds, the maximum length is {0} seconds!\nThis limit doesn't affect BNS sounds!", soundMaxLength, soundWarningLength));
@@ -449,7 +449,14 @@ namespace CustomizeMii
                         try
                         {
                             TPL tmpTpl = TPL.Load(bannerBin.Data[i]);
-                            bannerTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})", bannerBin.StringTable[i], tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height, tmpTpl.GetTextureFormat(0).ToString(), getSizeString(bannerBin.Data[i].Length)));
+
+                            string formatString = tmpTpl.GetTextureFormat(0).ToString();
+                            if (formatString.StartsWith("CI")) formatString += "+" + tmpTpl.GetPaletteFormat(0);
+
+                            bannerTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})",
+                                bannerBin.StringTable[i], tmpTpl.GetTextureSize(0).Width,
+                                tmpTpl.GetTextureSize(0).Height, formatString,
+                                getSizeString(bannerBin.Data[i].Length)));
                         }
                         catch { }
                     }
@@ -462,7 +469,14 @@ namespace CustomizeMii
                         try
                         {
                             TPL tmpTpl = TPL.Load(newBannerBin.Data[i]);
-                            bannerTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})", newBannerBin.StringTable[i], tmpTpl.GetTextureSize(0).Width, tmpTpl.GetTextureSize(0).Height, tmpTpl.GetTextureFormat(0).ToString(), getSizeString(newBannerBin.Data[i].Length)));
+
+                            string formatString = tmpTpl.GetTextureFormat(0).ToString();
+                            if (formatString.StartsWith("CI")) formatString += "+" + tmpTpl.GetPaletteFormat(0);
+
+                            bannerTpls.Add(string.Format("{0}   ({3},   {1} x {2},   {4})",
+                                newBannerBin.StringTable[i], tmpTpl.GetTextureSize(0).Width,
+                                tmpTpl.GetTextureSize(0).Height, formatString,
+                                getSizeString(newBannerBin.Data[i].Length)));
                         }
                         catch { }
                     }
@@ -690,7 +704,7 @@ namespace CustomizeMii
 
                                 Image tImg = new Bitmap(tSize.Width, tSize.Height);
                                 tmpTpl.RemoveTexture(0);
-                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+                                tmpTpl.AddTexture(tImg, TPL_TextureFormat.IA4);
 
                                 bannerBin.Data[i] = tmpTpl.ToByteArray();
                             }
@@ -707,7 +721,7 @@ namespace CustomizeMii
 
                                 Image tImg = new Bitmap(tSize.Width, tSize.Height);
                                 tmpTpl.RemoveTexture(0);
-                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+                                tmpTpl.AddTexture(tImg, TPL_TextureFormat.IA4);
 
                                 newBannerBin.Data[i] = tmpTpl.ToByteArray();
                             }
@@ -734,7 +748,7 @@ namespace CustomizeMii
 
                                 Image tImg = new Bitmap(tSize.Width, tSize.Height);
                                 tmpTpl.RemoveTexture(0);
-                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+                                tmpTpl.AddTexture(tImg, TPL_TextureFormat.IA4);
 
                                 iconBin.Data[i] = tmpTpl.ToByteArray();
                             }
@@ -751,7 +765,7 @@ namespace CustomizeMii
 
                                 Image tImg = new Bitmap(tSize.Width, tSize.Height);
                                 tmpTpl.RemoveTexture(0);
-                                tmpTpl.AddTexture(tImg, TPL_Format.IA4);
+                                tmpTpl.AddTexture(tImg, TPL_TextureFormat.IA4);
 
                                 newIconBin.Data[i] = tmpTpl.ToByteArray();
                             }
@@ -771,7 +785,7 @@ namespace CustomizeMii
             try
             {
                 int switchVal = lbx == lbxBannerTpls ? cmbFormatBanner.SelectedIndex : cmbFormatIcon.SelectedIndex;
-                if (switchVal > 6)
+                if (switchVal > 9)
                     throw new Exception("This format is not supported, you must choose a different one!");
 
                 if (string.IsNullOrEmpty(inputFile))
@@ -880,28 +894,54 @@ namespace CustomizeMii
 
                     int tplFormat = 6;
 
+                    TPL_PaletteFormat pFormat = TPL_PaletteFormat.RGB5A3;
+
                     switch (switchVal)
                     {
-                        case 6: //I4
-                            tplFormat = 0;
+                        case 6:
+                            tplFormat = (int)TPL_TextureFormat.I4;
                             break;
-                        case 5: //I8
-                            tplFormat = 1;
+                        case 5:
+                            tplFormat = (int)TPL_TextureFormat.I8;
                             break;
-                        case 4: //IA4
-                            tplFormat = 2;
+                        case 4:
+                            tplFormat = (int)TPL_TextureFormat.IA4;
                             break;
-                        case 3: //IA8
-                            tplFormat = 3;
+                        case 3:
+                            tplFormat = (int)TPL_TextureFormat.IA8;
                             break;
                         case 0:
-                            tplFormat = 6;
+                            tplFormat = (int)TPL_TextureFormat.RGBA8;
                             break;
                         case 1:
-                            tplFormat = 4;
+                            tplFormat = (int)TPL_TextureFormat.RGB565;
                             break;
                         case 2:
-                            tplFormat = 5;
+                            tplFormat = (int)TPL_TextureFormat.RGB5A3;
+                            break;
+                        case 7:
+                            tplFormat = (int)TPL_TextureFormat.CI4;
+
+                            CustomizeMii_PaletteFormatBox pfb = new CustomizeMii_PaletteFormatBox();
+                            pfb.ShowDialog();
+
+                            pFormat = pfb.PaletteFormat;
+                            break;
+                        case 8:
+                            tplFormat = (int)TPL_TextureFormat.CI8;
+                            
+                            CustomizeMii_PaletteFormatBox pfb2 = new CustomizeMii_PaletteFormatBox();
+                            pfb2.ShowDialog();
+
+                            pFormat = pfb2.PaletteFormat;
+                            break;
+                        case 9:
+                            tplFormat = (int)TPL_TextureFormat.CI14X2;
+                            
+                            CustomizeMii_PaletteFormatBox pfb3 = new CustomizeMii_PaletteFormatBox();
+                            pfb3.ShowDialog();
+
+                            pFormat = pfb3.PaletteFormat;
                             break;
                         default:
                             if (!inputFile.ToLower().EndsWith(".tpl"))
@@ -913,7 +953,7 @@ namespace CustomizeMii
                     if (inputFile.ToLower().EndsWith(".tpl"))
                         newTpl = File.ReadAllBytes(inputFile);
                     else
-                        newTpl = TPL.FromImage(inputFile, (TPL_Format)tplFormat).ToByteArray();
+                        newTpl = TPL.FromImage(inputFile, (TPL_TextureFormat)tplFormat, pFormat).ToByteArray();
 
                     if (lbx == lbxBannerTpls)
                     {
@@ -1187,7 +1227,7 @@ namespace CustomizeMii
                                 TPL tmpTpl = TPL.Load(bannerBin.Data[bannerBin.GetNodeIndex(thisTpl)]);
                                 Image img = Image.FromFile(image);
 
-                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                TPL_TextureFormat tplFormat = tmpTpl.GetTextureFormat(0);
                                 Size tplSize = tmpTpl.GetTextureSize(0);
 
                                 if (tplSize.Width != img.Width ||
@@ -1205,7 +1245,7 @@ namespace CustomizeMii
                                 TPL tmpTpl = TPL.Load(newBannerBin.Data[newBannerBin.GetNodeIndex(thisTpl)]);
                                 Image img = Image.FromFile(image);
 
-                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                TPL_TextureFormat tplFormat = tmpTpl.GetTextureFormat(0);
                                 Size tplSize = tmpTpl.GetTextureSize(0);
 
                                 if (tplSize.Width != img.Width ||
@@ -1226,7 +1266,7 @@ namespace CustomizeMii
                                 TPL tmpTpl = TPL.Load(iconBin.Data[iconBin.GetNodeIndex(thisTpl)]);
                                 Image img = Image.FromFile(image);
 
-                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                TPL_TextureFormat tplFormat = tmpTpl.GetTextureFormat(0);
                                 Size tplSize = tmpTpl.GetTextureSize(0);
 
                                 if (tplSize.Width != img.Width ||
@@ -1244,7 +1284,7 @@ namespace CustomizeMii
                                 TPL tmpTpl = TPL.Load(newIconBin.Data[newIconBin.GetNodeIndex(thisTpl)]);
                                 Image img = Image.FromFile(image);
 
-                                TPL_Format tplFormat = tmpTpl.GetTextureFormat(0);
+                                TPL_TextureFormat tplFormat = tmpTpl.GetTextureFormat(0);
                                 Size tplSize = tmpTpl.GetTextureSize(0);
 
                                 if (tplSize.Width != img.Width ||

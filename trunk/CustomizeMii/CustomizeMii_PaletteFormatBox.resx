@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,38 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="lbCreditThanks.Text" xml:space="preserve">
-    <value>Thanks:
-Xuzz for his idea and hard work
-WiiCrazy / I.R.on for CustomizeMii Installer
-Xuzz, SquidMan, megazig, Matt_P, Omega and The Lemon Man for Wii.py
-megazig for his BNS conversion code
-SquidMan for Zetsubou
-Andre Perrot for gbalzss
-comex and Waninkoko for both their NAND Loader
-djdynamite123 for his forwarder base files
-The USB Loader GX Team for their forwarder source
-wilsoff for helping me debugging 3.0</value>
-  </data>
-  <metadata name="cmTpls.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>559, 14</value>
-  </metadata>
-  <metadata name="ssMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 12</value>
-  </metadata>
-  <metadata name="cmForwarder.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>104, 12</value>
-  </metadata>
-  <metadata name="cmOptionsExtract.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>230, 12</value>
-  </metadata>
-  <metadata name="cmSound.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>369, 15</value>
-  </metadata>
-  <metadata name="cmDol.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>474, 13</value>
-  </metadata>
-  <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>42</value>
-  </metadata>
 </root>

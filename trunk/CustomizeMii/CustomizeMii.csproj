@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,8 +12,6 @@
     <AssemblyName>CustomizeMii</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkSubset>
-    </TargetFrameworkSubset>
     <ApplicationIcon>Resources\CustomizeMii.ico</ApplicationIcon>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -30,6 +28,10 @@
     <ApplicationVersion>2.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,6 +41,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -47,6 +50,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,6 +60,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -64,8 +69,12 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="lControls">
+      <HintPath>.\lControls.dll</HintPath>
+    </Reference>
     <Reference Include="libWiiSharp, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\libWiiSharp.dll</HintPath>
@@ -74,6 +83,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomizeMii_BackgroundWorkers.cs">
@@ -107,16 +117,21 @@
     <Compile Include="CustomizeMii_InputBox.Designer.cs">
       <DependentUpon>CustomizeMii_InputBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="CustomizeMii_PaletteFormatBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CustomizeMii_PaletteFormatBox.Designer.cs">
+      <DependentUpon>CustomizeMii_PaletteFormatBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="CustomizeMii_PrivateFunctions.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CustomizeMii_Transmit.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CustomizeMii_Transmit.Designer.cs">
+    <Compile Include="CustomizeMii_Transmit.designer.cs">
       <DependentUpon>CustomizeMii_Transmit.cs</DependentUpon>
     </Compile>
-    <Compile Include="CustomizeMii_zlib.cs" />
     <Compile Include="MP3Info.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -131,6 +146,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CustomizeMii_Main.resx">
       <DependentUpon>CustomizeMii_Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CustomizeMii_PaletteFormatBox.resx">
+      <DependentUpon>CustomizeMii_PaletteFormatBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CustomizeMii_Transmit.resx">
       <DependentUpon>CustomizeMii_Transmit.cs</DependentUpon>
@@ -176,7 +194,6 @@
     <None Include="Resources\btnCreate.png" />
     <None Include="Resources\CustomizeMii.ico" />
     <None Include="Resources\Instructions.rtf" />
-    <None Include="Resources\WaninkokoLeathl.app" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

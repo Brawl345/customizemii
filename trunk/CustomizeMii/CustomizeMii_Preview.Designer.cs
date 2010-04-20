@@ -45,7 +45,6 @@ namespace CustomizeMii
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.Panel = new System.Windows.Forms.Panel();
             this.cbCheckerBoard = new System.Windows.Forms.CheckBox();
             this.btnReplace = new System.Windows.Forms.Button();
@@ -60,7 +59,7 @@ namespace CustomizeMii
             this.lbSize = new System.Windows.Forms.Label();
             this.lbSizeText = new System.Windows.Forms.Label();
             this.pbPic = new System.Windows.Forms.PictureBox();
-            this.cmFormat = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cmFormat = new System.Windows.Forms.ContextMenuStrip();
             this.cmRGBA8 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmRGB565 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmRGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,6 +77,23 @@ namespace CustomizeMii
             this.cmToI8 = new System.Windows.Forms.ToolStripMenuItem();
             this.cmToI4 = new System.Windows.Forms.ToolStripMenuItem();
             this.lbNoPreview = new System.Windows.Forms.Label();
+            this.cmCI8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI8RGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI8RGB565 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI8IA8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI4RGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI4RGB565 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmCI4IA8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.lbTip = new System.Windows.Forms.Label();
+            this.cmToCI8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI8RGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI8RGB565 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI8IA8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI4RGB5A3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI4RGB565 = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmToCI4IA8 = new System.Windows.Forms.ToolStripMenuItem();
             this.Panel.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPic)).BeginInit();
@@ -182,6 +198,7 @@ namespace CustomizeMii
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.lbTip);
             this.panel1.Controls.Add(this.lbFormat);
             this.panel1.Controls.Add(this.lbFormatText);
             this.panel1.Controls.Add(this.lbSize);
@@ -196,7 +213,7 @@ namespace CustomizeMii
             // 
             this.lbFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lbFormat.AutoSize = true;
-            this.lbFormat.Location = new System.Drawing.Point(756, 5);
+            this.lbFormat.Location = new System.Drawing.Point(729, 5);
             this.lbFormat.Name = "lbFormat";
             this.lbFormat.Size = new System.Drawing.Size(43, 13);
             this.lbFormat.TabIndex = 3;
@@ -205,7 +222,7 @@ namespace CustomizeMii
             // lbFormatText
             // 
             this.lbFormatText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbFormatText.Location = new System.Drawing.Point(550, 5);
+            this.lbFormatText.Location = new System.Drawing.Point(523, 5);
             this.lbFormatText.Name = "lbFormatText";
             this.lbFormatText.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.lbFormatText.Size = new System.Drawing.Size(205, 13);
@@ -252,23 +269,25 @@ namespace CustomizeMii
             this.cmIA4,
             this.cmI8,
             this.cmI4,
+            this.cmCI8,
+            this.cmCI4,
             this.toolStripSeparator1,
             this.cmChangeFormat});
             this.cmFormat.Name = "cmFormat";
-            this.cmFormat.Size = new System.Drawing.Size(234, 186);
+            this.cmFormat.Size = new System.Drawing.Size(267, 252);
             // 
             // cmRGBA8
             // 
             this.cmRGBA8.Name = "cmRGBA8";
-            this.cmRGBA8.Size = new System.Drawing.Size(233, 22);
+            this.cmRGBA8.Size = new System.Drawing.Size(266, 22);
             this.cmRGBA8.Tag = "rgba8";
-            this.cmRGBA8.Text = "As RGBA8 (High Quality)";
+            this.cmRGBA8.Text = "As RGBA8 (High Quality with Alpha)";
             this.cmRGBA8.Click += new System.EventHandler(this.cmFormat_Click);
             // 
             // cmRGB565
             // 
             this.cmRGB565.Name = "cmRGB565";
-            this.cmRGB565.Size = new System.Drawing.Size(233, 22);
+            this.cmRGB565.Size = new System.Drawing.Size(266, 22);
             this.cmRGB565.Tag = "rgb565";
             this.cmRGB565.Text = "As RGB565 (Moderate Quality)";
             this.cmRGB565.Click += new System.EventHandler(this.cmFormat_Click);
@@ -276,15 +295,15 @@ namespace CustomizeMii
             // cmRGB5A3
             // 
             this.cmRGB5A3.Name = "cmRGB5A3";
-            this.cmRGB5A3.Size = new System.Drawing.Size(233, 22);
+            this.cmRGB5A3.Size = new System.Drawing.Size(266, 22);
             this.cmRGB5A3.Tag = "rgb5a3";
-            this.cmRGB5A3.Text = "As RGB5A3 (Low Quality)";
+            this.cmRGB5A3.Text = "As RGB5A3 (Low Quality with Alpha)";
             this.cmRGB5A3.Click += new System.EventHandler(this.cmFormat_Click);
             // 
             // cmIA8
             // 
             this.cmIA8.Name = "cmIA8";
-            this.cmIA8.Size = new System.Drawing.Size(233, 22);
+            this.cmIA8.Size = new System.Drawing.Size(266, 22);
             this.cmIA8.Tag = "ia8";
             this.cmIA8.Text = "As IA8 (B/W with Alpha)";
             this.cmIA8.Click += new System.EventHandler(this.cmFormat_Click);
@@ -292,7 +311,7 @@ namespace CustomizeMii
             // cmIA4
             // 
             this.cmIA4.Name = "cmIA4";
-            this.cmIA4.Size = new System.Drawing.Size(233, 22);
+            this.cmIA4.Size = new System.Drawing.Size(266, 22);
             this.cmIA4.Tag = "ia4";
             this.cmIA4.Text = "As IA4 (B/W with Alpha)";
             this.cmIA4.Click += new System.EventHandler(this.cmFormat_Click);
@@ -300,7 +319,7 @@ namespace CustomizeMii
             // cmI8
             // 
             this.cmI8.Name = "cmI8";
-            this.cmI8.Size = new System.Drawing.Size(233, 22);
+            this.cmI8.Size = new System.Drawing.Size(266, 22);
             this.cmI8.Tag = "i8";
             this.cmI8.Text = "As I8 (B/W)";
             this.cmI8.Click += new System.EventHandler(this.cmFormat_Click);
@@ -308,7 +327,7 @@ namespace CustomizeMii
             // cmI4
             // 
             this.cmI4.Name = "cmI4";
-            this.cmI4.Size = new System.Drawing.Size(233, 22);
+            this.cmI4.Size = new System.Drawing.Size(266, 22);
             this.cmI4.Tag = "i4";
             this.cmI4.Text = "As I4 (B/W)";
             this.cmI4.Click += new System.EventHandler(this.cmFormat_Click);
@@ -316,7 +335,7 @@ namespace CustomizeMii
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(230, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(263, 6);
             // 
             // cmChangeFormat
             // 
@@ -327,23 +346,25 @@ namespace CustomizeMii
             this.cmToIA8,
             this.cmToIA4,
             this.cmToI8,
-            this.cmToI4});
+            this.cmToI4,
+            this.cmToCI8,
+            this.cmToCI4});
             this.cmChangeFormat.Name = "cmChangeFormat";
-            this.cmChangeFormat.Size = new System.Drawing.Size(233, 22);
+            this.cmChangeFormat.Size = new System.Drawing.Size(266, 22);
             this.cmChangeFormat.Text = "Change Format";
             // 
             // cmToRGBA8
             // 
             this.cmToRGBA8.Name = "cmToRGBA8";
-            this.cmToRGBA8.Size = new System.Drawing.Size(234, 22);
+            this.cmToRGBA8.Size = new System.Drawing.Size(267, 22);
             this.cmToRGBA8.Tag = "rgba8";
-            this.cmToRGBA8.Text = "To RGBA8 (High Quality)";
+            this.cmToRGBA8.Text = "To RGBA8 (High Quality with Alpha)";
             this.cmToRGBA8.Click += new System.EventHandler(this.cmChangeFormat_Click);
             // 
             // cmToRGB565
             // 
             this.cmToRGB565.Name = "cmToRGB565";
-            this.cmToRGB565.Size = new System.Drawing.Size(234, 22);
+            this.cmToRGB565.Size = new System.Drawing.Size(267, 22);
             this.cmToRGB565.Tag = "rgb565";
             this.cmToRGB565.Text = "To RGB565 (Moderate Quality)";
             this.cmToRGB565.Click += new System.EventHandler(this.cmChangeFormat_Click);
@@ -351,15 +372,15 @@ namespace CustomizeMii
             // cmToRGB5A3
             // 
             this.cmToRGB5A3.Name = "cmToRGB5A3";
-            this.cmToRGB5A3.Size = new System.Drawing.Size(234, 22);
+            this.cmToRGB5A3.Size = new System.Drawing.Size(267, 22);
             this.cmToRGB5A3.Tag = "rgb5a3";
-            this.cmToRGB5A3.Text = "To RGB5A3 (Low Quality)";
+            this.cmToRGB5A3.Text = "To RGB5A3 (Low Quality with Alpha)";
             this.cmToRGB5A3.Click += new System.EventHandler(this.cmChangeFormat_Click);
             // 
             // cmToIA8
             // 
             this.cmToIA8.Name = "cmToIA8";
-            this.cmToIA8.Size = new System.Drawing.Size(234, 22);
+            this.cmToIA8.Size = new System.Drawing.Size(267, 22);
             this.cmToIA8.Tag = "ia8";
             this.cmToIA8.Text = "To IA8 (B/W with Alpha)";
             this.cmToIA8.Click += new System.EventHandler(this.cmChangeFormat_Click);
@@ -367,7 +388,7 @@ namespace CustomizeMii
             // cmToIA4
             // 
             this.cmToIA4.Name = "cmToIA4";
-            this.cmToIA4.Size = new System.Drawing.Size(234, 22);
+            this.cmToIA4.Size = new System.Drawing.Size(267, 22);
             this.cmToIA4.Tag = "ia4";
             this.cmToIA4.Text = "To IA4 (B/W with Alpha)";
             this.cmToIA4.Click += new System.EventHandler(this.cmChangeFormat_Click);
@@ -375,7 +396,7 @@ namespace CustomizeMii
             // cmToI8
             // 
             this.cmToI8.Name = "cmToI8";
-            this.cmToI8.Size = new System.Drawing.Size(234, 22);
+            this.cmToI8.Size = new System.Drawing.Size(267, 22);
             this.cmToI8.Tag = "i8";
             this.cmToI8.Text = "To I8 (B/W)";
             this.cmToI8.Click += new System.EventHandler(this.cmChangeFormat_Click);
@@ -383,7 +404,7 @@ namespace CustomizeMii
             // cmToI4
             // 
             this.cmToI4.Name = "cmToI4";
-            this.cmToI4.Size = new System.Drawing.Size(234, 22);
+            this.cmToI4.Size = new System.Drawing.Size(267, 22);
             this.cmToI4.Tag = "i4";
             this.cmToI4.Text = "To I4 (B/W)";
             this.cmToI4.Click += new System.EventHandler(this.cmChangeFormat_Click);
@@ -398,6 +419,154 @@ namespace CustomizeMii
             this.lbNoPreview.Text = "No Preview";
             this.lbNoPreview.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lbNoPreview.Visible = false;
+            // 
+            // cmCI8
+            // 
+            this.cmCI8.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmCI8RGB5A3,
+            this.cmCI8RGB565,
+            this.cmCI8IA8});
+            this.cmCI8.Name = "cmCI8";
+            this.cmCI8.Size = new System.Drawing.Size(266, 22);
+            this.cmCI8.Text = "As CI8 (Indexed, max. 256 Colors)";
+            // 
+            // cmCI4
+            // 
+            this.cmCI4.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmCI4RGB5A3,
+            this.cmCI4RGB565,
+            this.cmCI4IA8});
+            this.cmCI4.Name = "cmCI4";
+            this.cmCI4.Size = new System.Drawing.Size(266, 22);
+            this.cmCI4.Text = "As CI4 (Indexed, max. 16 Colors)";
+            // 
+            // cmCI8RGB5A3
+            // 
+            this.cmCI8RGB5A3.Name = "cmCI8RGB5A3";
+            this.cmCI8RGB5A3.Size = new System.Drawing.Size(283, 22);
+            this.cmCI8RGB5A3.Tag = "ci8rgb5a3";
+            this.cmCI8RGB5A3.Text = "With RGB5A3 Palette (Color with Alpha)";
+            this.cmCI8RGB5A3.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmCI8RGB565
+            // 
+            this.cmCI8RGB565.Name = "cmCI8RGB565";
+            this.cmCI8RGB565.Size = new System.Drawing.Size(283, 22);
+            this.cmCI8RGB565.Tag = "ci8rgb565";
+            this.cmCI8RGB565.Text = "With RGB565 Palette (Color)";
+            this.cmCI8RGB565.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmCI8IA8
+            // 
+            this.cmCI8IA8.Name = "cmCI8IA8";
+            this.cmCI8IA8.Size = new System.Drawing.Size(283, 22);
+            this.cmCI8IA8.Tag = "ci8ia8";
+            this.cmCI8IA8.Text = "With IA8 Palette (B/W with Alpha)";
+            this.cmCI8IA8.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmCI4RGB5A3
+            // 
+            this.cmCI4RGB5A3.Name = "cmCI4RGB5A3";
+            this.cmCI4RGB5A3.Size = new System.Drawing.Size(283, 22);
+            this.cmCI4RGB5A3.Tag = "ci4rgb5a3";
+            this.cmCI4RGB5A3.Text = "With RGB5A3 Palette (Color with Alpha)";
+            this.cmCI4RGB5A3.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmCI4RGB565
+            // 
+            this.cmCI4RGB565.Name = "cmCI4RGB565";
+            this.cmCI4RGB565.Size = new System.Drawing.Size(283, 22);
+            this.cmCI4RGB565.Tag = "ci4rgb565";
+            this.cmCI4RGB565.Text = "With RGB565 Palette (Color)";
+            this.cmCI4RGB565.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // cmCI4IA8
+            // 
+            this.cmCI4IA8.Name = "cmCI4IA8";
+            this.cmCI4IA8.Size = new System.Drawing.Size(283, 22);
+            this.cmCI4IA8.Tag = "ci4ia8";
+            this.cmCI4IA8.Text = "With IA8 Palette (B/W with Alpha)";
+            this.cmCI4IA8.Click += new System.EventHandler(this.cmFormat_Click);
+            // 
+            // lbTip
+            // 
+            this.lbTip.AutoSize = true;
+            this.lbTip.ForeColor = System.Drawing.Color.Red;
+            this.lbTip.Location = new System.Drawing.Point(149, 6);
+            this.lbTip.Name = "lbTip";
+            this.lbTip.Size = new System.Drawing.Size(470, 13);
+            this.lbTip.TabIndex = 4;
+            this.lbTip.Text = "Tip: Reduce the colors of an image with Photoshop or GIMP to gain better results " +
+                "with CI formats...";
+            this.lbTip.Visible = false;
+            // 
+            // cmToCI8
+            // 
+            this.cmToCI8.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmToCI8RGB5A3,
+            this.cmToCI8RGB565,
+            this.cmToCI8IA8});
+            this.cmToCI8.Name = "cmToCI8";
+            this.cmToCI8.Size = new System.Drawing.Size(267, 22);
+            this.cmToCI8.Text = "To CI8 (Indexed, max. 256 Colors)";
+            // 
+            // cmToCI4
+            // 
+            this.cmToCI4.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cmToCI4RGB5A3,
+            this.cmToCI4RGB565,
+            this.cmToCI4IA8});
+            this.cmToCI4.Name = "cmToCI4";
+            this.cmToCI4.Size = new System.Drawing.Size(267, 22);
+            this.cmToCI4.Text = "To CI4 (Indexed, max. 16 Colors)";
+            // 
+            // cmToCI8RGB5A3
+            // 
+            this.cmToCI8RGB5A3.Name = "cmToCI8RGB5A3";
+            this.cmToCI8RGB5A3.Size = new System.Drawing.Size(283, 22);
+            this.cmToCI8RGB5A3.Tag = "ci8rgb5a3";
+            this.cmToCI8RGB5A3.Text = "With RGB5A3 Palette (Color with Alpha)";
+            this.cmToCI8RGB5A3.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToCI8RGB565
+            // 
+            this.cmToCI8RGB565.Name = "cmToCI8RGB565";
+            this.cmToCI8RGB565.Size = new System.Drawing.Size(283, 22);
+            this.cmToCI8RGB565.Tag = "ci8rgb565";
+            this.cmToCI8RGB565.Text = "With RGB565 Palette (Color)";
+            this.cmToCI8RGB565.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToCI8IA8
+            // 
+            this.cmToCI8IA8.Name = "cmToCI8IA8";
+            this.cmToCI8IA8.Size = new System.Drawing.Size(283, 22);
+            this.cmToCI8IA8.Tag = "ci8ia8";
+            this.cmToCI8IA8.Text = "With IA8 Palette (B/W with Alpha)";
+            this.cmToCI8IA8.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToCI4RGB5A3
+            // 
+            this.cmToCI4RGB5A3.Name = "cmToCI4RGB5A3";
+            this.cmToCI4RGB5A3.Size = new System.Drawing.Size(283, 22);
+            this.cmToCI4RGB5A3.Tag = "ci4rgb5a3";
+            this.cmToCI4RGB5A3.Text = "With RGB5A3 Palette (Color with Alpha)";
+            this.cmToCI4RGB5A3.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToCI4RGB565
+            // 
+            this.cmToCI4RGB565.Name = "cmToCI4RGB565";
+            this.cmToCI4RGB565.Size = new System.Drawing.Size(283, 22);
+            this.cmToCI4RGB565.Tag = "ci4rgb565";
+            this.cmToCI4RGB565.Text = "With RGB565 Palette (Color)";
+            this.cmToCI4RGB565.Click += new System.EventHandler(this.cmChangeFormat_Click);
+            // 
+            // cmToCI4IA8
+            // 
+            this.cmToCI4IA8.Name = "cmToCI4IA8";
+            this.cmToCI4IA8.Size = new System.Drawing.Size(283, 22);
+            this.cmToCI4IA8.Tag = "ci4ia8";
+            this.cmToCI4IA8.Text = "With IA8 Palette (B/W with Alpha)";
+            this.cmToCI4IA8.Click += new System.EventHandler(this.cmChangeFormat_Click);
             // 
             // CustomizeMii_Preview
             // 
@@ -414,8 +583,8 @@ namespace CustomizeMii
             this.MinimumSize = new System.Drawing.Size(833, 500);
             this.Name = "CustomizeMii_Preview";
             this.Text = "Preview";
-            this.Load += new System.EventHandler(this.Preview_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Preview_FormClosing);
+            this.Load += new System.EventHandler(this.Preview_Load);
             this.Panel.ResumeLayout(false);
             this.Panel.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -460,5 +629,22 @@ namespace CustomizeMii
         private System.Windows.Forms.ToolStripMenuItem cmToI4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.CheckBox cbCheckerBoard;
+        private System.Windows.Forms.ToolStripMenuItem cmCI8;
+        private System.Windows.Forms.ToolStripMenuItem cmCI4;
+        private System.Windows.Forms.ToolStripMenuItem cmCI8RGB5A3;
+        private System.Windows.Forms.ToolStripMenuItem cmCI8RGB565;
+        private System.Windows.Forms.ToolStripMenuItem cmCI8IA8;
+        private System.Windows.Forms.ToolStripMenuItem cmCI4RGB5A3;
+        private System.Windows.Forms.ToolStripMenuItem cmCI4RGB565;
+        private System.Windows.Forms.ToolStripMenuItem cmCI4IA8;
+        private System.Windows.Forms.Label lbTip;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI8;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI4;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI8RGB5A3;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI8RGB565;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI8IA8;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI4RGB5A3;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI4RGB565;
+        private System.Windows.Forms.ToolStripMenuItem cmToCI4IA8;
     }
 }

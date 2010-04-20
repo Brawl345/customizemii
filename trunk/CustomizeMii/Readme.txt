@@ -9,6 +9,15 @@ Thanks to icefire / Xuzz for the basic idea of this application!
 -----------------------------------------------------------------------------------------
 Changelog:
 
+Version 3.1
+	- Updated libWiiSharp to 0.2
+	=> - Speed up in TPL conversion
+	=> - Fixed IA8 TPL code (from/to)
+	=> - Fixed CI14X2 TPL code (from)
+	=> - Added conversion to CI4 / CI8
+	=> - Added BNS to Wave conversion (Extract -> Sound -> As Audiofile)
+	- Added option to make the sound silent
+
 Version 3.0
 	- Switched backend to libWiiSharp (http://libwiisharp.googlecode.com)
 	- Speed improvements through using RAM instead of temp files on HDD

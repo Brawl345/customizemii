@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomizeMii", "CustomizeMii\CustomizeMii.csproj", "{46B7F0BC-101B-4167-95AD-4C5D78AA0A20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForwardMii", "ForwardMii\ForwardMii.csproj", "{20CB2CA7-6767-4758-97FA-97395F47CD6B}"

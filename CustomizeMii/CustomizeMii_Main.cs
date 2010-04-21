@@ -31,7 +31,7 @@ namespace CustomizeMii
     public partial class CustomizeMii_Main : Form
     {
         #region Constants
-        private const string version = "3.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        private const string version = "3.11"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private const int soundMaxLength = 40; //In seconds
         private const int soundWarningLength = 25; //In seconds
         private const int bnsWarningLength = 45; //In seconds

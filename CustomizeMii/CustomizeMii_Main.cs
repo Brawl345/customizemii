@@ -31,7 +31,7 @@ namespace CustomizeMii
     public partial class CustomizeMii_Main : Form
     {
         #region Constants
-        private const string version = "3.11"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        private const string version = "3.11.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private const int soundMaxLength = 40; //In seconds
         private const int soundWarningLength = 25; //In seconds
         private const int bnsWarningLength = 45; //In seconds
@@ -389,7 +389,7 @@ namespace CustomizeMii
                 try
                 {
                     WebClient GetVersion = new WebClient();
-                    string NewVersion = GetVersion.DownloadString("http://customizemii.googlecode.com/svn/version.txt");
+                    string NewVersion = GetVersion.DownloadString("https://static.wiidatabase.de/wii/customizemii/version.txt");
 
                     int newVersion = Convert.ToInt32(NewVersion.Replace(".", string.Empty).Length == 2 ? (NewVersion.Replace(".", string.Empty) + "0") : NewVersion.Replace(".", string.Empty));
                     int thisVersion = Convert.ToInt32(version.Replace(".", string.Empty).Length == 2 ? (version.Replace(".", string.Empty) + "0") : version.Replace(".", string.Empty));
@@ -404,7 +404,7 @@ namespace CustomizeMii
                             "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
                             DialogResult.Yes)
                         {
-                            Process.Start("http://code.google.com/p/customizemii/downloads/list");
+                            Process.Start("https://static.wiidatabase.de/wii/customizemii/download");
                         }
                     }
                 }
@@ -427,7 +427,7 @@ namespace CustomizeMii
             try
             {
                 llbSite.LinkVisited = true;
-                Process.Start("http://customizemii.googlecode.com");
+                Process.Start("https://static.wiidatabase.de/wii/customizemii/download");
             }
             catch (Exception ex) { errorBox(ex.Message); }
         }
@@ -448,7 +448,7 @@ namespace CustomizeMii
                     {
                         if (tbSourceWad.Text != SourceWadUrls[lbxBaseWads.SelectedIndex])
                         {
-                            tbSourceWad.Text = "http://customizemii.googlecode.com/svn/branches/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
+                            tbSourceWad.Text = "https://static.wiidatabase.de/wii/customizemii/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
 
                             System.Threading.Thread dlThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(downloadBaseWad));
                             dlThread.Start(tbSourceWad.Text);
@@ -537,7 +537,7 @@ namespace CustomizeMii
                 {
                     if (pbProgress.Value == 100)
                     {
-                        string Url = "http://customizemii.googlecode.com/svn/branches/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
+                        string Url = "https://static.wiidatabase.de/wii/customizemii/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
                         SaveFileDialog sfd = new SaveFileDialog();
                         sfd.Filter = "Wii Channels|*.wad";
                         sfd.FileName = Url.Remove(0, Url.LastIndexOf('/') + 1);
@@ -1525,7 +1525,7 @@ namespace CustomizeMii
             try
             {
                 llbUpdateAvailable.LinkVisited = true;
-                Process.Start("http://code.google.com/p/customizemii/downloads/list");
+                Process.Start("https://static.wiidatabase.de/wii/customizemii/download");
             }
             catch (Exception ex) { errorBox(ex.Message); }
         }
@@ -2518,6 +2518,11 @@ namespace CustomizeMii
             btnBrowseSound.Text = "Clear";
 
             if (cmbReplace.SelectedIndex == 2) setControlText(tbReplace, string.Empty);
+        }
+
+        private void lbxBaseWads_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

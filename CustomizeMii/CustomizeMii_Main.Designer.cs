@@ -45,6 +45,7 @@ namespace CustomizeMii
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CustomizeMii_Main));
             this.btnCreateWad = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
@@ -83,6 +84,7 @@ namespace CustomizeMii
             this.tbAllLanguages = new System.Windows.Forms.TextBox();
             this.lbAllLanguages = new System.Windows.Forms.Label();
             this.tabOptions = new System.Windows.Forms.TabPage();
+            this.cbLz77 = new lControls.CheckLED();
             this.cbSecurityChecksOff = new lControls.CheckLED();
             this.btnOptionsExtract = new System.Windows.Forms.Button();
             this.btnForwarder = new System.Windows.Forms.Button();
@@ -100,6 +102,7 @@ namespace CustomizeMii
             this.lbStartupIos = new System.Windows.Forms.Label();
             this.lbTitleID = new System.Windows.Forms.Label();
             this.tabBanner = new System.Windows.Forms.TabPage();
+            this.cbBannerMakeTransparent = new lControls.CheckLED();
             this.llbBannerMultiReplace = new System.Windows.Forms.LinkLabel();
             this.cmbFormatBanner = new System.Windows.Forms.ComboBox();
             this.lbFormatBanner = new System.Windows.Forms.Label();
@@ -110,6 +113,7 @@ namespace CustomizeMii
             this.btnReplaceBanner = new System.Windows.Forms.Button();
             this.lbxBannerTpls = new System.Windows.Forms.ListBox();
             this.tabIcon = new System.Windows.Forms.TabPage();
+            this.cbIconMakeTransparent = new lControls.CheckLED();
             this.llbIconMultiReplace = new System.Windows.Forms.LinkLabel();
             this.cmbFormatIcon = new System.Windows.Forms.ComboBox();
             this.lbFormatIcon = new System.Windows.Forms.Label();
@@ -150,17 +154,17 @@ namespace CustomizeMii
             this.llbUpdateAvailable = new System.Windows.Forms.LinkLabel();
             this.llbSite = new System.Windows.Forms.LinkLabel();
             this.lbCreditVersion = new System.Windows.Forms.Label();
-            this.cmTpls = new System.Windows.Forms.ContextMenuStrip();
+            this.cmTpls = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmRename = new System.Windows.Forms.ToolStripMenuItem();
             this.cmResize = new System.Windows.Forms.ToolStripMenuItem();
             this.ssMain = new System.Windows.Forms.StatusStrip();
             this.lbStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbStatusText = new System.Windows.Forms.ToolStripStatusLabel();
             this.pbProgress = new System.Windows.Forms.ToolStripProgressBar();
-            this.cmForwarder = new System.Windows.Forms.ContextMenuStrip();
+            this.cmForwarder = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmSimpleForwarder = new System.Windows.Forms.ToolStripMenuItem();
             this.cmComplexForwarder = new System.Windows.Forms.ToolStripMenuItem();
-            this.cmOptionsExtract = new System.Windows.Forms.ContextMenuStrip();
+            this.cmOptionsExtract = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmExtractWad = new System.Windows.Forms.ToolStripMenuItem();
             this.cmExtractDol = new System.Windows.Forms.ToolStripMenuItem();
             this.tsExtractSound = new System.Windows.Forms.ToolStripMenuItem();
@@ -174,16 +178,13 @@ namespace CustomizeMii
             this.cmExtractBrlyt = new System.Windows.Forms.ToolStripMenuItem();
             this.cmExtractBrlan = new System.Windows.Forms.ToolStripMenuItem();
             this.cmExtractBothBrl = new System.Windows.Forms.ToolStripMenuItem();
-            this.cmSound = new System.Windows.Forms.ContextMenuStrip();
+            this.cmSound = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmLoadAudioFile = new System.Windows.Forms.ToolStripMenuItem();
             this.cmConvertToBns = new System.Windows.Forms.ToolStripMenuItem();
             this.cmMakeSilent = new System.Windows.Forms.ToolStripMenuItem();
-            this.cmDol = new System.Windows.Forms.ContextMenuStrip();
+            this.cmDol = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmLoadDol = new System.Windows.Forms.ToolStripMenuItem();
             this.cmDolFromSource = new System.Windows.Forms.ToolStripMenuItem();
-            this.cbLz77 = new lControls.CheckLED();
-            this.cbBannerMakeTransparent = new lControls.CheckLED();
-            this.cbIconMakeTransparent = new lControls.CheckLED();
             this.tabControl.SuspendLayout();
             this.tabSource.SuspendLayout();
             this.tabTitle.SuspendLayout();
@@ -361,6 +362,7 @@ namespace CustomizeMii
             this.lbxBaseWads.Name = "lbxBaseWads";
             this.lbxBaseWads.Size = new System.Drawing.Size(343, 95);
             this.lbxBaseWads.TabIndex = 3;
+            this.lbxBaseWads.SelectedIndexChanged += new System.EventHandler(this.lbxBaseWads_SelectedIndexChanged);
             // 
             // btnBrowseSource
             // 
@@ -622,6 +624,20 @@ namespace CustomizeMii
             this.tabOptions.Text = "Options";
             this.tabOptions.UseVisualStyleBackColor = true;
             // 
+            // cbLz77
+            // 
+            this.cbLz77.AutoSize = true;
+            this.cbLz77.Checked = true;
+            this.cbLz77.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbLz77.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbLz77.LedColor = lControls.CheckLED.LEDColor.Green;
+            this.cbLz77.Location = new System.Drawing.Point(11, 180);
+            this.cbLz77.Name = "cbLz77";
+            this.cbLz77.Size = new System.Drawing.Size(131, 17);
+            this.cbLz77.TabIndex = 16;
+            this.cbLz77.Text = "Use Lz77 Compression";
+            this.cbLz77.UseVisualStyleBackColor = true;
+            // 
             // cbSecurityChecksOff
             // 
             this.cbSecurityChecksOff.AutoSize = true;
@@ -662,7 +678,7 @@ namespace CustomizeMii
             this.lbOptionsOptional.Size = new System.Drawing.Size(457, 34);
             this.lbOptionsOptional.TabIndex = 10;
             this.lbOptionsOptional.Text = "These are optional. Fill them in only if you want to change them.\r\nIt is highly r" +
-                "ecommended to convert your sound to BNS.";
+    "ecommended to convert your sound to BNS.";
             this.lbOptionsOptional.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnBrowseSound
@@ -805,6 +821,19 @@ namespace CustomizeMii
             this.tabBanner.Text = "Banner";
             this.tabBanner.UseVisualStyleBackColor = true;
             // 
+            // cbBannerMakeTransparent
+            // 
+            this.cbBannerMakeTransparent.AutoSize = true;
+            this.cbBannerMakeTransparent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbBannerMakeTransparent.LedColor = lControls.CheckLED.LEDColor.Green;
+            this.cbBannerMakeTransparent.Location = new System.Drawing.Point(11, 189);
+            this.cbBannerMakeTransparent.Name = "cbBannerMakeTransparent";
+            this.cbBannerMakeTransparent.Size = new System.Drawing.Size(110, 17);
+            this.cbBannerMakeTransparent.TabIndex = 8;
+            this.cbBannerMakeTransparent.Text = "Make Transparent";
+            this.cbBannerMakeTransparent.UseVisualStyleBackColor = true;
+            this.cbBannerMakeTransparent.CheckedChanged += new System.EventHandler(this.cbBannerMakeTransparent_CheckedChanged);
+            // 
             // llbBannerMultiReplace
             // 
             this.llbBannerMultiReplace.AutoSize = true;
@@ -929,6 +958,19 @@ namespace CustomizeMii
             this.tabIcon.TabIndex = 4;
             this.tabIcon.Text = "Icon";
             this.tabIcon.UseVisualStyleBackColor = true;
+            // 
+            // cbIconMakeTransparent
+            // 
+            this.cbIconMakeTransparent.AutoSize = true;
+            this.cbIconMakeTransparent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cbIconMakeTransparent.LedColor = lControls.CheckLED.LEDColor.Green;
+            this.cbIconMakeTransparent.Location = new System.Drawing.Point(11, 189);
+            this.cbIconMakeTransparent.Name = "cbIconMakeTransparent";
+            this.cbIconMakeTransparent.Size = new System.Drawing.Size(110, 17);
+            this.cbIconMakeTransparent.TabIndex = 14;
+            this.cbIconMakeTransparent.Text = "Make Transparent";
+            this.cbIconMakeTransparent.UseVisualStyleBackColor = true;
+            this.cbIconMakeTransparent.CheckedChanged += new System.EventHandler(this.cbIconMakeTransparent_CheckedChanged);
             // 
             // llbIconMultiReplace
             // 
@@ -1303,7 +1345,7 @@ namespace CustomizeMii
             this.lbLicense.Size = new System.Drawing.Size(443, 30);
             this.lbLicense.TabIndex = 8;
             this.lbLicense.Text = "CustomizeMii is licensed under the terms of the GNU General Public License v3,\r\ns" +
-                "ee License.txt for more information!";
+    "ee License.txt for more information!";
             this.lbLicense.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lbCreditInstaller
@@ -1354,7 +1396,7 @@ namespace CustomizeMii
             this.llbSite.TabIndex = 3;
             this.llbSite.TabStop = true;
             this.llbSite.Tag = "Independent";
-            this.llbSite.Text = "http://customizemii.googlecode.com";
+            this.llbSite.Text = "http://wiidatabase.de";
             this.llbSite.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.llbSite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbSite_LinkClicked);
             // 
@@ -1364,7 +1406,7 @@ namespace CustomizeMii
             this.lbCreditVersion.Name = "lbCreditVersion";
             this.lbCreditVersion.Size = new System.Drawing.Size(443, 13);
             this.lbCreditVersion.TabIndex = 1;
-            this.lbCreditVersion.Text = "CustomizeMii Version X by Leathl";
+            this.lbCreditVersion.Text = "CustomizeMii Version X by Leathl, modified by iCON";
             this.lbCreditVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // cmTpls
@@ -1562,26 +1604,26 @@ namespace CustomizeMii
             this.cmConvertToBns,
             this.cmMakeSilent});
             this.cmSound.Name = "cmSound";
-            this.cmSound.Size = new System.Drawing.Size(159, 92);
+            this.cmSound.Size = new System.Drawing.Size(158, 70);
             // 
             // cmLoadAudioFile
             // 
             this.cmLoadAudioFile.Name = "cmLoadAudioFile";
-            this.cmLoadAudioFile.Size = new System.Drawing.Size(158, 22);
+            this.cmLoadAudioFile.Size = new System.Drawing.Size(157, 22);
             this.cmLoadAudioFile.Text = "Load Audio File";
             this.cmLoadAudioFile.Click += new System.EventHandler(this.cmLoadAudioFile_Click);
             // 
             // cmConvertToBns
             // 
             this.cmConvertToBns.Name = "cmConvertToBns";
-            this.cmConvertToBns.Size = new System.Drawing.Size(158, 22);
+            this.cmConvertToBns.Size = new System.Drawing.Size(157, 22);
             this.cmConvertToBns.Text = "Convert To BNS";
             this.cmConvertToBns.Click += new System.EventHandler(this.cmConvertToBns_Click);
             // 
             // cmMakeSilent
             // 
             this.cmMakeSilent.Name = "cmMakeSilent";
-            this.cmMakeSilent.Size = new System.Drawing.Size(158, 22);
+            this.cmMakeSilent.Size = new System.Drawing.Size(157, 22);
             this.cmMakeSilent.Text = "Make Silent";
             this.cmMakeSilent.Click += new System.EventHandler(this.cmMakeSilent_Click);
             // 
@@ -1591,61 +1633,21 @@ namespace CustomizeMii
             this.cmLoadDol,
             this.cmDolFromSource});
             this.cmDol.Name = "cmDol";
-            this.cmDol.Size = new System.Drawing.Size(200, 48);
+            this.cmDol.Size = new System.Drawing.Size(199, 48);
             // 
             // cmLoadDol
             // 
             this.cmLoadDol.Name = "cmLoadDol";
-            this.cmLoadDol.Size = new System.Drawing.Size(199, 22);
+            this.cmLoadDol.Size = new System.Drawing.Size(198, 22);
             this.cmLoadDol.Text = "Load DOL File";
             this.cmLoadDol.Click += new System.EventHandler(this.cmLoadDol_Click);
             // 
             // cmDolFromSource
             // 
             this.cmDolFromSource.Name = "cmDolFromSource";
-            this.cmDolFromSource.Size = new System.Drawing.Size(199, 22);
+            this.cmDolFromSource.Size = new System.Drawing.Size(198, 22);
             this.cmDolFromSource.Text = "Take From Source WAD";
             this.cmDolFromSource.Click += new System.EventHandler(this.cmDolFromSource_Click);
-            // 
-            // cbLz77
-            // 
-            this.cbLz77.AutoSize = true;
-            this.cbLz77.Checked = true;
-            this.cbLz77.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbLz77.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbLz77.LedColor = lControls.CheckLED.LEDColor.Green;
-            this.cbLz77.Location = new System.Drawing.Point(11, 180);
-            this.cbLz77.Name = "cbLz77";
-            this.cbLz77.Size = new System.Drawing.Size(131, 17);
-            this.cbLz77.TabIndex = 16;
-            this.cbLz77.Text = "Use Lz77 Compression";
-            this.cbLz77.UseVisualStyleBackColor = true;
-            // 
-            // cbBannerMakeTransparent
-            // 
-            this.cbBannerMakeTransparent.AutoSize = true;
-            this.cbBannerMakeTransparent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbBannerMakeTransparent.LedColor = lControls.CheckLED.LEDColor.Green;
-            this.cbBannerMakeTransparent.Location = new System.Drawing.Point(11, 189);
-            this.cbBannerMakeTransparent.Name = "cbBannerMakeTransparent";
-            this.cbBannerMakeTransparent.Size = new System.Drawing.Size(110, 17);
-            this.cbBannerMakeTransparent.TabIndex = 8;
-            this.cbBannerMakeTransparent.Text = "Make Transparent";
-            this.cbBannerMakeTransparent.UseVisualStyleBackColor = true;
-            this.cbBannerMakeTransparent.CheckedChanged += new System.EventHandler(this.cbBannerMakeTransparent_CheckedChanged);
-            // 
-            // cbIconMakeTransparent
-            // 
-            this.cbIconMakeTransparent.AutoSize = true;
-            this.cbIconMakeTransparent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cbIconMakeTransparent.LedColor = lControls.CheckLED.LEDColor.Green;
-            this.cbIconMakeTransparent.Location = new System.Drawing.Point(11, 189);
-            this.cbIconMakeTransparent.Name = "cbIconMakeTransparent";
-            this.cbIconMakeTransparent.Size = new System.Drawing.Size(110, 17);
-            this.cbIconMakeTransparent.TabIndex = 14;
-            this.cbIconMakeTransparent.Text = "Make Transparent";
-            this.cbIconMakeTransparent.UseVisualStyleBackColor = true;
-            this.cbIconMakeTransparent.CheckedChanged += new System.EventHandler(this.cbIconMakeTransparent_CheckedChanged);
             // 
             // CustomizeMii_Main
             // 
@@ -1660,7 +1662,7 @@ namespace CustomizeMii
             this.MaximizeBox = false;
             this.Name = "CustomizeMii_Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "CustomizeMii X by Leathl";
+            this.Text = "CustomizeMii X by Leathl, mod by iCON";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CustomizeMii_Main_FormClosing);
             this.Load += new System.EventHandler(this.CustomizeMii_Main_Load);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.CustomizeMii_Main_DragDrop);

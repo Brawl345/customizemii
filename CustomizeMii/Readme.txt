@@ -1,13 +1,17 @@
 CustomizeMii is a custom channel creator for the Wii.
 The .NET Framework 2.0 is required to run this application!
 
-For any further information, see: http://customizemii.googlecode.com
+For any further information, see: https://github.com/Brawl345/customizemii
+The original page is located at: http://customizemii.googlecode.com
 Please use the issue tracker there to report any occuring bugs.
 
 Thanks to icefire / Xuzz for the basic idea of this application!
 
 -----------------------------------------------------------------------------------------
 Changelog:
+
+Version 3.11.1 (mod by WiiDatabase.de)
+	- All files are now on GitHub
 
 Version 3.11
 	- Updated libWiiSharp to 0.21

@@ -135,4 +135,4 @@ and enter your Wii's IP and the IOS to use for installation. Click on transmit t
 transmission process. After the channel was sent, you will be asked if you want to save the Channel.
 
 So, if you got down to here, you're done by now. Please, if you find any bugs or have suggestions, take some
-seconds to report them at the issue tracker: http://code.google.com/p/customizemii/issues/list
+seconds to report them at the issue tracker: https://github.com/Brawl345/customizemii/issues

@@ -1337,6 +1337,7 @@ namespace CustomizeMii
             this.tabCredits.TabIndex = 5;
             this.tabCredits.Text = "About";
             this.tabCredits.UseVisualStyleBackColor = true;
+            this.tabCredits.Click += new System.EventHandler(this.tabCredits_Click);
             // 
             // lbLicense
             // 
@@ -1396,7 +1397,7 @@ namespace CustomizeMii
             this.llbSite.TabIndex = 3;
             this.llbSite.TabStop = true;
             this.llbSite.Tag = "Independent";
-            this.llbSite.Text = "http://wiidatabase.de";
+            this.llbSite.Text = "https://github.com/Brawl345/customizemii";
             this.llbSite.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.llbSite.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbSite_LinkClicked);
             // 
@@ -1406,7 +1407,7 @@ namespace CustomizeMii
             this.lbCreditVersion.Name = "lbCreditVersion";
             this.lbCreditVersion.Size = new System.Drawing.Size(443, 13);
             this.lbCreditVersion.TabIndex = 1;
-            this.lbCreditVersion.Text = "CustomizeMii Version X by Leathl, modified by iCON";
+            this.lbCreditVersion.Text = "CustomizeMii Version X by Leathl, modified by iCON, WiiDatabase.de";
             this.lbCreditVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // cmTpls

@@ -389,7 +389,7 @@ namespace CustomizeMii
                 try
                 {
                     WebClient GetVersion = new WebClient();
-                    string NewVersion = GetVersion.DownloadString("https://static.wiidatabase.de/wii/customizemii/version.txt");
+                    string NewVersion = GetVersion.DownloadString("https://raw.githubusercontent.com/Brawl345/customizemii/master/version.txt");
 
                     int newVersion = Convert.ToInt32(NewVersion.Replace(".", string.Empty).Length == 2 ? (NewVersion.Replace(".", string.Empty) + "0") : NewVersion.Replace(".", string.Empty));
                     int thisVersion = Convert.ToInt32(version.Replace(".", string.Empty).Length == 2 ? (version.Replace(".", string.Empty) + "0") : version.Replace(".", string.Empty));
@@ -404,7 +404,7 @@ namespace CustomizeMii
                             "Update available", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
                             DialogResult.Yes)
                         {
-                            Process.Start("https://static.wiidatabase.de/wii/customizemii/download");
+                            Process.Start("https://github.com/Brawl345/customizemii/releases");
                         }
                     }
                 }
@@ -427,7 +427,7 @@ namespace CustomizeMii
             try
             {
                 llbSite.LinkVisited = true;
-                Process.Start("https://static.wiidatabase.de/wii/customizemii/download");
+                Process.Start("https://github.com/Brawl345/customizemii/");
             }
             catch (Exception ex) { errorBox(ex.Message); }
         }
@@ -448,7 +448,7 @@ namespace CustomizeMii
                     {
                         if (tbSourceWad.Text != SourceWadUrls[lbxBaseWads.SelectedIndex])
                         {
-                            tbSourceWad.Text = "https://static.wiidatabase.de/wii/customizemii/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
+                            tbSourceWad.Text = "https://raw.githubusercontent.com/Brawl345/customizemii/master/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
 
                             System.Threading.Thread dlThread = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(downloadBaseWad));
                             dlThread.Start(tbSourceWad.Text);
@@ -537,7 +537,7 @@ namespace CustomizeMii
                 {
                     if (pbProgress.Value == 100)
                     {
-                        string Url = "https://static.wiidatabase.de/wii/customizemii/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
+                        string Url = "https://raw.githubusercontent.com/Brawl345/customizemii/master/Base_WADs/" + SourceWadUrls[lbxBaseWads.SelectedIndex];
                         SaveFileDialog sfd = new SaveFileDialog();
                         sfd.Filter = "Wii Channels|*.wad";
                         sfd.FileName = Url.Remove(0, Url.LastIndexOf('/') + 1);
@@ -1525,7 +1525,7 @@ namespace CustomizeMii
             try
             {
                 llbUpdateAvailable.LinkVisited = true;
-                Process.Start("https://static.wiidatabase.de/wii/customizemii/download");
+                Process.Start("https://github.com/Brawl345/customizemii/releases");
             }
             catch (Exception ex) { errorBox(ex.Message); }
         }
@@ -2521,6 +2521,11 @@ namespace CustomizeMii
         }
 
         private void lbxBaseWads_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabCredits_Click(object sender, EventArgs e)
         {
 
         }

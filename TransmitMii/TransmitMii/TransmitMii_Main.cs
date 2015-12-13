@@ -27,7 +27,7 @@ namespace TransmitMii
 {
     public partial class TransmitMii_Main : Form
     {
-        const string version = "1.3"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
+        const string version = "1.3.1"; //Hint for myself: Never use a char in the Version (UpdateCheck)!
         private bool IsRunning = false;
         private string fileName;
         private string statusText;
@@ -103,7 +103,7 @@ namespace TransmitMii
             try
             {
                 WebClient GetVersion = new WebClient();
-                string NewVersion = GetVersion.DownloadString("http://customizemii.googlecode.com/svn/transmitmii-version.txt");
+                string NewVersion = GetVersion.DownloadString("https://raw.githubusercontent.com/Brawl345/customizemii/master/transmitmii-version.txt");
 
                 int newVersion = Convert.ToInt32(NewVersion.Replace(".", string.Empty).Length == 2 ? (NewVersion.Replace(".", string.Empty) + "0") : NewVersion.Replace(".", string.Empty));
                 int thisVersion = Convert.ToInt32(version.Replace(".", string.Empty).Length == 2 ? (version.Replace(".", string.Empty) + "0") : version.Replace(".", string.Empty));
@@ -115,7 +115,7 @@ namespace TransmitMii
                         "Update availabe", MessageBoxButtons.YesNo, MessageBoxIcon.Information) ==
                         DialogResult.Yes)
                     {
-                        Process.Start("http://code.google.com/p/customizemii/downloads/list");
+                        Process.Start("https://github.com/Brawl345/customizemii/releases");
                     }
                 }
             }
